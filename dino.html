@@ -15,6 +15,9 @@
       background: #f0f0f0;
       font-family: Arial, sans-serif;
     }
+    body.bg-dark #game {
+        background: #333; /* Dark gray background in dark mode */
+    }
     
     #game-container {
       position: relative;
@@ -35,23 +38,67 @@
     }
     
     #game-over-modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      z-index: 1000;
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white; /* Always white */
+  color: black; /* Always black text */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  z-index: 1000;
+  width: 300px;
+}
+
+#game-over-modal h2,
+#game-over-modal p {
+  color: black; /* Ensure text stays black */
+}
+
+    body.bg-dark .modal-content {
+    background-color: #222;
+    color: white;
+}
+
+body.bg-dark .modal-header, 
+body.bg-dark .modal-footer {
+    border-color: #444;
+}
+
+body.bg-dark .btn-close {
+    filter: invert(1);
     }
+
     
     #game-over-modal button {
       margin-top: 10px;
     }
   </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const body = document.body;
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark") {
+            body.classList.add("bg-dark", "text-light");
+        }
+
+        themeToggleBtn.addEventListener("click", function () {
+            body.classList.toggle("bg-dark");
+            body.classList.toggle("text-light");
+
+            if (body.classList.contains("bg-dark")) {
+                localStorage.setItem("theme", "dark");
+            } else {
+                localStorage.setItem("theme", "light");
+            }
+        });
+    });
+</script>
 </head>
 <body>
   <!-- Bootstrap Navbar -->
@@ -76,6 +123,7 @@
                     <a class="nav-link" href="carb-counter.html">Carb Counter</a>
                 </li>
             </ul>
+            <button id="theme-toggle" class="btn btn-outline-secondary ms-auto">Toggle Dark/Light Mode</button>
         </div>
     </div>
   </nav>

@@ -25,7 +25,34 @@
         .blog-content {
             text-align: justify;
         }
+        body.bg-dark .blog-container {
+            background: #222; /* Dark background for blog container */
+            color: white;
+            border: 1px solid #444; /* Optional: add a border to define the container */
+        }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggleBtn = document.getElementById("theme-toggle");
+            const body = document.body;
+            const savedTheme = localStorage.getItem("theme");
+
+            if (savedTheme === "dark") {
+                body.classList.add("bg-dark", "text-light");
+            }
+
+            themeToggleBtn.addEventListener("click", function () {
+                body.classList.toggle("bg-dark");
+                body.classList.toggle("text-light");
+
+                if (body.classList.contains("bg-dark")) {
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    localStorage.setItem("theme", "light");
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -49,6 +76,7 @@
                         <a class="nav-link" href="carb-counter.html">Carb Counter</a>
                     </li>
                 </ul>
+                <button id="theme-toggle" class="btn btn-outline-secondary ms-auto">Toggle Dark/Light Mode</button>
             </div>
         </div>
     </nav>
