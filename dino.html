@@ -169,7 +169,7 @@ body.bg-dark .btn-close {
       width: 50,
       height: 50,
       vy: 0,
-      jumpPower: -25,
+      jumpPower: -20,
       gravity: 0.8,
       grounded: true,
     };
@@ -181,15 +181,22 @@ body.bg-dark .btn-close {
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
-        dino.vy = dino.jumpPower;
-        dino.grounded = false;
+        dinoJump();
       }
     });
 
     window.addEventListener('click', () => {
-      dino.vy = dino.jumpPower;
-      dino.grounded = false;
+      dinoJump();
     });
+    document.addEventListener("touchstart", function () {
+      dinoJump();
+    });
+    function dinoJump(){
+      if (dino.grounded){
+        dino.vy = dino.jumpPower;
+      dino.grounded = false;
+      }
+    }
 
     function gameLoop() {
       if (gameOver) return;
