@@ -36,6 +36,24 @@
       font-size: 18px;
       font-weight: bold;
     }
+
+    #character-selection {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .character-option {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.3s;
+    }
+
+    .character-option.selected {
+      border-color: blue;
+    }
     
     #game-over-modal {
   display: none;
@@ -104,7 +122,7 @@ body.bg-dark .btn-close {
   <!-- Bootstrap Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">JakPotato</a>
+        <a class="navbar-brand" href="index.html">JakPotato</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -133,6 +151,12 @@ body.bg-dark .btn-close {
       <canvas id="game"></canvas>
       <div id="score">Score: 0</div>
     </div>
+
+    <div id="character-selection">
+      <img src="./assets/dino-1.png" class="character-option" data-src="./assets/dino-1.png">
+      <img src="./assets/dino-2.png" class="character-option selected" data-src="./assets/dino-2.png">
+      <img src="./assets/dino-3.png" class="character-option" data-src="./assets/dino-3.png">
+    </div>
   </div>
 
   <div id="game-over-modal">
@@ -147,12 +171,15 @@ body.bg-dark .btn-close {
     const ctx = canvas.getContext('2d');
     const gameOverModal = document.getElementById('game-over-modal');
     const finalScore = document.getElementById('final-score');
+    const characterOptions = document.querySelectorAll('.character-option');
+
 
     canvas.width = 800;
     canvas.height = 400;
 
-    const dinoImg = new Image();
-    dinoImg.src = './assets/dino-2.png';
+    let selectedDinoSrc = localStorage.getItem("selectedDino") || "./assets/dino-2.png";
+        let dinoImg = new Image();
+        dinoImg.src = selectedDinoSrc;
 
     const obstacleImgs = [
       './assets/obstacle1.png',
@@ -178,6 +205,20 @@ body.bg-dark .btn-close {
     let frameCount = 0;
     let score = 0;
     let gameOver = false;
+
+    characterOptions.forEach(option => {
+            option.addEventListener("click", function () {
+                document.querySelector(".selected")?.classList.remove("selected");
+                this.classList.add("selected");
+                selectedDinoSrc = this.getAttribute("data-src");
+                localStorage.setItem("selectedDino", selectedDinoSrc);
+                dinoImg.src = selectedDinoSrc;
+            });
+
+            if (option.getAttribute("data-src") === selectedDinoSrc) {
+                option.classList.add("selected");
+            }
+      });
 
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
