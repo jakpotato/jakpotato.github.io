@@ -92,25 +92,26 @@
                 const { day, time } = getCurrentTime();
                 const openStores = [];
                 const closedStores = [];
+                const futureStores = [];
 
                 stores.forEach(store => {
                     const todayHours = store.hours[day];
-                    let isOpen = false;
                     
                     todayHours.forEach(period => {
                         if (time >= period.open && time < period.close) {
-                            isOpen = true;
+                            openStores.push(store);
+                        }
+                        else if(time < period.close && time < period.open){
+                            futureStores.push(store);
+                        }
+                        else{ 
+                            closedStores.push(store);
                         }
                     });
-                    
-                    if (isOpen) {
-                        openStores.push(store);
-                    } else {
-                        closedStores.push(store);
-                    }
                 });
 
                 openStores.sort((a, b) => a.hours[day][0].close - b.hours[day][0].close);
+                futureStores.sort((a, b) => a.hours[day][0].open - b.hours[day][0].open);
                 closedStores.sort((a, b) => a.hours[day][0].open - b.hours[day][0].open);
 
                 const storeList = document.getElementById("store-list");
@@ -122,6 +123,15 @@
                         const todayHours = store.hours[day].map(period => `${formatTime(period.open)} - ${formatTime(period.close)}`).join(", ");
                         const saleNote = store.sale[day] ? `<br><strong>Sale:</strong> ${store.sale[day]}` : "";
                         storeList.innerHTML += `<div class='alert alert-success'>${store.name}: ${todayHours}<br><small>${store.note}${saleNote}</small></div>`;
+                    });
+                }
+
+                if (futureStores.length > 0) {
+                    storeList.innerHTML += "<h4>Future</h4>";
+                    futureStores.forEach(store => {
+                        const todayHours = store.hours[day].map(period => `${formatTime(period.open)} - ${formatTime(period.close)}`).join(", ");
+                        const saleNote = store.sale[day] ? `<br><strong>Sale:</strong> ${store.sale[day]}` : "";
+                        storeList.innerHTML += `<div class='alert alert-warning'>${store.name}: ${todayHours}<br><small>${store.note}${saleNote}</small></div>`;
                     });
                 }
                 
