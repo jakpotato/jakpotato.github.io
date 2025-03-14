@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfume Parody</title>
+    <style>
+        :root {
+            --perfume-name: "Bog Bodies"; /* Change this */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Playfair Display", serif;
+            color: white;
+            background: black;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* Background mist effect */
+        .mist {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vw;
+            height: 200vh;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 80%);
+            animation: mistFlow 6s infinite alternate ease-in-out;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes mistFlow {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Main content */
+        .container {
+            position: relative;
+            top: 10vh;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            animation: fadeIn 2s ease-out, textGlow 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 5px white; }
+            100% { text-shadow: 0 0 15px white; }
+        }
+
+        /* Bottle */
+        .bottle {
+            width: 150px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            margin: 50px auto;
+            position: relative;
+            overflow: hidden;
+            transform: scale(0);
+            animation: popIn 1.5s 1s forwards;
+        }
+
+        .cap {
+            width: 50px;
+            height: 30px;
+            background: gold;
+            border-radius: 5px;
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .liquid {
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, #8b4513, #a0522d);
+            position: absolute;
+            bottom: 0;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        /* Sections */
+        section {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fragrance {
+            animation-delay: 2s;
+        }
+
+        .meaning {
+            animation-delay: 2.5s;
+        }
+
+        .brand {
+            animation-delay: 3s;
+        }
+
+        .reviews {
+            animation-delay: 3.5s;
+        }
+
+        /* Customer reviews */
+        .review {
+            margin: 20px 0;
+            font-style: italic;
+            animation: textZoom 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes textZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05) rotate(1deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="mist"></div>
+    <div class="container">
+        <div class="title"><span id="perfume-name"></span></div>
+        <div class="bottle">
+            <div class="cap"></div>
+            <div class="liquid"></div>
+        </div>
+    </div>
+
+    <section class="fragrance">
+        <h2>Fragrance Notes</h2>
+        <p>A deep, musky base with hints of caramel and burnt wood. It combines the fregrance of decompostion and the after life in an uplifting alure.</p>
+    </section>
+
+    <section class="meaning">
+        <h2>The Meaning</h2>
+        <p>It is, what it is</p>
+    </section>
+
+    <section class="brand">
+        <h2>The Brand Story</h2>
+        <p>Founded on the principle that everything should smell expensive.Bog Bodies brings you closer to those that have passed centuries ago while also giving hints of class and elegance</p>
+    </section>
+
+    <section class="reviews">
+        <h2>Customer Reviews</h2>
+        <div class="review">"I don’t know what I just smelled, but I love it." - My Ex</div>
+        <div class="review">"This scent makes me feel mysterious and slightly concerned." - The person next to me on the train</div>
+        <div class="review">"A masterpiece of safistication and allure." - me </div>
+    </section>
+
+    <script>
+        document.getElementById("perfume-name").innerText = getComputedStyle(document.documentElement).getPropertyValue('--perfume-name').trim();
+    </script>
+</body>
+</html>
