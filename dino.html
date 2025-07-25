@@ -135,9 +135,6 @@ body.bg-dark .btn-close {
                     <a class="nav-link" href="dino.html">Dino</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="repo-run.html">Repo</a>
-              </li>
-                <li class="nav-item">
                     <a class="nav-link" href="blog.html">Blog</a>
                 </li>
                 <li class="nav-item">
@@ -157,7 +154,6 @@ body.bg-dark .btn-close {
 
     <div id="character-selection">
       <img src="./assets/dino-1.png" class="character-option" data-src="./assets/dino-1.png">
-      <img src="./assets/dino-2.png" class="character-option selected" data-src="./assets/dino-2.png">
       <img src="./assets/dino-3.png" class="character-option" data-src="./assets/dino-3.png">
     </div>
   </div>
@@ -180,7 +176,7 @@ body.bg-dark .btn-close {
     canvas.width = 800;
     canvas.height = 400;
 
-    let selectedDinoSrc = localStorage.getItem("selectedDino") || "./assets/dino-2.png";
+    let selectedDinoSrc = localStorage.getItem("selectedDino") || "./assets/dino-1.png";
         let dinoImg = new Image();
         dinoImg.src = selectedDinoSrc;
 
