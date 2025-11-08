@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Deal Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f7f9fb;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+  }
+  .container {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  input, select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+  }
+  .row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+  }
+  .row input, .row select {
+    flex: 1;
+  }
+  .weight-row {
+    flex: 1;
+    display: flex;
+    gap: 0.5rem;
+  }
+  button {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.7rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #0056b3;
+  }
+
+  /* Overlay styles */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 2rem;
+    box-sizing: border-box;
+    display: none; /* hidden by default */
+    flex-direction: column;
+    z-index: 1000;
+  }
+  .overlay h2 {
+    margin-bottom: 1rem;
+  }
+  .overlay p {
+    margin: 0.5rem 0;
+  }
+  .overlay .button-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+  .overlay button {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    color: white;
+  }
+  .edit-btn {
+    background: #28a745;
+  }
+  .edit-btn:hover {
+    background: #218838;
+  }
+  .clear-btn {
+    background: #dc3545;
+  }
+  .clear-btn:hover {
+    background: #c82333;
+  }
+  .item-section {
+    margin-bottom: 2rem; /* spacing between items */
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Smart Deal Calculator</h1>
+
+  <div class="item-section">
+    <h3>Item 1</h3>
+    <label>Price and Calories:</label>
+    <div class="row">
+      <input type="number" id="price1" step="0.01" placeholder="Price $">
+      <input type="number" id="calories1" step="1" placeholder="Calories">
+    </div>
+    <label>Weight:</label>
+    <div class="weight-row">
+      <input type="number" id="weight1" step="0.01" placeholder="Weight">
+      <select id="unit1">
+        <option value="g">grams</option>
+        <option value="kg">kilograms</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="item-section">
+    <h3>Item 2</h3>
+    <label>Price and Calories:</label>
+    <div class="row">
+      <input type="number" id="price2" step="0.01" placeholder="Price $">
+      <input type="number" id="calories2" step="1" placeholder="Calories">
+    </div>
+    <label>Weight:</label>
+    <div class="weight-row">
+      <input type="number" id="weight2" step="0.01" placeholder="Weight">
+      <select id="unit2">
+        <option value="g">grams</option>
+        <option value="kg">kilograms</option>
+      </select>
+    </div>
+  </div>
+
+  <button onclick="compareDeals()">Compare</button>
+</div>
+
+<!-- Overlay for results -->
+<div id="overlay" class="overlay">
+  <div id="overlayContent"></div>
+  <div class="button-row">
+    <button class="edit-btn" onclick="closeOverlay()">Edit</button>
+    <button class="clear-btn" onclick="clearAll()">Clear</button>
+  </div>
+</div>
+
+<script>
+function compareDeals() {
+  const price1 = parseFloat(document.getElementById('price1').value);
+  const calories1 = parseFloat(document.getElementById('calories1').value);
+  let weight1 = parseFloat(document.getElementById('weight1').value);
+  const unit1 = document.getElementById('unit1').value;
+
+  const price2 = parseFloat(document.getElementById('price2').value);
+  const calories2 = parseFloat(document.getElementById('calories2').value);
+  let weight2 = parseFloat(document.getElementById('weight2').value);
+  const unit2 = document.getElementById('unit2').value;
+
+  if (!price1 || !weight1 || !calories1 || !price2 || !weight2 || !calories2) {
+    alert('Please enter all values.');
+    return;
+  }
+
+  // Convert weights to kg
+  if (unit1 === 'g') weight1 /= 1000;
+  if (unit2 === 'g') weight2 /= 1000;
+
+  // Calculate price per kg
+  const pricePerKg1 = price1 / weight1;
+  const pricePerKg2 = price2 / weight2;
+
+  // Calculate price per calorie
+  const pricePerCal1 = price1 / calories1;
+  const pricePerCal2 = price2 / calories2;
+
+  // Determine best deals
+  const bestByWeight = pricePerKg1 < pricePerKg2 ? 'Item 1' : (pricePerKg2 < pricePerKg1 ? 'Item 2' : 'Both');
+  const bestByCalories = pricePerCal1 < pricePerCal2 ? 'Item 1' : (pricePerCal2 < pricePerCal1 ? 'Item 2' : 'Both');
+
+  // Overall simple scoring
+  const score1 = (pricePerKg1 < pricePerKg2 ? 1 : 2) + (pricePerCal1 < pricePerCal2 ? 1 : 2);
+  const score2 = (pricePerKg2 < pricePerKg1 ? 1 : 2) + (pricePerCal2 < pricePerCal1 ? 1 : 2);
+  let overallBest = '';
+  if (score1 < score2) overallBest = 'Item 1';
+  else if (score2 < score1) overallBest = 'Item 2';
+  else overallBest = 'Both items are equally good';
+
+  // Show overlay
+  const overlay = document.getElementById('overlay');
+  const overlayContent = document.getElementById('overlayContent');
+  overlayContent.innerHTML = `
+    <h2>Comparison Results</h2>
+    <p><b>Best by price per weight:</b> ${bestByWeight} ($${pricePerKg1.toFixed(2)}/kg vs $${pricePerKg2.toFixed(2)}/kg)</p>
+    <p><b>Best by price per calorie:</b> ${bestByCalories} ($${pricePerCal1.toFixed(4)}/cal vs $${pricePerCal2.toFixed(4)}/cal)</p>
+    <p><b>Overall best deal:</b> ${overallBest}</p>
+  `;
+  overlay.style.display = 'flex';
+}
+
+function closeOverlay() {
+  document.getElementById('overlay').style.display = 'none';
+}
+
+function clearAll() {
+  closeOverlay();
+  document.querySelectorAll('input').forEach(input => input.value = '');
+  document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+}
+</script>
+</body>
+</html>
