@@ -14,13 +14,6 @@
   --key: #e5e7eb;
   --correct: #22c55e;
   --wrong: #f97316;
-
-  --key-size: 42px;
-  --key-gap: 6px;
-}
-
-@media (max-width: 480px) {
-  :root { --key-size: 36px; }
 }
 
 [data-theme="dark"] {
@@ -33,35 +26,38 @@
   --wrong: #fb923c;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  padding: 16px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  justify-content: center;
+@keyframes reveal {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
 }
 
-.app { width: 100%; max-width: 480px; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 140px;
+}
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
 }
 
 .card {
   background: var(--card);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
-
-h1 { margin: 0; font-size: 1.25rem; }
 
 .controls { margin-bottom: 12px; }
 
@@ -73,49 +69,93 @@ input[type="date"], button {
   color: var(--text);
 }
 
-button { cursor: pointer; }
+.question { font-size: 1.1rem; margin-bottom: 12px; }
 
-.question { font-size: 1.1rem; margin-bottom: 16px; text-align: center; }
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
 
-.answer { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+.word {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
 
 .letter {
-  width: 32px;
-  height: 40px;
-  margin: 3px;
-  font-size: 1.4rem;
+  min-width: 36px;
+  height: 44px;
+  font-size: 1.5rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.hidden { border-bottom: 2px solid var(--muted); }
-.space { width: 16px; }
+.hidden {
+  border-bottom: 3px solid var(--muted);
+}
 
-.keyboard { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.key-row { display: flex; justify-content: center; gap: 6px; }
-.key {
-  width: var(--key-size);
-  height: var(--key-size);
-  border-radius: 10px;
-  background: var(--key);
+.revealed {
+  animation: reveal 0.25s ease-out;
+}
+
+.score {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.meta {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.explanation {
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* Keyboard */
+.keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  padding: 12px 8px 16px;
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+}
+
+.key-row {
   display: flex;
-  align-items: center;
   justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.key {
+  flex: 1;
+  max-width: 42px;
+  padding: 12px 0;
+  border-radius: 8px;
+  background: var(--key);
+  text-align: center;
   font-weight: 600;
   user-select: none;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: all 0.2s ease;
 }
 
 .key.correct { background: var(--correct); color: white; }
-.key.wrong { background: var(--wrong); color: white; transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-.key.disabled { cursor: default; }
-
-.meta { text-align: center; font-size: 0.9rem; color: var(--muted); }
-.explanation { margin-top: 12px; font-style: italic; text-align: center; }
-.notice { text-align: center; padding: 16px; }
+.key.wrong {
+  background: var(--wrong);
+  color: white;
+  transform: translateY(2px);
+}
+.key.disabled { pointer-events: none; }
 </style>
 </head>
 
@@ -128,130 +168,149 @@ button { cursor: pointer; }
 
   <div class="card">
     <div class="controls">
-      <input type="date" id="datePicker" />
+      <input type="date" id="datePicker">
     </div>
 
-    <div id="content">
-      <div class="question" id="question"></div>
-      <div class="answer" id="answer"></div>
-      <div class="keyboard" id="keyboard"></div>
-      <div class="meta" id="status"></div>
-      <div class="meta" id="score"></div>
-      <div class="explanation" id="explanation"></div>
-    </div>
-
-    <div class="notice" id="notice" style="display:none;"></div>
+    <div class="question" id="question"></div>
+    <div class="answer" id="answer"></div>
+    <div class="score" id="score"></div>
+    <div class="meta" id="meta"></div>
+    <div class="explanation" id="explanation"></div>
   </div>
 </div>
 
+<div class="keyboard" id="keyboard"></div>
+
 <script>
-const KEYBOARD_ROWS = [
-  "qwertyuiop",
-  "asdfghjkl",
-  "zxcvbnm"
-];
-
+const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
 const today = new Date().toISOString().slice(0,10);
-let facts = {};
-let current, revealed, points = 0;
+let facts = {}, current, revealed=[], prevRevealed=[], points=0;
 
-async function loadFacts() {
-  const res = await fetch("facts.txt");
-  const text = await res.text();
-  text.split("\n").forEach(line => {
-    if(!line.trim()) return;
-    const [date,q,a,e] = line.split("|").map(v=>v.trim());
-    facts[date] = { date,q,a,e };
+async function loadFacts(){
+  const res=await fetch("facts.txt");
+  const text=await res.text();
+  text.split("\n").forEach(line=>{
+    if(!line.trim())return;
+    const [date,q,a,e]=line.split("|").map(s=>s.trim());
+    facts[date]={date,q,a,e};
   });
 }
 
-function keyFor(date){ return `fact-${date}`; }
-function saveResult(date){ localStorage.setItem(keyFor(date), JSON.stringify({completed:true,points})); }
-function loadResult(date){ const raw=localStorage.getItem(keyFor(date)); return raw?JSON.parse(raw):null; }
+function key(date){return `fact-${date}`;}
+function saved(date){return JSON.parse(localStorage.getItem(key(date))||"null");}
+function save(date){localStorage.setItem(key(date),JSON.stringify({completed:true,points}));}
 
-function renderKeyboard(disabled){
-  const kb=document.getElementById("keyboard"); kb.innerHTML="";
-  KEYBOARD_ROWS.forEach(row=>{
-    const rowEl=document.createElement("div"); rowEl.className="key-row";
-    row.split("").forEach(l=>{
-      const k=document.createElement("div");
-      k.className="key"; k.textContent=l.toUpperCase();
-      if(disabled) k.classList.add("disabled");
-      else k.onclick=()=>guessLetter(l,k);
-      rowEl.appendChild(k);
-    });
-    kb.appendChild(rowEl);
-  });
-}
-
-function renderAnswer(){
-  const el=document.getElementById("answer"); el.innerHTML="";
-  current.a.split("").forEach((ch,i)=>{
-    const d=document.createElement("div"); d.className="letter";
-    if(ch===" ") d.classList.add("space");
-    else if(revealed[i]) d.textContent = ch.toUpperCase();
-    else d.classList.add("hidden");
-    el.appendChild(d);
-  });
-}
-
-function updateScore(){ document.getElementById("score").textContent = `Score: ${points}`; }
-
-function guessLetter(letter,key){
-  if(key.classList.contains("disabled")) return;
-  let hit=false;
-  current.a.toLowerCase().split("").forEach((ch,i)=>{if(ch===letter){revealed[i]=true;hit=true;}});
-  key.classList.add(hit?"correct":"wrong","disabled");
-  points += hit?1:-1;
-  renderAnswer(); updateScore();
-  if(revealed.every(v=>v)){
-    document.getElementById("status").textContent="✔ Completed";
-    document.getElementById("explanation").textContent=current.e;
-    document.querySelectorAll(".key").forEach(k=>k.classList.add("disabled"));
-    saveResult(current.date);
-  }
-}
-
-function loadDay(date){
-  const notice=document.getElementById("notice");
-  const content=document.getElementById("content");
-  if(!facts[date]){
-    content.style.display="none"; notice.style.display="block";
-    notice.textContent="No fact exists for this date yet.";
-    return;
-  }
-  notice.style.display="none"; content.style.display="block";
+function start(date){
   current=facts[date];
-  revealed=current.a.split("").map(ch=>ch===" ");
+  const s=saved(date);
   points=0;
+
   document.getElementById("question").textContent=current.q;
   document.getElementById("explanation").textContent="";
-  document.getElementById("status").textContent="";
-  const saved=loadResult(date);
-  if(saved?.completed){ revealed=revealed.map(()=>true); points=saved.points;
-    document.getElementById("status").textContent="✔ Completed";
+  document.getElementById("meta").textContent="";
+
+  revealed=current.a.split("").map(ch=>ch===" ");
+  prevRevealed=[...revealed];
+
+  if(s?.completed){
+    revealed=revealed.map(()=>true);
+    points=s.points;
+    document.getElementById("meta").textContent="✔ Completed";
     document.getElementById("explanation").textContent=current.e;
-    renderKeyboard(true);
-  } else renderKeyboard(false);
-  renderAnswer(); updateScore();
+    buildKeyboard(true);
+  } else buildKeyboard(false);
+
+  drawAnswer();
+  updateScore();
 }
 
-function initDarkMode(){
-  const saved=localStorage.getItem("theme") || "light";
-  document.documentElement.dataset.theme=saved;
-  document.getElementById("darkToggle").onclick=()=>{
-    const next=document.documentElement.dataset.theme==="dark"?"light":"dark";
-    document.documentElement.dataset.theme=next;
-    localStorage.setItem("theme",next);
-  };
+function drawAnswer(){
+  const wrap=document.getElementById("answer");
+  wrap.innerHTML="";
+  let index=0;
+
+  current.a.split(" ").forEach(word=>{
+    const row=document.createElement("div");
+    row.className="word";
+
+    word.split("").forEach(ch=>{
+      const d=document.createElement("div");
+      d.className="letter";
+
+      if(revealed[index]){
+        d.textContent=ch.toUpperCase();
+        if(!prevRevealed[index]) d.classList.add("revealed");
+      } else {
+        d.classList.add("hidden");
+      }
+      index++;
+      row.appendChild(d);
+    });
+
+    wrap.appendChild(row);
+    index++; // space
+  });
+
+  prevRevealed=[...revealed];
 }
 
-(async function init(){
-  initDarkMode();
+function buildKeyboard(disabled){
+  const kb=document.getElementById("keyboard");
+  kb.innerHTML="";
+  QWERTY.forEach(row=>{
+    const r=document.createElement("div");
+    r.className="key-row";
+    row.split("").forEach(l=>{
+      const k=document.createElement("div");
+      k.className="key";
+      k.textContent=l.toUpperCase();
+      if(!disabled) k.onclick=()=>guess(l,k);
+      else k.classList.add("disabled");
+      r.appendChild(k);
+    });
+    kb.appendChild(r);
+  });
+}
+
+function guess(letter,key){
+  let hit=false;
+  current.a.toLowerCase().split("").forEach((ch,i)=>{
+    if(ch===letter){revealed[i]=true;hit=true;}
+  });
+
+  key.classList.add(hit?"correct":"wrong","disabled");
+  points+=hit?1:-1;
+
+  drawAnswer();
+  updateScore();
+
+  if(revealed.every(v=>v)){
+    document.getElementById("explanation").textContent=current.e;
+    document.getElementById("meta").textContent="🎉 Answer revealed!";
+    document.querySelectorAll(".key").forEach(k=>k.classList.add("disabled"));
+    save(current.date);
+  }
+}
+
+function updateScore(){
+  document.getElementById("score").textContent=`Score: ${points}`;
+}
+
+document.getElementById("darkToggle").onclick=()=>{
+  const t=document.documentElement.dataset.theme==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=t;
+  localStorage.setItem("theme",t);
+};
+
+(async()=>{
+  const t=localStorage.getItem("theme");
+  if(t)document.documentElement.dataset.theme=t;
+
   await loadFacts();
   const picker=document.getElementById("datePicker");
-  picker.value=today; picker.max=today; picker.onchange=()=>loadDay(picker.value);
-  loadDay(today);
+  picker.value=today; picker.max=today;
+  picker.onchange=()=>start(picker.value);
+  start(today);
 })();
 </script>
 </body>

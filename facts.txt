@@ -1,3 +1,31 @@
-2026-01-01 | What is the longest animal? | blue whale | The blue whale can reach nearly 100 feet and is the largest animal to ever exist.
-2026-01-02 | Which planet is closest to the sun? | mercury | Mercury orbits closest to the Sun and completes a year in just 88 days.
-2026-01-03 | What is the fastest land animal? | cheetah | Cheetahs can sprint up to 70 mph for short distances.
+2026-01-01 | What is the longest animal to have ever lived? | Blue whale | The blue whale can reach nearly 100 feet in length and outweigh even the largest dinosaurs, making it the biggest animal known to have existed.
+2026-01-02 | Which planet rains diamonds? | Neptune | Scientists believe extreme pressure and heat on Neptune cause carbon to crystallize into diamonds that fall like rain deep inside the planet.
+2026-01-03 | What everyday object was originally invented for astronauts? | Memory foam | Memory foam was developed by NASA to improve seat cushioning and crash protection for astronauts during launch.
+2026-01-04 | Which animal can survive being frozen solid? | Wood frog | The wood frog can freeze completely during winter, stopping its heart and breathing, then thaw back to life in spring.
+2026-01-05 | What is the only letter not used in the periodic table? | J | No chemical element uses the letter J in its English name, making it unique among the alphabet.
+2026-01-06 | Which sport was once played on horseback by ancient Persians? | Polo | Polo originated over 2,000 years ago as cavalry training for Persian soldiers before becoming a modern sport.
+2026-01-07 | What food never spoils? | Honey | Honey can remain edible for thousands of years due to its low moisture and natural acidity, which prevent bacteria from growing.
+2026-01-08 | Which animal has fingerprints nearly identical to humans? | Koala | Koala fingerprints are so similar to humans that they have confused crime scene investigators in the past.
+2026-01-09 | What was the first vehicle to exceed 1,000 mph? | ThrustSSC | In 1997, the jet-powered ThrustSSC became the first land vehicle to officially break the sound barrier.
+2026-01-10 | Which fictional language has a full working grammar? | Klingon | Klingon was deliberately designed with complex grammar and vocabulary and is taught and spoken by dedicated fans.
+2026-01-11 | What part of the human body has no blood supply? | Cornea | The cornea receives oxygen directly from the air, which helps keep it transparent for clear vision.
+2026-01-12 | Which animal has three hearts? | Octopus | Two hearts pump blood to the gills, while the third circulates blood to the rest of the body.
+2026-01-13 | What invention caused a spike in broken legs in Victorian England? | The penny-farthing bicycle | Its huge front wheel and lack of brakes made falls frequent and often dangerous.
+2026-01-14 | What is the most common wild bird on Earth? | Red-billed quelea | These small African birds form flocks numbering in the millions, making them the most abundant wild bird species.
+2026-01-15 | Which country has the most pyramids? | Sudan | Sudan has more pyramids than Egypt, though they are generally smaller and less well known.
+2026-01-16 | What substance were early golf balls filled with? | Feathers | Featherie golf balls were made by stuffing wet feathers into leather, which hardened as they dried.
+2026-01-17 | Which mammal has the strongest bite force relative to its size? | Tasmanian devil | Despite its small size, the Tasmanian devil has an extremely powerful jaw for crushing bone.
+2026-01-18 | What was the original purpose of bubble wrap? | Wallpaper | Bubble wrap was first marketed as textured wallpaper before finding success as packaging material.
+2026-01-19 | Which planet rotates on its side? | Uranus | Uranus is tilted about 98 degrees, likely due to a massive collision early in its history.
+2026-01-20 | What common household spice was once worth more than gold? | Pepper | During the Middle Ages, black pepper was so valuable it was used as currency and a symbol of wealth.
+2026-01-21 | Which animal can taste with its feet? | Butterfly | Butterflies have taste receptors on their feet, allowing them to identify suitable plants for laying eggs.
+2026-01-22 | What was the first video game played in space? | Tetris | Astronaut Aleksandr Serebrov brought a Game Boy aboard the Mir space station in 1993.
+2026-01-23 | Which human sense is strongest at birth? | Smell | Newborns rely heavily on smell to recognize their parents and locate food.
+2026-01-24 | What object travels faster: light or gravity? | Light | Changes in gravity propagate at the speed of light, according to Einstein’s theory of relativity.
+2026-01-25 | Which car company started by making sewing machines? | Toyota | Toyota began as a textile machinery company before transitioning into automobiles.
+2026-01-26 | What animal can live longer than some trees? | Greenland shark | Greenland sharks can live over 250 years, making them the longest-living vertebrates known.
+2026-01-27 | Which language has no words for left or right? | Guugu Yimithirr | Speakers use cardinal directions instead, saying things like “north” or “south” instead of left or right.
+2026-01-28 | What was the first food eaten on the Moon? | Bacon | Astronauts on Apollo 11 ate bacon cubes as part of their first lunar meal.
+2026-01-29 | Which planet has the shortest day? | Jupiter | Jupiter rotates once roughly every 10 hours, despite being the largest planet in the solar system.
+2026-01-30 | What everyday action burns more calories than walking? | Laughing | Laughing increases heart rate and muscle activity, slightly boosting calorie burn.
+2026-01-31 | What animal never stops growing? | Lobster | Lobsters continue to grow throughout their lives and only stop due to injury, disease, or lack of energy to molt.
