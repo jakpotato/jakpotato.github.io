@@ -15,6 +15,7 @@
   --key-disabled: #9ca3af;
   --correct: #22c55e; /* green */
   --wrong: #f97316; /* muted orange */
+  --key-size: 42px;
 }
 
 [data-theme="dark"] {
@@ -72,9 +73,23 @@ button { cursor: pointer; }
 
 .hidden { border-bottom: 2px solid var(--muted); }
 .space { width: 16px; }
+@media (max-width: 480px) {
+  :root {
+    --key-size: 36px;
+  }
+}
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
 
-.keyboard { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.key-row { display: flex; justify-content: center; gap: 6px; }
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
 .key {
   width: var(--key-size);
   height: var(--key-size);
@@ -89,9 +104,16 @@ button { cursor: pointer; }
   transition: all 0.2s ease;
 }
 .key.disabled { cursor: default; }
-.key.correct { background: var(--correct); color: white; }
-.key.wrong { background: var(--wrong); color: white; transform: translateY(1px); }
-
+.key.correct {
+  background: var(--correct);
+  color: white;
+}
+.key.wrong {
+  background: var(--wrong);
+  color: white;
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+}
 .meta { margin-top: 4px; text-align: center; font-size: 0.9rem; color: var(--muted); }
 .explanation { margin-top: 12px; font-style: italic; }
 
