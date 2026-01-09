@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Daily Fun Fact</title>
 
 <style>
@@ -19,6 +19,12 @@
   --key-gap: 6px;
 }
 
+@media (max-width: 480px) {
+  :root {
+    --key-size: 36px;
+  }
+}
+
 [data-theme="dark"] {
   --bg: #0f172a;
   --card: #020617;
@@ -29,24 +35,16 @@
   --wrong: #fb923c;
 }
 
-@media (max-width: 480px) {
-  :root {
-    --key-size: 36px;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
+  padding: 16px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
   justify-content: center;
-  padding: 16px;
 }
 
 .app {
@@ -61,15 +59,6 @@ body {
   margin-bottom: 12px;
 }
 
-button {
-  background: var(--key);
-  border: none;
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor: pointer;
-  color: var(--text);
-}
-
 .card {
   background: var(--card);
   border-radius: 16px;
@@ -77,18 +66,24 @@ button {
   box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
+h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
 .controls {
   margin-bottom: 12px;
 }
 
-input[type="date"] {
-  width: 100%;
+input[type="date"], button {
   padding: 8px 10px;
   border-radius: 10px;
   border: none;
   background: var(--key);
   color: var(--text);
 }
+
+button { cursor: pointer; }
 
 .question {
   font-size: 1.1rem;
@@ -122,6 +117,7 @@ input[type="date"] {
   width: 16px;
 }
 
+/* 🔑 FIXED KEYBOARD (GRID) */
 .keyboard {
   display: grid;
   grid-template-columns: repeat(10, var(--key-size));
@@ -139,17 +135,9 @@ input[type="date"] {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  cursor: pointer;
   user-select: none;
-  transition: all 0.15s ease;
-}
-
-.key.spacer {
-  visibility: hidden;
-}
-
-.key.disabled {
-  cursor: default;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .key.correct {
@@ -161,7 +149,15 @@ input[type="date"] {
   background: var(--wrong);
   color: white;
   transform: translateY(2px);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.key.disabled {
+  cursor: default;
+}
+
+.key.spacer {
+  visibility: hidden;
 }
 
 .meta {
@@ -192,7 +188,7 @@ input[type="date"] {
 
   <div class="card">
     <div class="controls">
-      <input type="date" id="datePicker">
+      <input type="date" id="datePicker" />
     </div>
 
     <div id="content">
@@ -200,7 +196,7 @@ input[type="date"] {
       <div class="answer" id="answer"></div>
       <div class="keyboard" id="keyboard"></div>
       <div class="meta" id="status"></div>
-      <div class="meta" id="points"></div>
+      <div class="meta" id="score"></div>
       <div class="explanation" id="explanation"></div>
     </div>
 
@@ -217,55 +213,29 @@ const KEYBOARD_LAYOUT = [
 
 const today = new Date().toISOString().slice(0,10);
 let facts = {};
-let current;
-let revealed = [];
-let points = 0;
-
-function storageKey(date) {
-  return `fact-${date}`;
-}
-
-function loadSaved(date) {
-  const raw = localStorage.getItem(storageKey(date));
-  return raw ? JSON.parse(raw) : null;
-}
-
-function saveCompleted(date) {
-  localStorage.setItem(storageKey(date), JSON.stringify({
-    completed: true,
-    points
-  }));
-}
+let current, revealed, points = 0;
 
 async function loadFacts() {
   const res = await fetch("facts.txt");
   const text = await res.text();
-
   text.split("\n").forEach(line => {
     if (!line.trim()) return;
-    const [date, q, a, e] = line.split("|").map(s => s.trim());
+    const [date, q, a, e] = line.split("|").map(v => v.trim());
     facts[date] = { date, q, a, e };
   });
 }
 
-function renderAnswer() {
-  const el = document.getElementById("answer");
-  el.innerHTML = "";
+function keyFor(date) {
+  return `fact-${date}`;
+}
 
-  current.a.split("").forEach((ch, i) => {
-    const d = document.createElement("div");
-    d.className = "letter";
+function saveResult(date) {
+  localStorage.setItem(keyFor(date), JSON.stringify({ completed: true, points }));
+}
 
-    if (ch === " ") {
-      d.classList.add("space");
-    } else if (revealed[i]) {
-      d.textContent = ch.toUpperCase();
-    } else {
-      d.classList.add("hidden");
-    }
-
-    el.appendChild(d);
-  });
+function loadResult(date) {
+  const raw = localStorage.getItem(keyFor(date));
+  return raw ? JSON.parse(raw) : null;
 }
 
 function renderKeyboard(disabled) {
@@ -273,22 +243,42 @@ function renderKeyboard(disabled) {
   kb.innerHTML = "";
 
   KEYBOARD_LAYOUT.join("").split("").forEach(ch => {
-    const k = document.createElement("div");
+    const key = document.createElement("div");
 
     if (ch === " ") {
-      k.className = "key spacer";
+      key.className = "key spacer";
     } else {
-      k.className = "key";
-      if (disabled) k.classList.add("disabled");
-      k.textContent = ch.toUpperCase();
-      k.onclick = () => handleGuess(ch, k);
+      key.className = "key";
+      key.textContent = ch.toUpperCase();
+      if (!disabled) {
+        key.onclick = () => guessLetter(ch, key);
+      } else {
+        key.classList.add("disabled");
+      }
     }
 
-    kb.appendChild(k);
+    kb.appendChild(key);
   });
 }
 
-function handleGuess(letter, key) {
+function renderAnswer() {
+  const el = document.getElementById("answer");
+  el.innerHTML = "";
+  current.a.split("").forEach((ch, i) => {
+    const d = document.createElement("div");
+    d.className = "letter";
+    if (ch === " ") d.classList.add("space");
+    else if (revealed[i]) d.textContent = ch.toUpperCase();
+    else d.classList.add("hidden");
+    el.appendChild(d);
+  });
+}
+
+function updateScore() {
+  document.getElementById("score").textContent = `Score: ${points}`;
+}
+
+function guessLetter(letter, key) {
   if (key.classList.contains("disabled")) return;
 
   let hit = false;
@@ -299,47 +289,43 @@ function handleGuess(letter, key) {
     }
   });
 
-  key.classList.add("disabled", hit ? "correct" : "wrong");
+  key.classList.add(hit ? "correct" : "wrong", "disabled");
   points += hit ? 1 : -1;
-  updatePoints();
+
   renderAnswer();
+  updateScore();
 
   if (revealed.every(v => v)) {
     document.getElementById("status").textContent = "✔ Completed";
     document.getElementById("explanation").textContent = current.e;
     document.querySelectorAll(".key").forEach(k => k.classList.add("disabled"));
-    saveCompleted(current.date);
+    saveResult(current.date);
   }
 }
 
-function updatePoints() {
-  document.getElementById("points").textContent = `Score: ${points}`;
-}
-
-function startFact(date) {
+function loadDay(date) {
   const notice = document.getElementById("notice");
   const content = document.getElementById("content");
+
+  if (!facts[date]) {
+    content.style.display = "none";
+    notice.style.display = "block";
+    notice.textContent = "No fact exists for this date yet.";
+    return;
+  }
 
   notice.style.display = "none";
   content.style.display = "block";
 
-  if (!facts[date]) {
-    const first = Object.keys(facts).sort()[0];
-    content.style.display = "none";
-    notice.style.display = "block";
-    notice.textContent = `No fact for this date. First fact is on ${first}.`;
-    return;
-  }
-
   current = facts[date];
-  revealed = current.a.split("").map(c => c === " ");
+  revealed = current.a.split("").map(ch => ch === " ");
   points = 0;
 
   document.getElementById("question").textContent = current.q;
-  document.getElementById("status").textContent = "";
   document.getElementById("explanation").textContent = "";
+  document.getElementById("status").textContent = "";
 
-  const saved = loadSaved(date);
+  const saved = loadResult(date);
   if (saved?.completed) {
     revealed = revealed.map(() => true);
     points = saved.points;
@@ -351,12 +337,12 @@ function startFact(date) {
   }
 
   renderAnswer();
-  updatePoints();
+  updateScore();
 }
 
-function initTheme() {
-  const saved = localStorage.getItem("theme");
-  document.documentElement.dataset.theme = saved || "light";
+function initDarkMode() {
+  const saved = localStorage.getItem("theme") || "light";
+  document.documentElement.dataset.theme = saved;
   document.getElementById("darkToggle").onclick = () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -365,15 +351,15 @@ function initTheme() {
 }
 
 (async function init() {
-  initTheme();
+  initDarkMode();
   await loadFacts();
 
   const picker = document.getElementById("datePicker");
   picker.value = today;
   picker.max = today;
-  picker.onchange = () => startFact(picker.value);
+  picker.onchange = () => loadDay(picker.value);
 
-  startFact(today);
+  loadDay(today);
 })();
 </script>
 </body>
