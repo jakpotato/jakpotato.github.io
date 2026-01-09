@@ -1,0 +1,3 @@
+2026-01-01 | What is the longest animal? | blue whale | The blue whale can reach nearly 100 feet and is the largest animal to ever exist.
+2026-01-02 | Which planet is closest to the sun? | mercury | Mercury orbits closest to the Sun and completes a year in just 88 days.
+2026-01-03 | What is the fastest land animal? | cheetah | Cheetahs can sprint up to 70 mph for short distances.
