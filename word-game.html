@@ -76,8 +76,16 @@ button { cursor: pointer; }
 .keyboard { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .key-row { display: flex; justify-content: center; gap: 6px; }
 .key {
-  flex: 1; max-width: 40px; padding: 10px 0; border-radius: 8px;
-  background: var(--key); text-align: center; font-weight: 600; cursor: pointer; user-select: none;
+  width: var(--key-size);
+  height: var(--key-size);
+  border-radius: 10px;
+  background: var(--key);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
   transition: all 0.2s ease;
 }
 .key.disabled { cursor: default; }
