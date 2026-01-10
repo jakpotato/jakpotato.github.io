@@ -1,31 +1,31 @@
-2026-01-01 | What is the longest animal to have ever lived? | Blue whale | The blue whale can reach nearly 100 feet in length and outweigh even the largest dinosaurs, making it the biggest animal known to have existed.
-2026-01-02 | Which planet rains diamonds? | Neptune | Scientists believe extreme pressure and heat on Neptune cause carbon to crystallize into diamonds that fall like rain deep inside the planet.
-2026-01-03 | What everyday object was originally invented for astronauts? | Memory foam | Memory foam was developed by NASA to improve seat cushioning and crash protection for astronauts during launch.
-2026-01-04 | Which animal can survive being frozen solid? | Wood frog | The wood frog can freeze completely during winter, stopping its heart and breathing, then thaw back to life in spring.
-2026-01-05 | What is the only letter not used in the periodic table? | J | No chemical element uses the letter J in its English name, making it unique among the alphabet.
-2026-01-06 | Which sport was once played on horseback by ancient Persians? | Polo | Polo originated over 2,000 years ago as cavalry training for Persian soldiers before becoming a modern sport.
-2026-01-07 | What food never spoils? | Honey | Honey can remain edible for thousands of years due to its low moisture and natural acidity, which prevent bacteria from growing.
-2026-01-08 | Which animal has fingerprints nearly identical to humans? | Koala | Koala fingerprints are so similar to humans that they have confused crime scene investigators in the past.
-2026-01-09 | What was the first vehicle to exceed 1,000 mph? | ThrustSS | In 1997, the jet-powered ThrustSSC became the first land vehicle to officially break the sound barrier.
-2026-01-10 | Which fictional language has a full working grammar? | Klingon | Klingon was deliberately designed with complex grammar and vocabulary and is taught and spoken by dedicated fans.
-2026-01-11 | What part of the human body has no blood supply? | Cornea | The cornea receives oxygen directly from the air, which helps keep it transparent for clear vision.
-2026-01-12 | Which animal has three hearts? | Octopus | Two hearts pump blood to the gills, while the third circulates blood to the rest of the body.
-2026-01-13 | What invention caused a spike in broken legs in Victorian England? | The penny-farthing bicycle | Its huge front wheel and lack of brakes made falls frequent and often dangerous.
-2026-01-14 | What is the most common wild bird on Earth? | Red-billed quelea | These small African birds form flocks numbering in the millions, making them the most abundant wild bird species.
-2026-01-15 | Which country has the most pyramids? | Sudan | Sudan has more pyramids than Egypt, though they are generally smaller and less well known.
-2026-01-16 | What substance were early golf balls filled with? | Feathers | Featherie golf balls were made by stuffing wet feathers into leather, which hardened as they dried.
-2026-01-17 | Which mammal has the strongest bite force relative to its size? | Tasmanian devil | Despite its small size, the Tasmanian devil has an extremely powerful jaw for crushing bone.
-2026-01-18 | What was the original purpose of bubble wrap? | Wallpaper | Bubble wrap was first marketed as textured wallpaper before finding success as packaging material.
-2026-01-19 | Which planet rotates on its side? | Uranus | Uranus is tilted about 98 degrees, likely due to a massive collision early in its history.
-2026-01-20 | What common household spice was once worth more than gold? | Pepper | During the Middle Ages, black pepper was so valuable it was used as currency and a symbol of wealth.
-2026-01-21 | Which animal can taste with its feet? | Butterfly | Butterflies have taste receptors on their feet, allowing them to identify suitable plants for laying eggs.
-2026-01-22 | What was the first video game played in space? | Tetris | Astronaut Aleksandr Serebrov brought a Game Boy aboard the Mir space station in 1993.
-2026-01-23 | Which human sense is strongest at birth? | Smell | Newborns rely heavily on smell to recognize their parents and locate food.
-2026-01-24 | What object travels faster: light or gravity? | Light | Changes in gravity propagate at the speed of light, according to Einstein’s theory of relativity.
-2026-01-25 | Which car company started by making sewing machines? | Toyota | Toyota began as a textile machinery company before transitioning into automobiles.
-2026-01-26 | What animal can live longer than some trees? | Greenland shark | Greenland sharks can live over 250 years, making them the longest-living vertebrates known.
-2026-01-27 | Which language has no words for left or right? | Guugu Yimithirr | Speakers use cardinal directions instead, saying things like “north” or “south” instead of left or right.
-2026-01-28 | What was the first food eaten on the Moon? | Bacon | Astronauts on Apollo 11 ate bacon cubes as part of their first lunar meal.
-2026-01-29 | Which planet has the shortest day? | Jupiter | Jupiter rotates once roughly every 10 hours, despite being the largest planet in the solar system.
-2026-01-30 | What everyday action burns more calories than walking? | Laughing | Laughing increases heart rate and muscle activity, slightly boosting calorie burn.
-2026-01-31 | What animal never stops growing? | Lobster | Lobsters continue to grow throughout their lives and only stop due to injury, disease, or lack of energy to molt.
+2026-01-01 | What is the longest animal? | Blue whale | The blue whale can reach nearly 100 feet and is the largest animal to ever exist.
+2026-01-02 | What is the fastest land animal? | Cheetah | Cheetahs can sprint up to 70 mph in short bursts, making them the fastest land animals.
+2026-01-03 | Which planet is known as the red planet? | Mars | Mars appears red because of iron oxide, or rust, on its surface.
+2026-01-04 | What gas do humans breathe out? | Carbon | Humans exhale carbon dioxide, a byproduct of metabolism.
+2026-01-05 | Which bird can mimic human speech? | Parrot | Parrots have vocal learning abilities allowing them to imitate sounds and speech.
+2026-01-06 | What is the largest organ in the human body? | Skin | Skin covers the body and acts as a protective barrier against infection.
+2026-01-07 | Which famous detective never existed in real life? | Sherlock Holmes | Sherlock Holmes is a fictional detective created by Arthur Conan Doyle.
+2026-01-08 | What is the largest planet in the solar system? | Jupiter | Jupiter is the largest planet, a gas giant with a mass over 300 times that of Earth.
+2026-01-09 | Which animal carries its young in a pouch? | Kangaroo | Kangaroos are marsupials, raising their young in a pouch after birth.
+2026-01-10 | What is the hottest planet in our solar system? | Venus | Venus has a thick atmosphere trapping heat, making it hotter than Mercury.
+2026-01-11 | Which country hosts a giant tomato throwing festival? | Spain | The annual event known as La Tomatina involves massive tomato throwing in a small town.
+2026-01-12 | What is the largest mammal in the ocean? | Whale | Blue whales are the largest creatures ever known to exist.
+2026-01-13 | Which element is needed for bones? | Calcium | Calcium strengthens bones and is essential for healthy skeletal growth.
+2026-01-14 | What planet is closest to the Sun? | Mercury | Mercury is the smallest and innermost planet of the solar system.
+2026-01-15 | Which animal is known for changing color? | Chameleon | Chameleons can alter their skin color for camouflage or signaling.
+2026-01-16 | What gas do plants release? | Oxygen | Through photosynthesis, plants release oxygen into the atmosphere.
+2026-01-17 | Which substance is used to make both soap and explosives? | Glycerin | Glycerin is versatile: it’s used in soaps for moisture and in nitroglycerin for explosives.
+2026-01-18 | What do bees make? | Honey | Bees produce honey from nectar collected from flowers.
+2026-01-19 | Which fruit is known for its high potassium? | Banana | Bananas are rich in potassium, helping regulate body functions.
+2026-01-20 | What is the hardest natural substance? | Diamond | Diamonds are the hardest naturally occurring material on Earth.
+2026-01-21 | Which bird migrates thousands of miles? | Swallow | Swallows travel great distances between breeding and wintering grounds.
+2026-01-22 | What do you call a group of lions? | Pride | A pride is a social group of lions living and hunting together.
+2026-01-23 | Which planet is known for its rings? | Saturn | Saturn has the most prominent and visible ring system in the solar system.
+2026-01-24 | What is the largest land predator? | Polar bear | Polar bears are the largest land carnivores, living in the Arctic.
+2026-01-25 | Which animal is famous for playing dead? | Opossum | Opossums play dead to avoid predators, a defense mechanism called thanatosis.
+2026-01-26 | What is the smallest planet in the solar system? | Mercury | Mercury is the smallest planet, located closest to the Sun.
+2026-01-27 | Which cold climate bird cannot fly? | Penguin | Penguins are flightless birds adapted to swimming in cold oceans.
+2026-01-28 | What do you call baby frogs? | Tadpole | Tadpoles are the larval stage of frogs before metamorphosis.
+2026-01-29 | Which planet is called the evening star? | Venus | Venus is visible at dusk and is known as the evening star.
+2026-01-30 | What animal has a trunk? | Elephant | Elephants use their trunk for breathing, feeding, and drinking.
+2026-01-31 | What is the fastest fish? | Sailfish | Sailfish can swim at incredible speeds making them the fastest fish in the ocean.
