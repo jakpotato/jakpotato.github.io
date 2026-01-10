@@ -82,18 +82,19 @@ input[type="date"], button {
   display: flex;
   justify-content: center;
   gap: 6px;
-  flex-wrap: wrap; /* allow letters to wrap/shrink if needed */
+  flex-wrap: nowrap; /* NEVER wrap letters */
+  overflow: hidden;   /* prevent overflow */
 }
 
 .letter {
   min-width: 36px;
   height: 44px;
-  font-size: 1.5rem;
+  font-size: 1.5rem;  /* default font size */
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: font-size 0.2s ease; /* smooth resize for long words */
+  transition: font-size 0.2s ease;
 }
 
 .hidden {
@@ -235,11 +236,14 @@ function drawAnswer() {
     const row = document.createElement("div");
     row.className = "word";
 
-    // If a single word is long, shrink font to fit
-    if(word.length > 8){ // adjust threshold as needed
-      row.style.fontSize = "1.2rem"; // smaller font for long words
+    // Only shrink if single-word answer
+    if(current.a.split(" ").length === 1 && word.length > 8){
+      // Dynamically shrink font to fit container
+      const containerWidth = wrap.clientWidth;
+      const desiredFontSize = Math.min(1.5, containerWidth / (word.length * 36)) + "rem";
+      row.style.fontSize = desiredFontSize;
     } else {
-      row.style.fontSize = ""; // default font size
+      row.style.fontSize = ""; // default
     }
 
     word.split("").forEach(() => {
