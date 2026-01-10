@@ -1,12 +1,12 @@
 2026-01-01 | What is the longest animal? | Blue whale | The blue whale can reach nearly 100 feet and is the largest animal to ever exist.
 2026-01-02 | What is the fastest land animal? | Cheetah | Cheetahs can sprint up to 70 mph in short bursts, making them the fastest land animals.
 2026-01-03 | Which planet is known as the red planet? | Mars | Mars appears red because of iron oxide, or rust, on its surface.
-2026-01-04 | What gas do humans breathe out? | Carbon | Humans exhale carbon dioxide, a byproduct of metabolism.
+2026-01-04 | What chemical element was named after a planet? | Uranium | Uranium was named after the planet Uranus, discovered just a few years earlier in 1781.
 2026-01-05 | Which bird can mimic human speech? | Parrot | Parrots have vocal learning abilities allowing them to imitate sounds and speech.
 2026-01-06 | What is the largest organ in the human body? | Skin | Skin covers the body and acts as a protective barrier against infection.
 2026-01-07 | Which famous detective never existed in real life? | Sherlock Holmes | Sherlock Holmes is a fictional detective created by Arthur Conan Doyle.
 2026-01-08 | What is the largest planet in the solar system? | Jupiter | Jupiter is the largest planet, a gas giant with a mass over 300 times that of Earth.
-2026-01-09 | Which animal carries its young in a pouch? | Kangaroo | Kangaroos are marsupials, raising their young in a pouch after birth.
+2026-01-09 | What is the only bird known to sleep while flying? | Alpine swift | Alpine swifts can glide for months at a time without landing, resting portions of their brain while in the air.
 2026-01-10 | What is the hottest planet in our solar system? | Venus | Venus has a thick atmosphere trapping heat, making it hotter than Mercury.
 2026-01-11 | Which country hosts a giant tomato throwing festival? | Spain | The annual event known as La Tomatina involves massive tomato throwing in a small town.
 2026-01-12 | What is the largest mammal in the ocean? | Whale | Blue whales are the largest creatures ever known to exist.
