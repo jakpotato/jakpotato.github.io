@@ -186,7 +186,7 @@ input[type="date"], button {
 
 <script>
 const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
-const today = new Date().toISOString().slice(0,10);
+const today = new Date().toLocaleDateString('en-CA');
 let facts = {}, current, revealed=[], prevRevealed=[], points=0;
 
 async function loadFacts(){
