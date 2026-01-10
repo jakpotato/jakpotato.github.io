@@ -82,6 +82,7 @@ input[type="date"], button {
   display: flex;
   justify-content: center;
   gap: 6px;
+  flex-wrap: wrap; /* allow letters to wrap/shrink if needed */
 }
 
 .letter {
@@ -92,6 +93,7 @@ input[type="date"], button {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: font-size 0.2s ease; /* smooth resize for long words */
 }
 
 .hidden {
@@ -224,35 +226,44 @@ function start(date){
   updateScore();
 }
 
-function drawAnswer(){
-  const wrap=document.getElementById("answer");
-  wrap.innerHTML="";
-  let index=0;
+function drawAnswer() {
+  const wrap = document.getElementById("answer");
+  wrap.innerHTML = "";
+  let index = 0;
 
-  current.a.split(" ").forEach(word=>{
-    const row=document.createElement("div");
-    row.className="word";
+  current.a.split(" ").forEach(word => {
+    const row = document.createElement("div");
+    row.className = "word";
 
-    word.split("").forEach(ch=>{
-      const d=document.createElement("div");
-      d.className="letter";
+    // If a single word is long, shrink font to fit
+    if(word.length > 8){ // adjust threshold as needed
+      row.style.fontSize = "1.2rem"; // smaller font for long words
+    } else {
+      row.style.fontSize = ""; // default font size
+    }
+
+    word.split("").forEach(() => {
+      const d = document.createElement("div");
+      d.className = "letter";
 
       if(revealed[index]){
-        d.textContent=ch.toUpperCase();
+        d.textContent = current.a[index].toUpperCase();
         if(!prevRevealed[index]) d.classList.add("revealed");
       } else {
         d.classList.add("hidden");
       }
+
       index++;
       row.appendChild(d);
     });
 
     wrap.appendChild(row);
-    index++; // space
+    index++; // skip space
   });
 
-  prevRevealed=[...revealed];
+  prevRevealed = [...revealed];
 }
+
 
 function buildKeyboard(disabled){
   const kb=document.getElementById("keyboard");
