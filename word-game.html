@@ -187,7 +187,6 @@ input[type="date"], button {
 <script>
 const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
 const today = new Date().toLocaleDateString('en-CA');
-const max_score = 0;
 let facts = {}, current, revealed=[], prevRevealed=[], points=0;
 
 async function loadFacts(){
@@ -208,7 +207,7 @@ function start(date){
   current=facts[date];
   const s=saved(date);
   points=0;
-
+  max_score = 0;
   document.getElementById("question").textContent=current.q;
   document.getElementById("explanation").textContent="";
   document.getElementById("meta").textContent="";
