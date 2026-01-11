@@ -306,9 +306,8 @@ function guess(letter,key){
     document.getElementById("explanation").textContent=current.e;
     document.getElementById("meta").textContent="🎉 Answer revealed!";
     document.querySelectorAll(".key").forEach(k=>k.classList.add("disabled"));
-    // document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
+    document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
     save(current.date);
-    console.log(`Score: ${points} / ${max_score}`);
   }
 }
 
