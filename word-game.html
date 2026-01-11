@@ -220,6 +220,7 @@ function start(date){
   current=facts[date];
   const s=saved(date);
   points=0;
+  completed = false;
   max_score = 0;
   document.getElementById("question").textContent=current.q;
   document.getElementById("explanation").textContent="";
@@ -229,6 +230,7 @@ function start(date){
   prevRevealed=[...revealed];
 
   if(s?.completed){
+    completed = true;
     revealed=revealed.map(()=>true);
     points=s.points;
     max_score=s.max_score;
@@ -324,8 +326,14 @@ function guess(letter,key){
   }
 }
 
-function updateScore(){
-  document.getElementById("score").textContent=`Score: ${points}`;
+function updateScore() {
+  const scoreEl = document.getElementById("score");
+
+  if (completed) {
+    scoreEl.textContent = `Score: ${points} / ${max_score}`;
+  } else {
+    scoreEl.textContent = `Score: ${points}`;
+  }
 }
 
 document.getElementById("darkToggle").onclick=()=>{
