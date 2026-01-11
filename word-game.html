@@ -233,9 +233,14 @@ function start(date){
     completed = true;
     revealed=revealed.map(()=>true);
     points=s.points;
-    max_score=s.max_score;
+    max_score=s.max_score??0;
     document.getElementById("meta").textContent="✔ Completed";
     document.getElementById("explanation").textContent=current.e;
+    // this is for backwards compatibily, should be removed in final version
+    // final version should have reliable scoring system that can be modified any time
+    if(max_score == 0){
+      document.getElementById("score").textContent=`Score: ${points}`;
+    }
     document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
     buildKeyboard(true);
   } else buildKeyboard(false);
