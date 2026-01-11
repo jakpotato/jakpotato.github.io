@@ -108,7 +108,7 @@ input[type="date"], button {
 .score {
   text-align: right;
   font-size: 1rem;
-  /* margin-bottom: 12px; */
+  margin-bottom: 12px;
 }
 
 .meta {
@@ -188,6 +188,7 @@ input[type="date"], button {
 <script>
 const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
 const today = new Date().toLocaleDateString('en-CA');
+const max_score = 0;
 let facts = {}, current, revealed=[], prevRevealed=[], points=0;
 
 async function loadFacts(){
@@ -296,6 +297,7 @@ function guess(letter,key){
 
   key.classList.add(hit?"correct":"wrong","disabled");
   points+=hit?1:-1;
+  if(hit == 1) max_score+=1;
 
   drawAnswer();
   updateScore();
@@ -304,6 +306,7 @@ function guess(letter,key){
     document.getElementById("explanation").textContent=current.e;
     document.getElementById("meta").textContent="🎉 Answer revealed!";
     document.querySelectorAll(".key").forEach(k=>k.classList.add("disabled"));
+    document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
     save(current.date);
   }
 }
