@@ -241,7 +241,7 @@ function start(date){
     if(max_score == 0){
       document.getElementById("score").textContent=`Score: ${points}`;
     }
-    document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
+    else document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
     buildKeyboard(true);
   } else buildKeyboard(false);
 
