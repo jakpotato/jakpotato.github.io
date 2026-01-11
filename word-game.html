@@ -106,9 +106,9 @@ input[type="date"], button {
 }
 
 .score {
-  text-align: center;
+  text-align: right;
   font-size: 1rem;
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
 }
 
 .meta {
@@ -172,11 +172,12 @@ input[type="date"], button {
   <div class="card">
     <div class="controls">
       <input type="date" id="datePicker">
+      <div class="score" id="score">Score: 0</div>
     </div>
 
     <div class="question" id="question"></div>
     <div class="answer" id="answer"></div>
-    <div class="score" id="score"></div>
+    <!-- <div class="score" id="score"></div> -->
     <div class="meta" id="meta"></div>
     <div class="explanation" id="explanation"></div>
   </div>
