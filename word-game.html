@@ -296,8 +296,10 @@ function guess(letter,key){
 
   key.classList.add(hit?"correct":"wrong","disabled");
   points+=hit?1:-1;
-  if(hit) max_score+=1;
-
+  if(hit) {
+    max_score+=1;
+    console.log(max_score);
+  }
   drawAnswer();
   updateScore();
 
@@ -307,6 +309,7 @@ function guess(letter,key){
     document.querySelectorAll(".key").forEach(k=>k.classList.add("disabled"));
     // document.getElementById("score").textContent=`Score: ${points} / ${max_score}`;
     save(current.date);
+    console.log(`Score: ${points} / ${max_score}`);
   }
 }
 
