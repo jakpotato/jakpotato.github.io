@@ -195,6 +195,17 @@ input[type="date"], button {
   color: var(--text);
 }
 
+.coming-soon {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.coming-soon-message {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  justify-content: center;
+}
 
 </style>
 </head>
@@ -227,6 +238,15 @@ input[type="date"], button {
         <button id="jumpToday">Today</button>
       </div>
     </div>
+    <div class="coming-soon" id="comingSoon" hidden>
+      <p class="coming-soon-message">
+        🚧 Coming soon!
+        <br>
+        Fun facts for this date aren’t available yet.
+      </p>
+
+      <button id="jumpTodayComing">Go to Today</button>
+    </div>
     <div class="answer" id="answer"></div>
     <div class="score" id="score"></div>
     <div class="meta" id="meta"></div>
@@ -258,6 +278,14 @@ function saved(date){return JSON.parse(localStorage.getItem(key(date))||"null");
 function save(date){localStorage.setItem(key(date),JSON.stringify({completed:true,points,max_score}));}
 
 function start(date){
+
+  hideComingSoon();
+  document.getElementById("noFact").hidden = true;
+
+  if (date > today) {
+    showComingSoon();
+    return;
+  }
 
   if (!facts[date]) {
     showNoFact(date);
@@ -395,8 +423,7 @@ function updateScore() {
 }
 
 function showNoFact(date) {
-  document.getElementById("question").textContent =
-    "No fun fact for this date.";
+  document.getElementById("question").textContent = "";
 
   document.getElementById("answer").innerHTML = "";
   document.getElementById("explanation").textContent = "";
@@ -413,12 +440,29 @@ function hideNoFact() {
   document.getElementById("noFact").hidden = true;
 }
 
+function showComingSoon() {
+  document.getElementById("question").textContent = "Coming Soon";
+
+  document.getElementById("answer").innerHTML = "";
+  document.getElementById("score").textContent = "";
+  document.getElementById("meta").textContent = "";
+  document.getElementById("explanation").textContent = "";
+  document.getElementById("keyboard").innerHTML = "";
+
+  document.getElementById("noFact").hidden = true;
+  document.getElementById("comingSoon").hidden = false;
+}
+
+function hideComingSoon() {
+  document.getElementById("comingSoon").hidden = true;
+}
+
+// dark mode
 document.getElementById("darkToggle").onclick=()=>{
   const t=document.documentElement.dataset.theme==="dark"?"light":"dark";
   document.documentElement.dataset.theme=t;
   localStorage.setItem("theme",t);
 };
-
 
 
 (async()=>{
@@ -429,6 +473,11 @@ document.getElementById("darkToggle").onclick=()=>{
   const picker=document.getElementById("datePicker");
   picker.value=today; picker.max=today;
   picker.onchange=()=>start(picker.value);
+
+  document.getElementById("jumpTodayComing").onclick = () => {
+    picker.value = today;
+    start(today);
+  };
   
   document.getElementById("jumpFirst").onclick = () => {
     picker.value = earliestDate;
