@@ -254,16 +254,19 @@ function saved(date){return JSON.parse(localStorage.getItem(key(date))||"null");
 function save(date){localStorage.setItem(key(date),JSON.stringify({completed:true,points,max_score}));}
 
 function start(date){
-  current=facts[date];
-  const s=saved(date);
-  points=0;
-  completed = false;
-  max_score = 0;
+
   if (!facts[date]) {
     showNoFact(date);
     return;
   }
   hideNoFact();
+
+
+  current=facts[date];
+  const s=saved(date);
+  points=0;
+  completed = false;
+  max_score = 0;
 
   document.getElementById("question").textContent=current.q;
   document.getElementById("explanation").textContent="";
