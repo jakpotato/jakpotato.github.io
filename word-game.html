@@ -412,15 +412,7 @@ document.getElementById("darkToggle").onclick=()=>{
   localStorage.setItem("theme",t);
 };
 
-document.getElementById("jumpFirst").onclick = () => {
-  picker.value = earliestDate;
-  start(earliestDate);
-};
 
-document.getElementById("jumpToday").onclick = () => {
-  picker.value = today;
-  start(today);
-};
 
 (async()=>{
   const t=localStorage.getItem("theme");
@@ -430,6 +422,17 @@ document.getElementById("jumpToday").onclick = () => {
   const picker=document.getElementById("datePicker");
   picker.value=today; picker.max=today;
   picker.onchange=()=>start(picker.value);
+  
+  document.getElementById("jumpFirst").onclick = () => {
+    picker.value = earliestDate;
+    start(earliestDate);
+  };
+
+  document.getElementById("jumpToday").onclick = () => {
+    picker.value = today;
+    start(today);
+  };
+
   start(today);
 })();
 </script>
