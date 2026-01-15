@@ -169,6 +169,32 @@ input[type="date"], button {
   transform: translateY(2px);
 }
 .key.disabled { pointer-events: none; }
+
+.no-fact {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.no-fact-message {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.jump-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.jump-buttons button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--key);
+  color: var(--text);
+}
+
+
 </style>
 </head>
 
@@ -188,6 +214,17 @@ input[type="date"], button {
 
 
     <div class="question" id="question"></div>
+    <div class="no-fact" id="noFact" hidden>
+      <p class="no-fact-message">
+        No fun fact for this date.<br>
+        Select below to go to a fun fact.
+      </p>
+
+      <div class="jump-buttons">
+        <button id="jumpFirst">First Fact</button>
+        <button id="jumpToday">Today</button>
+      </div>
+    </div>
     <div class="answer" id="answer"></div>
     <div class="score" id="score"></div>
     <div class="meta" id="meta"></div>
@@ -222,6 +259,12 @@ function start(date){
   points=0;
   completed = false;
   max_score = 0;
+  if (!facts[date]) {
+    showNoFact(date);
+    return;
+  }
+  hideNoFact();
+
   document.getElementById("question").textContent=current.q;
   document.getElementById("explanation").textContent="";
   document.getElementById("meta").textContent="";
@@ -344,10 +387,39 @@ function updateScore() {
   }
 }
 
+function showNoFact(date) {
+  document.getElementById("question").textContent =
+    "No fun fact for this date.";
+
+  document.getElementById("answer").innerHTML = "";
+  document.getElementById("explanation").textContent = "";
+  document.getElementById("meta").textContent =
+    `The earliest fun fact is on ${earliestDate}.`;
+
+  document.getElementById("score").textContent = "";
+  document.getElementById("keyboard").innerHTML = "";
+
+  document.getElementById("noFact").hidden = false;
+}
+
+function hideNoFact() {
+  document.getElementById("noFact").hidden = true;
+}
+
 document.getElementById("darkToggle").onclick=()=>{
   const t=document.documentElement.dataset.theme==="dark"?"light":"dark";
   document.documentElement.dataset.theme=t;
   localStorage.setItem("theme",t);
+};
+
+document.getElementById("jumpFirst").onclick = () => {
+  picker.value = earliestDate;
+  start(earliestDate);
+};
+
+document.getElementById("jumpToday").onclick = () => {
+  picker.value = today;
+  start(today);
 };
 
 (async()=>{
