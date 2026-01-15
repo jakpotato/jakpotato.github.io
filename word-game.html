@@ -179,6 +179,7 @@ input[type="date"], button {
   font-size: 0.95rem;
   color: var(--muted);
   margin-bottom: 12px;
+  justify-content: center;
 }
 
 .jump-buttons {
@@ -216,7 +217,8 @@ input[type="date"], button {
     <div class="question" id="question"></div>
     <div class="no-fact" id="noFact" hidden>
       <p class="no-fact-message">
-        No fun fact for this date.<br>
+        No fun fact for this date.
+        <br>
         Select below to go to a fun fact.
       </p>
 
@@ -238,6 +240,7 @@ input[type="date"], button {
 const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
 const today = new Date().toLocaleDateString('en-CA');
 let facts = {}, current, revealed=[], prevRevealed=[], points=0;
+let earliestDate = null;
 
 async function loadFacts(){
   const res=await fetch("facts.txt");
@@ -247,6 +250,7 @@ async function loadFacts(){
     const [date,q,a,e]=line.split("|").map(s=>s.trim());
     facts[date]={date,q,a,e};
   });
+  earliestDate = Object.keys(facts).sort()[0];
 }
 
 function key(date){return `fact-${date}`;}
