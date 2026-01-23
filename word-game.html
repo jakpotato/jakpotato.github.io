@@ -134,6 +134,9 @@ input[type="date"], button {
 
 /* Keyboard */
 .keyboard {
+  --keys-per-row: 10;
+  --key-gap: 6px;
+
   position: fixed;
   bottom: 0;
   left: 0;
@@ -143,15 +146,21 @@ input[type="date"], button {
   box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
 }
 
+
 .key-row {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: var(--key-gap);
   margin-bottom: 6px;
 }
 
+
 .key {
-  flex: 1;
+  width: calc(
+    (100vw - 16px - (var(--key-gap) * (var(--keys-per-row) - 1)))
+    / var(--keys-per-row)
+  );
+
   max-width: 42px;
   padding: 12px 0;
   border-radius: 8px;
