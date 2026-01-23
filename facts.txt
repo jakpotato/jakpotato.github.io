@@ -23,7 +23,7 @@
 2026-01-23 | What group of people invented adding spaces between written words? | Irish Monks | Up until then languages like Latin didn't have a space between their words. Irish Monks invented the space in the 7th century.
 2026-01-24 | What color is a polar bears skin? | Black | Although their fur is white, their skin is actually a jet black color.
 2026-01-25 | What is the name given to rainbows on Venus? | Glory | A rainbow on Venus is called a glory and appears as colored concentric rings.
-2026-01-26 | What is the smallest planet in the solar system? | Mercury | Mercury is the smallest planet, located closest to the Sun.
+2026-01-26 | What planet on average is closest to Earth? | Mercury | Mercury is closest to Earth on average. While other planets do get closer to Earth, Mercury remains closer to Earth due to orbits and how fast it travels around the sun relative to other planets.
 2026-01-27 | Which cold climate bird cannot fly? | Penguin | Penguins are flightless birds adapted to swimming in cold oceans.
 2026-01-28 | What do you call baby frogs? | Tadpole | Tadpoles are the larval stage of frogs before metamorphosis.
 2026-01-29 | Which planet is called the evening star? | Venus | Venus is visible at dusk and is known as the evening star.
