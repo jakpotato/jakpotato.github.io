@@ -473,6 +473,28 @@ document.getElementById("darkToggle").onclick=()=>{
   localStorage.setItem("theme",t);
 };
 
+//keyboard support
+document.addEventListener("keydown", (e) => {
+
+  if (e.target.tagName === "INPUT") return;
+
+  if (/^[a-zA-Z]$/.test(e.key)) {
+    const letter = e.key.toLowerCase();
+
+    const keyEl = document.querySelector(
+      `.key:nth-child(${letter.charCodeAt(0) - 96})`
+    );
+
+    const match = [...document.querySelectorAll(".key")]
+      .find(k => k.textContent.toLowerCase() === letter);
+
+    if (match && !match.classList.contains("disabled")) {
+      guess(letter, match);
+    }
+  }
+});
+
+
 
 (async()=>{
   const t=localStorage.getItem("theme");
