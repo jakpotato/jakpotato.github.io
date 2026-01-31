@@ -31,3 +31,5 @@
 2026-01-31 | What company produces the most tires? | Lego | Lego produces the most amount of tires, with over 300 million tires produced each year for its toys.
 2026-02-01 | What is the nationally animal of Scotland? | Unicorn | The national animal of Scotland is the unicorn. Scotland also used them in their coat of arms in the mid 1500 although they were later replaced by a lion.
 2026-02-02 | What is the most common street name in the US? | Second Street | Second Street is the most common street name in the US, followed by Third Street and then First Street.
+2026-02-03 | What is the old English word for the day after tomorrow? | Overmorrow | Overmorrow was used as early as the 1500s with the earliest evidence for overmorrow from 1535. The opposite, the word for the day before yesterday, being ereyesterday.
+2026-02-04 | What can sloths be slow at crawling but what can they do three times faster? | Swimming | Sloths move at about 4m per minute when on land (4.5m when in danger) but can swim at up to 13.5m per minute. They can also hold their breath underwater for up to 40 minutes which is longer than dolphins. 
