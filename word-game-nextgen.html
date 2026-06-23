@@ -659,7 +659,7 @@ function showToast(msg){
 document.getElementById("shareBtn").onclick = () => {
   const dateObj = new Date(current.date + "T00:00:00");
   const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const text = `Daily Fun Fact — ${dateStr}\nScore: ${points} / ${max_score}\n\ndailyfunfact.app`;
+  const text = `Daily Fun Fact — ${dateStr}\nScore: ${points} / ${max_score}\n\njakpotato.com/word-game`;
 
   navigator.clipboard.writeText(text)
     .then(() => showToast("Copied!"))
