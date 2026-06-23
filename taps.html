@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap The Button</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        margin: 0;
+        background: #111;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        text-align: center;
+    }
+
+    .screen {
+        display: none;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .active {
+        display: block;
+    }
+
+    h1 {
+        margin-bottom: 30px;
+    }
+
+    button {
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    .menu-btn {
+        background: #333;
+        color: white;
+        font-size: 1.4rem;
+        padding: 20px 40px;
+        margin: 15px;
+        width: 250px;
+    }
+
+    #tapButton {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        margin: 20px auto;
+        display: block;
+        font-size: 2rem;
+        color: white;
+    }
+
+    #scoreText {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    p {
+        font-size: 1.2rem;
+    }
+</style>
+</head>
+<body>
+
+<!-- Menu -->
+<div id="menu" class="screen active">
+    <h1>Tap The Button</h1>
+    <button class="menu-btn" onclick="startAccuracy()">Accuracy Mode</button>
+    <br>
+    <button class="menu-btn" onclick="startSpeed()">Speed Mode</button>
+</div>
+
+<!-- Game -->
+<div id="game" class="screen">
+    <h2 id="gameTitle"></h2>
+    <p id="info"></p>
+    <button id="tapButton"></button>
+</div>
+
+<!-- Results -->
+<div id="results" class="screen">
+    <h1>Round Complete</h1>
+    <div id="scoreText"></div>
+
+    <button class="menu-btn" onclick="startAccuracy()">Accuracy Mode</button>
+    <br>
+    <button class="menu-btn" onclick="startSpeed()">Speed Mode</button>
+</div>
+
+<script>
+const menu = document.getElementById("menu");
+const game = document.getElementById("game");
+const results = document.getElementById("results");
+const tapButton = document.getElementById("tapButton");
+const gameTitle = document.getElementById("gameTitle");
+const info = document.getElementById("info");
+const scoreText = document.getElementById("scoreText");
+
+let mode = "";
+let score = 0;
+let gameOver = false;
+
+function showScreen(screen) {
+    document.querySelectorAll(".screen")
+        .forEach(s => s.classList.remove("active"));
+
+    screen.classList.add("active");
+}
+
+function endGame(finalScore) {
+    gameOver = true;
+    scoreText.textContent = `Score: ${finalScore}`;
+    showScreen(results);
+}
+
+// --------------------
+// SPEED MODE
+// --------------------
+function startSpeed() {
+    mode = "speed";
+    score = 0;
+    gameOver = false;
+
+    showScreen(game);
+    gameTitle.textContent = "Speed Mode";
+    info.textContent = "Tap as fast as you can for 15 seconds!";
+    tapButton.style.background = "dodgerblue";
+    tapButton.textContent = "TAP";
+
+    tapButton.onclick = () => {
+        if (gameOver) return;
+        score++;
+        tapButton.textContent = score;
+    };
+
+    setTimeout(() => {
+        if (!gameOver) {
+            endGame(score);
+        }
+    }, 15000);
+}
+
+// --------------------
+// ACCURACY MODE
+// --------------------
+function startAccuracy() {
+    mode = "accuracy";
+    score = 0;
+    gameOver = false;
+
+    showScreen(game);
+    gameTitle.textContent = "Accuracy Mode";
+    info.textContent =
+        "Tap until the button turns red. If you tap red, your score becomes 0.";
+
+    const colors = ["purple", "gold", "dodgerblue"];
+    let colorIndex = 0;
+    let tapsUntilChange = randomTapGoal();
+
+    tapButton.style.background = colors[colorIndex];
+    tapButton.textContent = "TAP";
+
+    tapButton.onclick = () => {
+        if (gameOver) return;
+
+        // Lose if red is tapped
+        if (tapButton.style.background === "red") {
+            endGame(0);
+            return;
+        }
+
+        score++;
+        tapsUntilChange--;
+
+        if (tapsUntilChange <= 0) {
+            colorIndex = (colorIndex + 1) % colors.length;
+            tapButton.style.background = colors[colorIndex];
+            tapsUntilChange = randomTapGoal();
+        }
+    };
+
+    setTimeout(() => {
+        if (gameOver) return;
+
+        // Turn red
+        tapButton.style.background = "red";
+
+        // Give player 1 second to accidentally tap
+        setTimeout(() => {
+            if (!gameOver) {
+                endGame(score);
+            }
+        }, 1000);
+
+    }, 15000);
+}
+
+function randomTapGoal() {
+    return Math.floor(Math.random() * 8) + 5;
+}
+</script>
+
+</body>
+</html>
