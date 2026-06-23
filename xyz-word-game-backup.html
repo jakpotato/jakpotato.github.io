@@ -14,7 +14,6 @@
   --key: #e5e7eb;
   --correct: #22c55e;
   --wrong: #f97316;
-  --accent: #6366f1;
 }
 
 [data-theme="dark"] {
@@ -25,28 +24,12 @@
   --key: #1e293b;
   --correct: #4ade80;
   --wrong: #fb923c;
-  --accent: #818cf8;
 }
 
 @keyframes reveal {
   0% { transform: scale(0.8); opacity: 0; }
   60% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(1); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes popIn {
-  from { transform: scale(0.92) translateY(8px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-@keyframes pulseKey {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.12); }
 }
 
 * { box-sizing: border-box; }
@@ -69,22 +52,6 @@ body {
   align-items: center;
 }
 
-.header-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.icon-btn {
-  border: none;
-  background: var(--key);
-  color: var(--text);
-  border-radius: 10px;
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
 .card {
   background: var(--card);
   border-radius: 16px;
@@ -92,18 +59,14 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
 
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
+.controls { margin-bottom: 12px; }
 
-.score {
-  text-align: right;
-  font-size: 1rem;
-  position: relative;
-  top: 7px;
+input[type="date"], button {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: var(--key);
+  color: var(--text);
 }
 
 .question { font-size: 1.1rem; margin-bottom: 12px; }
@@ -119,14 +82,14 @@ body {
   display: flex;
   justify-content: center;
   gap: 6px;
-  flex-wrap: nowrap;
-  overflow: hidden;
+  flex-wrap: nowrap; /* NEVER wrap letters */
+  overflow: hidden;   /* prevent overflow */
 }
 
 .letter {
   min-width: 36px;
   height: 44px;
-  font-size: 1.5rem;
+  font-size: 1.5rem;  /* default font size */
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -141,6 +104,22 @@ body {
 .revealed {
   animation: reveal 0.25s ease-out;
 }
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* was center */
+  margin-bottom: 12px;
+}
+
+
+.score {
+  text-align: right;
+  font-size: 1rem;
+  position: relative;
+  top: 7px; /* try -1px to -4px */
+}
+
 
 .meta {
   text-align: center;
@@ -167,12 +146,14 @@ body {
   box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
 }
 
+
 .key-row {
   display: flex;
   justify-content: center;
   gap: var(--key-gap);
   margin-bottom: 6px;
 }
+
 
 .key {
   width: calc(
@@ -198,6 +179,31 @@ body {
 }
 .key.disabled { pointer-events: none; }
 
+.no-fact {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.no-fact-message {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  justify-content: center;
+}
+
+.jump-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.jump-buttons button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--key);
+  color: var(--text);
+}
+
 .coming-soon {
   margin-top: 12px;
   text-align: center;
@@ -207,124 +213,7 @@ body {
   font-size: 0.95rem;
   color: var(--muted);
   margin-bottom: 12px;
-}
-
-/* Tutorial modal */
-.modal-overlay[hidden] {
-  display: none;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 20px;
-  z-index: 100;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.modal-overlay[hidden] {
-  display: none;
-}
-
-.modal {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 24px 20px;
-  max-width: 360px;
-  width: 100%;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  animation: popIn 0.25s ease-out;
-}
-
-.modal h2 {
-  margin: 0 0 4px;
-  font-size: 1.3rem;
-}
-
-.modal p {
-  font-size: 0.95rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.modal-demo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin: 16px 0;
-  padding: 14px;
-  background: var(--bg);
-  border-radius: 12px;
-}
-
-.demo-word {
-  display: flex;
-  gap: 6px;
-}
-
-.demo-letter {
-  width: 32px;
-  height: 38px;
-  border-bottom: 3px solid var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.demo-letter.filled {
-  border-bottom: none;
-  background: var(--correct);
-  color: white;
-  border-radius: 6px;
-  animation: reveal 0.25s ease-out;
-}
-
-.demo-keys {
-  display: flex;
-  gap: 6px;
-}
-
-.demo-key {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: var(--key);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.demo-key.hit {
-  background: var(--correct);
-  color: white;
-  animation: pulseKey 1.4s ease-in-out infinite;
-}
-
-.demo-key.miss {
-  background: var(--wrong);
-  color: white;
-}
-
-.modal-cta {
-  margin-top: 8px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: var(--accent);
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
 }
 
 </style>
@@ -334,60 +223,53 @@ body {
 <div class="app">
   <div class="header">
     <h1>Daily Fun Fact</h1>
-    <div class="header-buttons">
-      <button id="helpToggle" class="icon-btn" title="How to play">❓</button>
-      <button id="darkToggle" class="icon-btn" title="Toggle dark mode">🌙</button>
-    </div>
+    <button id="darkToggle">🌙</button>
   </div>
 
   <div class="top-bar">
+    <div class="controls">
+      <input type="date" id="datePicker">
+    </div>
     <div class="score" id="score"></div>
   </div>
 
-  <div class="question" id="question"></div>
-  <div class="coming-soon" id="comingSoon" hidden>
-    <p class="coming-soon-message">
-      🚧 Coming soon!
-      <br>
-      Today's fun fact isn't available yet. Check back soon!
-    </p>
+
+    <div class="question" id="question"></div>
+    <div class="no-fact" id="noFact" hidden>
+      <p class="no-fact-message">
+        No fun fact for this date.
+        <br>
+        Select below to go to a fun fact.
+      </p>
+
+      <div class="jump-buttons">
+        <button id="jumpFirst">First Fact</button>
+        <button id="jumpToday">Today</button>
+      </div>
+    </div>
+    <div class="coming-soon" id="comingSoon" hidden>
+      <p class="coming-soon-message">
+        🚧 Coming soon!
+        <br>
+        Fun facts for this date aren’t available yet.
+      </p>
+
+      <button id="jumpTodayComing">Go to Today</button>
+    </div>
+    <div class="answer" id="answer"></div>
+    <div class="score" id="score"></div>
+    <div class="meta" id="meta"></div>
+    <div class="explanation" id="explanation"></div>
   </div>
-  <div class="answer" id="answer"></div>
-  <div class="meta" id="meta"></div>
-  <div class="explanation" id="explanation"></div>
 </div>
 
 <div class="keyboard" id="keyboard"></div>
 
-<div class="modal-overlay" id="tutorialOverlay" hidden>
-  <div class="modal">
-    <h2>How to Play 🎉</h2>
-    <p>Every day there's a new fun fact riddle. Tap letters on the keyboard to guess the hidden answer.</p>
-
-    <div class="modal-demo">
-      <div class="demo-word">
-        <div class="demo-letter filled">C</div>
-        <div class="demo-letter filled">A</div>
-        <div class="demo-letter">&nbsp;</div>
-        <div class="demo-letter">&nbsp;</div>
-      </div>
-      <div class="demo-keys">
-        <div class="demo-key hit">A</div>
-        <div class="demo-key miss">X</div>
-        <div class="demo-key">M</div>
-      </div>
-    </div>
-
-    <p>Correct letters reveal themselves and add to your score. Wrong guesses cost a point. Guess every letter to reveal the full answer and explanation!</p>
-
-    <button class="modal-cta" id="tutorialClose">Got it, let's play!</button>
-  </div>
-</div>
-
 <script>
 const QWERTY = ["qwertyuiop","asdfghjkl","zxcvbnm"];
 const today = new Date().toLocaleDateString('en-CA');
-let facts = {}, current, revealed=[], prevRevealed=[], points=0, max_score=0, completed=false;
+let facts = {}, current, revealed=[], prevRevealed=[], points=0;
+let earliestDate = null;
 
 async function loadFacts(){
   const res=await fetch("facts.txt");
@@ -397,6 +279,7 @@ async function loadFacts(){
     const [date,q,a,e]=line.split("|").map(s=>s.trim());
     facts[date]={date,q,a,e};
   });
+  earliestDate = Object.keys(facts).sort()[0];
 }
 
 function key(date){return `fact-${date}`;}
@@ -404,12 +287,21 @@ function saved(date){return JSON.parse(localStorage.getItem(key(date))||"null");
 function save(date){localStorage.setItem(key(date),JSON.stringify({completed:true,points,max_score}));}
 
 function start(date){
-  hideComingSoon();
 
-  if (!facts[date]) {
+  hideComingSoon();
+  document.getElementById("noFact").hidden = true;
+
+  if (date > today) {
     showComingSoon();
     return;
   }
+
+  if (!facts[date]) {
+    showNoFact(date);
+    return;
+  }
+  hideNoFact();
+
 
   current=facts[date];
   const s=saved(date);
@@ -431,6 +323,8 @@ function start(date){
     max_score=s.max_score??0;
     document.getElementById("meta").textContent="✔ Completed";
     document.getElementById("explanation").textContent=current.e;
+    // this is for backwards compatibily, should be removed in final version
+    // final version should have reliable scoring system that can be modified any time
     if(max_score == 0){
       document.getElementById("score").textContent=`Score: ${points}`;
     }
@@ -453,12 +347,14 @@ function drawAnswer() {
     const row = document.createElement("div");
     row.className = "word";
 
+    // Only shrink if single-word answer
     if(current.a.split(" ").length === 1 && word.length > 8){
+      // Dynamically shrink font to fit container
       const containerWidth = wrap.clientWidth;
       const desiredFontSize = Math.min(1.5, containerWidth / (word.length * 36)) + "rem";
       row.style.fontSize = desiredFontSize;
     } else {
-      row.style.fontSize = "";
+      row.style.fontSize = ""; // default
     }
 
     word.split("").forEach(() => {
@@ -477,11 +373,12 @@ function drawAnswer() {
     });
 
     wrap.appendChild(row);
-    index++;
+    index++; // skip space
   });
 
   prevRevealed = [...revealed];
 }
+
 
 function buildKeyboard(disabled){
   const kb=document.getElementById("keyboard");
@@ -510,7 +407,7 @@ function guess(letter,key){
   key.classList.add(hit?"correct":"wrong","disabled");
   points+=hit?1:-1;
   if(hit) max_score+=1;
-
+  
   drawAnswer();
   updateScore();
 
@@ -534,13 +431,34 @@ function updateScore() {
   }
 }
 
-function showComingSoon() {
+function showNoFact(date) {
   document.getElementById("question").textContent = "";
+
+  document.getElementById("answer").innerHTML = "";
+  document.getElementById("explanation").textContent = "";
+  document.getElementById("meta").textContent =
+    `The earliest fun fact is on ${earliestDate}.`;
+
+  document.getElementById("score").textContent = "";
+  document.getElementById("keyboard").innerHTML = "";
+
+  document.getElementById("noFact").hidden = false;
+}
+
+function hideNoFact() {
+  document.getElementById("noFact").hidden = true;
+}
+
+function showComingSoon() {
+  document.getElementById("question").textContent = "Coming Soon";
+
   document.getElementById("answer").innerHTML = "";
   document.getElementById("score").textContent = "";
   document.getElementById("meta").textContent = "";
   document.getElementById("explanation").textContent = "";
   document.getElementById("keyboard").innerHTML = "";
+
+  document.getElementById("noFact").hidden = true;
   document.getElementById("comingSoon").hidden = false;
 }
 
@@ -555,22 +473,18 @@ document.getElementById("darkToggle").onclick=()=>{
   localStorage.setItem("theme",t);
 };
 
-// tutorial modal
-const TUTORIAL_KEY = "tutorialSeen";
-function openTutorial(){
-  document.getElementById("tutorialOverlay").hidden = false;
-}
-function closeTutorial(){
-  document.getElementById("tutorialOverlay").hidden = true;
-  localStorage.setItem(TUTORIAL_KEY, "true");
-}
-document.getElementById("tutorialClose").onclick = closeTutorial;
-document.getElementById("helpToggle").onclick = openTutorial;
-
-// keyboard support
+//keyboard support
 document.addEventListener("keydown", (e) => {
+
+  if (e.target.tagName === "INPUT") return;
+
   if (/^[a-zA-Z]$/.test(e.key)) {
     const letter = e.key.toLowerCase();
+
+    const keyEl = document.querySelector(
+      `.key:nth-child(${letter.charCodeAt(0) - 96})`
+    );
+
     const match = [...document.querySelectorAll(".key")]
       .find(k => k.textContent.toLowerCase() === letter);
 
@@ -580,16 +494,33 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
+
 (async()=>{
   const t=localStorage.getItem("theme");
   if(t)document.documentElement.dataset.theme=t;
 
   await loadFacts();
-  start(today);
+  const picker=document.getElementById("datePicker");
+  picker.value=today; picker.max=today;
+  picker.onchange=()=>start(picker.value);
 
-  if(!localStorage.getItem(TUTORIAL_KEY)){
-    openTutorial();
-  }
+  document.getElementById("jumpTodayComing").onclick = () => {
+    picker.value = today;
+    start(today);
+  };
+  
+  document.getElementById("jumpFirst").onclick = () => {
+    picker.value = earliestDate;
+    start(earliestDate);
+  };
+
+  document.getElementById("jumpToday").onclick = () => {
+    picker.value = today;
+    start(today);
+  };
+
+  start(today);
 })();
 </script>
 </body>
