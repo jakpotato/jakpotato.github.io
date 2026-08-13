@@ -36,13 +36,6 @@
         display: block;
     }
 
-    /* Briefly blocks input on a freshly-shown screen so a tap that
-       ends the game can't bleed through onto whatever renders in
-       the same spot right after (fixes the accidental-restart bug). */
-    .screen.locked {
-        pointer-events: none;
-    }
-
     h1 {
         margin-bottom: 30px;
     }
@@ -90,6 +83,17 @@
         margin-bottom: 20px;
         font-size: 1.1rem;
         letter-spacing: 1px;
+    }
+
+    #resultsButtons {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #resultsButtons.visible {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     p {
@@ -154,9 +158,11 @@
     <div id="scoreText"></div>
     <div id="newBestBadge">★ New Best! ★</div>
 
-    <button class="menu-btn" onclick="startAccuracy()">Accuracy Mode</button>
-    <br>
-    <button class="menu-btn" onclick="startSpeed()">Speed Mode</button>
+    <div id="resultsButtons">
+        <button class="menu-btn" onclick="startAccuracy()">Accuracy Mode</button>
+        <br>
+        <button class="menu-btn" onclick="startSpeed()">Speed Mode</button>
+    </div>
 </div>
 
 <script>
@@ -169,6 +175,7 @@ const info = document.getElementById("info");
 const scoreText = document.getElementById("scoreText");
 const newBestBadge = document.getElementById("newBestBadge");
 const highScoreValue = document.getElementById("highScoreValue");
+const resultsButtons = document.getElementById("resultsButtons");
 
 let mode = "";
 let score = 0;
@@ -221,12 +228,6 @@ function showScreen(screen) {
         .forEach(s => s.classList.remove("active"));
 
     screen.classList.add("active");
-
-    // Lock the new screen briefly so the tap that just ended the
-    // game can't immediately register on a button that appears
-    // in the same physical spot on the new screen.
-    screen.classList.add("locked");
-    setTimeout(() => screen.classList.remove("locked"), 400);
 }
 
 function endGame(finalScore) {
@@ -241,7 +242,13 @@ function endGame(finalScore) {
     newBestBadge.style.display = isNewBest ? "block" : "none";
 
     updateHighScoreBadge();
+
+    // Show the score with no tappable buttons for a beat, so a tap
+    // that just ended the round can't immediately restart a new one,
+    // and so the player has a moment to actually read their score.
+    resultsButtons.classList.remove("visible");
     showScreen(results);
+    setTimeout(() => resultsButtons.classList.add("visible"), 1000);
 }
 
 // --------------------
