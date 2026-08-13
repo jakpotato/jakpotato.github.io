@@ -61,7 +61,6 @@ canvas {
     let width;
     let height;
     let dpr = 1;
-
     let balls = [];
     let hue = 0;
     let lastTime = performance.now();
@@ -69,14 +68,15 @@ canvas {
     const pointer = {
         x: 0,
         y: 0,
+        previousX: 0,
+        previousY: 0,
         vx: 0,
         vy: 0,
         down: false
     };
 
-    const GRAVITY = 1450;
-    const BOUNCE = 0.30;
-    const MAX_BALLS = 900;
+    const GRAVITY = 1200;
+    const MAX_BALLS = 1000;
 
     function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -93,24 +93,14 @@ canvas {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         for (const ball of balls) {
-            ball.x = Math.max(
-                ball.r,
-                Math.min(width - ball.r, ball.x)
-            );
-
-            ball.y = Math.max(
-                ball.r,
-                Math.min(height - ball.r, ball.y)
-            );
+            ball.x = Math.max(ball.r, Math.min(width - ball.r, ball.x));
+            ball.y = Math.max(ball.r, Math.min(height - ball.r, ball.y));
         }
     }
 
     function nextColor() {
         const color = `hsl(${hue} 78% 55%)`;
-
-        // Move through the color spectrum.
         hue = (hue + 21) % 360;
-
         return color;
     }
 
@@ -119,20 +109,16 @@ canvas {
             balls.shift();
         }
 
-        const radius = 7 + Math.random() * 4.5;
+        const r = 7 + Math.random() * 4;
 
         balls.push({
             x,
             y,
-            r: radius,
-
-            vx: (Math.random() - 0.5) * 35,
-            vy: Math.random() * 20,
-
+            vx: 0,
+            vy: 0,
+            r,
             color: nextColor(),
-
-            // Larger balls have more mass.
-            mass: radius * radius
+            mass: r * r
         });
     }
 
@@ -150,10 +136,12 @@ canvas {
             return;
         }
 
-        const position = getPointerPosition(event);
+        const p = getPointerPosition(event);
 
-        pointer.x = position.x;
-        pointer.y = position.y;
+        pointer.x = p.x;
+        pointer.y = p.y;
+        pointer.previousX = p.x;
+        pointer.previousY = p.y;
         pointer.vx = 0;
         pointer.vy = 0;
         pointer.down = true;
@@ -162,25 +150,32 @@ canvas {
             canvas.setPointerCapture(event.pointerId);
         } catch (_) {}
 
-        addBall(position.x, position.y);
+        addBall(p.x, p.y);
     });
 
     canvas.addEventListener("pointermove", event => {
-        const position = getPointerPosition(event);
+        const p = getPointerPosition(event);
 
-        pointer.vx = position.x - pointer.x;
-        pointer.vy = position.y - pointer.y;
+        pointer.previousX = pointer.x;
+        pointer.previousY = pointer.y;
 
-        pointer.x = position.x;
-        pointer.y = position.y;
+        pointer.x = p.x;
+        pointer.y = p.y;
+
+        pointer.vx = pointer.x - pointer.previousX;
+        pointer.vy = pointer.y - pointer.previousY;
     });
 
     canvas.addEventListener("pointerup", () => {
         pointer.down = false;
+        pointer.vx = 0;
+        pointer.vy = 0;
     });
 
     canvas.addEventListener("pointercancel", () => {
         pointer.down = false;
+        pointer.vx = 0;
+        pointer.vy = 0;
     });
 
     reset.addEventListener("click", () => {
@@ -188,52 +183,54 @@ canvas {
         hue = 0;
     });
 
-    function resolveWalls(ball) {
-        // Left wall
+    /*
+     * Keep every ball inside the screen.
+     */
+    function constrainToWalls(ball) {
         if (ball.x - ball.r < 0) {
             ball.x = ball.r;
 
             if (ball.vx < 0) {
-                ball.vx *= -BOUNCE;
+                ball.vx = 0;
             }
-
-            ball.vy *= 0.82;
         }
 
-        // Right wall
-        else if (ball.x + ball.r > width) {
+        if (ball.x + ball.r > width) {
             ball.x = width - ball.r;
 
             if (ball.vx > 0) {
-                ball.vx *= -BOUNCE;
+                ball.vx = 0;
             }
-
-            ball.vy *= 0.82;
         }
 
-        // Ceiling
         if (ball.y - ball.r < 0) {
             ball.y = ball.r;
 
             if (ball.vy < 0) {
-                ball.vy *= -BOUNCE;
+                ball.vy = 0;
             }
         }
 
-        // Floor
-        else if (ball.y + ball.r > height) {
+        if (ball.y + ball.r > height) {
             ball.y = height - ball.r;
 
             if (ball.vy > 0) {
-                ball.vy *= -BOUNCE;
+                ball.vy = 0;
             }
 
-            // Friction against the floor.
-            ball.vx *= 0.92;
+            // Ground friction.
+            ball.vx *= 0.75;
         }
     }
 
-    function applyPointerForce(ball, dt) {
+    /*
+     * Strong cursor/finger interaction.
+     *
+     * The pointer acts like a physical circular object pushing
+     * nearby balls away from it. Pointer movement also transfers
+     * momentum into the balls.
+     */
+    function applyPointerForce(ball) {
         if (!pointer.down) {
             return;
         }
@@ -241,36 +238,62 @@ canvas {
         const dx = ball.x - pointer.x;
         const dy = ball.y - pointer.y;
 
-        const distanceSquared = dx * dx + dy * dy;
-        const influenceRadius = 42 + ball.r;
+        const distance = Math.hypot(dx, dy);
 
-        if (
-            distanceSquared > influenceRadius * influenceRadius ||
-            distanceSquared < 0.001
-        ) {
+        const influence =
+            ball.r +
+            45;
+
+        if (distance > influence) {
             return;
         }
 
-        const distance = Math.sqrt(distanceSquared);
+        let nx;
+        let ny;
 
-        const nx = dx / distance;
-        const ny = dy / distance;
+        if (distance < 0.001) {
+            nx = 0;
+            ny = -1;
+        } else {
+            nx = dx / distance;
+            ny = dy / distance;
+        }
 
-        const strength = 1 - distance / influenceRadius;
+        const strength = 1 - distance / influence;
 
-        // Push balls away from the pointer.
-        ball.vx +=
-            pointer.vx * strength * 18 * dt +
-            nx * strength * 850 * dt;
+        /*
+         * Strong radial push.
+         */
+        const force = strength * 180;
 
-        ball.vy +=
-            pointer.vy * strength * 18 * dt +
-            ny * strength * 850 * dt;
+        ball.vx += nx * force;
+        ball.vy += ny * force;
+
+        /*
+         * Transfer cursor/finger movement into the ball.
+         */
+        ball.vx += pointer.vx * strength * 4;
+        ball.vy += pointer.vy * strength * 4;
+
+        /*
+         * Prevent a ball from being dragged through the pointer.
+         */
+        const minimumDistance = ball.r + 8;
+
+        if (distance < minimumDistance) {
+            ball.x = pointer.x + nx * minimumDistance;
+            ball.y = pointer.y + ny * minimumDistance;
+        }
     }
 
-    function collide(a, b) {
-        let dx = b.x - a.x;
-        let dy = b.y - a.y;
+    /*
+     * Very strict circle-vs-circle collision.
+     *
+     * Balls are never allowed to occupy the same physical space.
+     */
+    function solveCollision(a, b) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
 
         const minimumDistance = a.r + b.r;
         const distanceSquared = dx * dx + dy * dy;
@@ -284,150 +307,158 @@ canvas {
         let nx;
         let ny;
 
-        // Prevent division by zero.
-        if (distance < 0.001) {
-            nx = 1;
-            ny = 0;
-            distance = minimumDistance;
+        if (distance < 0.0001) {
+            /*
+             * Balls somehow ended up at exactly the same position.
+             * Give them a deterministic separation direction.
+             */
+            nx = 0;
+            ny = -1;
+            distance = 0;
         } else {
             nx = dx / distance;
             ny = dy / distance;
         }
 
+        /*
+         * Move the balls apart until their edges exactly touch.
+         *
+         * This is the important part that prevents overlapping.
+         */
         const overlap = minimumDistance - distance;
+
         const totalMass = a.mass + b.mass;
 
-        // Separate overlapping balls.
-        a.x -= nx * overlap * (b.mass / totalMass);
-        a.y -= ny * overlap * (b.mass / totalMass);
+        const moveA = overlap * (b.mass / totalMass);
+        const moveB = overlap * (a.mass / totalMass);
 
-        b.x += nx * overlap * (a.mass / totalMass);
-        b.y += ny * overlap * (a.mass / totalMass);
+        a.x -= nx * moveA;
+        a.y -= ny * moveA;
 
-        // Relative velocity.
+        b.x += nx * moveB;
+        b.y += ny * moveB;
+
+        /*
+         * Calculate relative velocity along the collision normal.
+         */
         const relativeVx = b.vx - a.vx;
         const relativeVy = b.vy - a.vy;
 
-        const relativeNormalVelocity =
+        const velocityAlongNormal =
             relativeVx * nx +
             relativeVy * ny;
 
-        // Already moving apart.
-        if (relativeNormalVelocity >= 0) {
+        /*
+         * They are already separating.
+         */
+        if (velocityAlongNormal > 0) {
             return;
         }
 
+        /*
+         * Very low bounce.
+         *
+         * This lets balls settle into a stable stack instead of
+         * constantly bouncing.
+         */
+        const restitution = 0.05;
+
         const impulse =
-            -(1 + 0.22) *
-            relativeNormalVelocity /
+            -(1 + restitution) *
+            velocityAlongNormal /
             (1 / a.mass + 1 / b.mass);
 
-        const impulseX = impulse * nx;
-        const impulseY = impulse * ny;
+        const ix = impulse * nx;
+        const iy = impulse * ny;
 
-        a.vx -= impulseX / a.mass;
-        a.vy -= impulseY / a.mass;
+        a.vx -= ix / a.mass;
+        a.vy -= iy / a.mass;
 
-        b.vx += impulseX / b.mass;
-        b.vy += impulseY / b.mass;
+        b.vx += ix / b.mass;
+        b.vy += iy / b.mass;
+    }
+
+    /*
+     * Additional positional collision pass.
+     *
+     * Several passes are used each frame so that a pile becomes
+     * tightly packed instead of slowly sinking into itself.
+     */
+    function solveAllCollisions() {
+        for (let pass = 0; pass < 5; pass++) {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    solveCollision(balls[i], balls[j]);
+                }
+            }
+
+            for (const ball of balls) {
+                constrainToWalls(ball);
+            }
+        }
     }
 
     function update(dt) {
-        // Prevent physics from exploding after switching tabs.
-        dt = Math.min(dt, 0.025);
+        dt = Math.min(dt, 0.016);
 
-        // Apply gravity and movement.
+        /*
+         * Gravity.
+         *
+         * There is no horizontal gravity. A stationary ball only
+         * accelerates downward.
+         */
         for (const ball of balls) {
             ball.vy += GRAVITY * dt;
 
-            applyPointerForce(ball, dt);
+            applyPointerForce(ball);
 
-            const friction = Math.pow(0.999, dt * 60);
+            /*
+             * Air resistance.
+             */
+            ball.vx *= 0.995;
+            ball.vy *= 0.995;
 
-            ball.vx *= friction;
-            ball.vy *= friction;
-
-            // Maximum velocity.
-            const speed = Math.hypot(ball.vx, ball.vy);
-
-            if (speed > 1800) {
-                const scale = 1800 / speed;
-
-                ball.vx *= scale;
-                ball.vy *= scale;
-            }
-
+            /*
+             * Move.
+             */
             ball.x += ball.vx * dt;
             ball.y += ball.vy * dt;
 
-            resolveWalls(ball);
+            constrainToWalls(ball);
         }
 
         /*
-         * Spatial grid.
-         *
-         * Instead of checking every ball against every other ball,
-         * only check balls that are in nearby grid cells.
+         * Multiple collision passes make the stack rigid.
          */
-        const cellSize = 28;
-        const grid = new Map();
+        solveAllCollisions();
 
-        for (let i = 0; i < balls.length; i++) {
-            const ball = balls[i];
-
-            const gridX = Math.floor(ball.x / cellSize);
-            const gridY = Math.floor(ball.y / cellSize);
-
-            const key = gridX + "," + gridY;
-
-            if (!grid.has(key)) {
-                grid.set(key, []);
-            }
-
-            grid.get(key).push(i);
-        }
-
-        // Collision detection.
-        for (let i = 0; i < balls.length; i++) {
-            const ball = balls[i];
-
-            const gridX = Math.floor(ball.x / cellSize);
-            const gridY = Math.floor(ball.y / cellSize);
-
-            for (let offsetX = -1; offsetX <= 1; offsetX++) {
-                for (let offsetY = -1; offsetY <= 1; offsetY++) {
-
-                    const key =
-                        (gridX + offsetX) +
-                        "," +
-                        (gridY + offsetY);
-
-                    const nearby = grid.get(key);
-
-                    if (!nearby) {
-                        continue;
-                    }
-
-                    for (const j of nearby) {
-                        if (j > i) {
-                            collide(ball, balls[j]);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Make sure collision corrections haven't pushed balls outside.
+        /*
+         * Once a ball is sitting on another ball, remove tiny
+         * vertical jitter so the pile settles.
+         */
         for (const ball of balls) {
-            resolveWalls(ball);
+            if (Math.abs(ball.vy) < 12) {
+                ball.vy = 0;
+            }
+
+            if (Math.abs(ball.vx) < 3) {
+                ball.vx = 0;
+            }
         }
+
+        /*
+         * One final collision pass after velocity cleanup.
+         */
+        solveAllCollisions();
     }
 
     function draw() {
         ctx.clearRect(0, 0, width, height);
 
-        // Subtle shadow underneath the pile.
-        if (balls.length > 0) {
+        /*
+         * Ground shadow.
+         */
+        if (balls.length) {
             ctx.save();
 
             ctx.globalAlpha = 0.08;
@@ -446,11 +477,14 @@ canvas {
             );
 
             ctx.fill();
+
             ctx.restore();
         }
 
         for (const ball of balls) {
-            // Drop shadow.
+            /*
+             * Small drop shadow.
+             */
             ctx.beginPath();
 
             ctx.arc(
@@ -461,14 +495,16 @@ canvas {
                 Math.PI * 2
             );
 
-            ctx.fillStyle = "rgba(0,0,0,.13)";
+            ctx.fillStyle = "rgba(0,0,0,.14)";
             ctx.fill();
 
-            // Highlighted ball surface.
+            /*
+             * Ball highlight.
+             */
             const gradient = ctx.createRadialGradient(
                 ball.x - ball.r * 0.35,
                 ball.y - ball.r * 0.4,
-                ball.r * 0.08,
+                ball.r * 0.05,
 
                 ball.x,
                 ball.y,
@@ -477,11 +513,11 @@ canvas {
 
             gradient.addColorStop(
                 0,
-                "rgba(255,255,255,.72)"
+                "rgba(255,255,255,.75)"
             );
 
             gradient.addColorStop(
-                0.22,
+                0.2,
                 ball.color
             );
 
@@ -505,21 +541,20 @@ canvas {
         }
     }
 
-    function frame(now) {
+    function animate(now) {
         const dt = (now - lastTime) / 1000;
-
         lastTime = now;
 
         update(dt);
         draw();
 
-        requestAnimationFrame(frame);
+        requestAnimationFrame(animate);
     }
 
     window.addEventListener("resize", resize);
 
     resize();
-    requestAnimationFrame(frame);
+    requestAnimationFrame(animate);
 })();
 </script>
 
