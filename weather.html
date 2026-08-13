@@ -426,7 +426,7 @@
     fx: document.getElementById('fx')
   };
 
-  /* ============ Init ============ */
+ /* ============ Init ============ */
   function init(){
     COUNTRIES.forEach(function(c){
       var o = document.createElement('option');
@@ -454,4 +454,409 @@
     if(saved && saved.lat != null){
       state.lat = saved.lat; state.lon = saved.lon;
       state.label = saved.label; state.sub = saved.sub || '';
-      state.country = s
+      state.country = saved.country || '';
+      if(!savedUnit && saved.country && FAHRENHEIT_COUNTRIES[saved.country]){ state.unit = 'f'; updateUnitButtons(); }
+      loadWeatherForCurrentLocation();
+    }
+  }
+
+  function updateUnitButtons(){
+    el.unitC.classList.toggle('active', state.unit === 'c');
+    el.unitF.classList.toggle('active', state.unit === 'f');
+  }
+  function setUnit(u){
+    state.unit = u;
+    localStorage.setItem('weather:unit', u);
+    updateUnitButtons();
+    if(state.data) renderWeather();
+  }
+
+  /* ============ Country / city picking ============ */
+  function onCountryChange(){
+    state.country = el.countrySelect.value;
+    el.citySearch.disabled = !state.country;
+    el.citySearch.value = '';
+    el.suggestions.hidden = true;
+    if(state.country){
+      el.citySearch.focus();
+      if(!localStorage.getItem('weather:unit') && FAHRENHEIT_COUNTRIES[state.country]){
+        setUnit('f');
+      } else if(!localStorage.getItem('weather:unit')) {
+        setUnit('c');
+      }
+    }
+  }
+
+  function onCityInput(){
+    var q = el.citySearch.value.trim();
+    clearTimeout(suggestTimer);
+    if(q.length < 2){ el.suggestions.hidden = true; return; }
+    suggestTimer = setTimeout(function(){ searchCity(q); }, 350);
+  }
+
+  function searchCity(q){
+    var countryName = COUNTRIES.filter(function(c){ return c[1] === state.country; })[0];
+    var name = countryName ? (q + ', ' + state.country) : q;
+    var url = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(name) +
+      '&count=7&language=en&format=json';
+    fetch(url).then(function(r){ return r.json(); }).then(function(json){
+      renderSuggestions(json.results || []);
+    }).catch(function(){
+      renderSuggestions([]);
+    });
+  }
+
+  function renderSuggestions(results){
+    el.suggestions.innerHTML = '';
+    if(!results.length){
+      var d = document.createElement('div');
+      d.className = 'empty'; d.textContent = 'No matching places found';
+      el.suggestions.appendChild(d);
+      el.suggestions.hidden = false;
+      return;
+    }
+    results.forEach(function(r){
+      var b = document.createElement('button');
+      var parts = [r.name];
+      if(r.admin1) parts.push(r.admin1);
+      if(r.country) parts.push(r.country);
+      b.textContent = parts.join(', ');
+      b.addEventListener('click', function(){
+        el.suggestions.hidden = true;
+        el.citySearch.value = r.name;
+        selectLocation(r.latitude, r.longitude, r.name, [r.admin1, r.country].filter(Boolean).join(', '));
+      });
+      el.suggestions.appendChild(b);
+    });
+    el.suggestions.hidden = false;
+  }
+
+  function useMyLocation(){
+    if(!navigator.geolocation){
+      showToast('Geolocation is not supported in this browser.');
+      return;
+    }
+    el.useLocationBtn.disabled = true;
+    el.useLocationBtn.textContent = '📍 Locating…';
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat = pos.coords.latitude, lon = pos.coords.longitude;
+      reverseGeocode(lat, lon).then(function(place){
+        selectLocation(lat, lon, place.label, place.sub);
+      });
+      el.useLocationBtn.disabled = false;
+      el.useLocationBtn.textContent = '📍 Use my location';
+    }, function(err){
+      el.useLocationBtn.disabled = false;
+      el.useLocationBtn.textContent = '📍 Use my location';
+      showToast('Could not get your location. ' + (err.message || ''));
+    }, { enableHighAccuracy:false, timeout:10000, maximumAge:300000 });
+  }
+
+  function reverseGeocode(lat, lon){
+    var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lon + '&zoom=10';
+    return fetch(url).then(function(r){ return r.json(); }).then(function(j){
+      var a = j.address || {};
+      var name = a.city || a.town || a.village || a.municipality || a.county || 'My Location';
+      var sub = [a.state, a.country].filter(Boolean).join(', ');
+      return { label: name, sub: sub };
+    }).catch(function(){
+      return { label: 'My Location', sub: lat.toFixed(2) + ', ' + lon.toFixed(2) };
+    });
+  }
+
+  function selectLocation(lat, lon, label, sub){
+    state.lat = lat; state.lon = lon; state.label = label; state.sub = sub || '';
+    saveJSON('weather:lastSelection', { lat:lat, lon:lon, label:label, sub:sub, country: state.country });
+    loadWeatherForCurrentLocation();
+  }
+
+  function showPicker(){
+    el.weatherCard.hidden = true;
+    el.forecastCard.hidden = true;
+    el.pickerCard.hidden = false;
+    clearInterval(refreshTimer);
+  }
+
+  /* ============ Weather fetching + caching ============ */
+  function cacheKeyFor(lat, lon){
+    return 'weather:cache:' + lat.toFixed(2) + ',' + lon.toFixed(2);
+  }
+
+  function loadWeatherForCurrentLocation(){
+    el.pickerCard.hidden = true;
+    el.weatherCard.hidden = false;
+    el.forecastCard.hidden = false;
+    state.cacheKey = cacheKeyFor(state.lat, state.lon);
+    var cached = loadJSON(state.cacheKey);
+    if(cached && cached.ts){
+      state.data = cached;
+      renderWeather();
+      if(Date.now() - cached.ts >= CACHE_MS){
+        fetchWeather();
+      }
+    } else {
+      fetchWeather();
+    }
+  }
+
+  function requestRefresh(manual){
+    if(!state.data){ fetchWeather(); return; }
+    var age = Date.now() - state.data.ts;
+    if(age < CACHE_MS){
+      var mins = Math.ceil((CACHE_MS - age) / 60000);
+      showToast('Weather is already up to date. Next refresh available in ' + mins + ' min' + (mins===1?'':'s') + '.');
+      return;
+    }
+    fetchWeather();
+  }
+
+  function fetchWeather(){
+    setStatus('Fetching latest weather…');
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + state.lat + '&longitude=' + state.lon +
+      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code,is_day' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
+      '&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto&forecast_days=7';
+    fetch(url).then(function(r){
+      if(!r.ok) throw new Error('Weather service error (' + r.status + ')');
+      return r.json();
+    }).then(function(json){
+      var record = {
+        ts: Date.now(),
+        label: state.label, sub: state.sub,
+        current: json.current,
+        daily: json.daily
+      };
+      state.data = record;
+      saveJSON(state.cacheKey, record);
+      setStatus('');
+      renderWeather();
+    }).catch(function(err){
+      setStatus('');
+      if(state.data){
+        showToast("Couldn't refresh — showing cached data.");
+      } else {
+        el.statusMsg.hidden = false;
+        el.statusMsg.innerHTML = '<div class="error">Couldn\'t load weather for this location. Check your connection and try again.</div>';
+      }
+    });
+  }
+
+  /* ============ Weather code mapping ============ */
+  function codeInfo(code, isDay){
+    var day = isDay !== 0;
+    var map = {
+      0:  { desc:'Clear sky', icon: day?'☀️':'🌕', cat: day?'clear-day':'clear-night' },
+      1:  { desc:'Mostly clear', icon: day?'🌤️':'🌙', cat: day?'clear-day':'clear-night' },
+      2:  { desc:'Partly cloudy', icon: day?'⛅':'☁️', cat: day?'partly-day':'partly-night' },
+      3:  { desc:'Overcast', icon:'☁️', cat:'cloudy' },
+      45: { desc:'Fog', icon:'🌫️', cat:'fog' },
+      48: { desc:'Rime fog', icon:'🌫️', cat:'fog' },
+      51: { desc:'Light drizzle', icon:'🌦️', cat:'rain' },
+      53: { desc:'Drizzle', icon:'🌦️', cat:'rain' },
+      55: { desc:'Dense drizzle', icon:'🌦️', cat:'rain' },
+      56: { desc:'Freezing drizzle', icon:'🌧️', cat:'rain' },
+      57: { desc:'Freezing drizzle', icon:'🌧️', cat:'rain' },
+      61: { desc:'Light rain', icon:'🌧️', cat:'rain' },
+      63: { desc:'Rain', icon:'🌧️', cat:'rain' },
+      65: { desc:'Heavy rain', icon:'🌧️', cat:'rain' },
+      66: { desc:'Freezing rain', icon:'🌧️', cat:'rain' },
+      67: { desc:'Freezing rain', icon:'🌧️', cat:'rain' },
+      71: { desc:'Light snow', icon:'🌨️', cat:'snow' },
+      73: { desc:'Snow', icon:'❄️', cat:'snow' },
+      75: { desc:'Heavy snow', icon:'❄️', cat:'snow' },
+      77: { desc:'Snow grains', icon:'🌨️', cat:'snow' },
+      80: { desc:'Rain showers', icon:'🌦️', cat:'rain' },
+      81: { desc:'Rain showers', icon:'🌧️', cat:'rain' },
+      82: { desc:'Violent showers', icon:'🌧️', cat:'rain' },
+      85: { desc:'Snow showers', icon:'🌨️', cat:'snow' },
+      86: { desc:'Snow showers', icon:'❄️', cat:'snow' },
+      95: { desc:'Thunderstorm', icon:'⛈️', cat:'thunder' },
+      96: { desc:'Thunderstorm w/ hail', icon:'⛈️', cat:'thunder' },
+      99: { desc:'Thunderstorm w/ hail', icon:'⛈️', cat:'thunder' }
+    };
+    return map[code] || { desc:'Unknown', icon:'🌡️', cat:'cloudy' };
+  }
+  var COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  function windDir(deg){ return COMPASS[Math.round(deg/22.5) % 16]; }
+
+  /* ============ Rendering ============ */
+  function cToF(c){ return c * 9/5 + 32; }
+  function kmhToMph(k){ return k * 0.621371; }
+  function fmtTemp(c){
+    var v = state.unit === 'f' ? cToF(c) : c;
+    return Math.round(v);
+  }
+  function fmtWind(kmh){
+    var v = state.unit === 'f' ? kmhToMph(kmh) : kmh;
+    var unit = state.unit === 'f' ? 'mph' : 'km/h';
+    return Math.round(v) + ' ' + unit;
+  }
+
+  function renderWeather(){
+    var d = state.data;
+    if(!d) return;
+    var cur = d.current, daily = d.daily;
+    var info = codeInfo(cur.weather_code, cur.is_day);
+
+    el.placeName.textContent = d.label || 'Selected location';
+    el.placeSub.textContent = d.sub || '';
+    el.currentIcon.textContent = info.icon;
+    el.currentTemp.textContent = fmtTemp(cur.temperature_2m);
+    el.currentDesc.textContent = info.desc;
+    el.feelsLike.textContent = fmtTemp(cur.apparent_temperature) + '°';
+    el.windVal.textContent = fmtWind(cur.wind_speed_10m) + ' ' + windDir(cur.wind_direction_10m);
+    if(daily && daily.temperature_2m_max && daily.temperature_2m_max.length){
+      el.hiLo.textContent = fmtTemp(daily.temperature_2m_max[0]) + '° / ' + fmtTemp(daily.temperature_2m_min[0]) + '°';
+    }
+
+    renderMeta();
+    renderForecast(daily);
+    applyBackground(info.cat);
+
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(renderMeta, 30000);
+  }
+
+  function renderMeta(){
+    var d = state.data;
+    if(!d) return;
+    var age = Date.now() - d.ts;
+    var mins = Math.floor(age / 60000);
+    var txt = mins < 1 ? 'Updated just now' : ('Updated ' + mins + ' min ago');
+    el.updatedAt.textContent = txt;
+    var canRefresh = age >= CACHE_MS;
+    el.refreshBtn.disabled = false; // manual click always allowed; gate happens in requestRefresh with a toast
+    el.refreshBtn.textContent = canRefresh ? '↻ Refresh' : '↻ Refresh (' + Math.ceil((CACHE_MS-age)/60000) + 'm)';
+  }
+
+  function renderForecast(daily){
+    el.forecastScroll.innerHTML = '';
+    if(!daily || !daily.time) return;
+    daily.time.forEach(function(dateStr, i){
+      var info = codeInfo(daily.weather_code[i], 1);
+      var date = new Date(dateStr + 'T12:00:00');
+      var dayName = i === 0 ? 'Today' : date.toLocaleDateString(undefined, { weekday:'short' });
+      var dateShort = date.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+      var card = document.createElement('div');
+      card.className = 'fday';
+      card.innerHTML =
+        '<div class="d">' + dayName + '</div>' +
+        '<div class="dd">' + dateShort + '</div>' +
+        '<div class="fi">' + info.icon + '</div>' +
+        '<div class="hi">' + fmtTemp(daily.temperature_2m_max[i]) + '°</div>' +
+        '<div class="lo">' + fmtTemp(daily.temperature_2m_min[i]) + '°</div>';
+      el.forecastScroll.appendChild(card);
+    });
+  }
+
+  /* ============ Background + effects ============ */
+  var currentCat = null;
+  function applyBackground(cat){
+    if(cat === currentCat) return;
+    currentCat = cat;
+    document.body.setAttribute('data-weather', cat);
+    buildEffects(cat);
+  }
+
+  function buildEffects(cat){
+    el.fx.innerHTML = '';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce) return;
+
+    if(cat === 'clear-day' || cat === 'partly-day' || cat === 'partly-night' || cat === 'clear-night'){
+      var cloudCount = (cat === 'partly-day' || cat === 'partly-night') ? 5 : (cat.indexOf('clear')===0 ? 2 : 3);
+      for(var i=0;i<cloudCount;i++){ addCloud(); }
+    }
+    if(cat === 'cloudy'){
+      for(var c=0;c<6;c++){ addCloud(); }
+    }
+    if(cat === 'fog'){
+      for(var f=0;f<4;f++){ addCloud(0.28); }
+    }
+    if(cat === 'rain'){
+      for(var r=0;r<50;r++){ addDrop(); }
+    }
+    if(cat === 'snow'){
+      for(var s=0;s<40;s++){ addFlake(); }
+    }
+    if(cat === 'thunder'){
+      for(var t=0;t<40;t++){ addDrop(); }
+      startLightning();
+    }
+  }
+
+  function addCloud(opacity){
+    var d = document.createElement('div');
+    d.className = 'cloud';
+    var size = 120 + Math.random()*180;
+    d.style.width = size + 'px';
+    d.style.height = (size*0.5) + 'px';
+    d.style.top = (5 + Math.random()*45) + 'vh';
+    d.style.opacity = opacity || (0.35 + Math.random()*0.3);
+    var dur = 40 + Math.random()*50;
+    d.style.animationDuration = dur + 's';
+    d.style.animationDelay = (-Math.random()*dur) + 's';
+    el.fx.appendChild(d);
+  }
+  function addDrop(){
+    var d = document.createElement('div');
+    d.className = 'drop';
+    d.style.left = (Math.random()*100) + 'vw';
+    var dur = 0.5 + Math.random()*0.5;
+    d.style.animationDuration = dur + 's';
+    d.style.animationDelay = (-Math.random()*dur) + 's';
+    d.style.height = (2 + Math.random()*2) + 'vh';
+    el.fx.appendChild(d);
+  }
+  function addFlake(){
+    var d = document.createElement('div');
+    d.className = 'flake';
+    var size = 3 + Math.random()*5;
+    d.style.width = size + 'px';
+    d.style.height = size + 'px';
+    d.style.left = (Math.random()*100) + 'vw';
+    var dur = 8 + Math.random()*10;
+    d.style.animationDuration = dur + 's';
+    d.style.animationDelay = (-Math.random()*dur) + 's';
+    d.style.opacity = 0.6 + Math.random()*0.4;
+    el.fx.appendChild(d);
+  }
+  var lightningTimer = null;
+  function startLightning(){
+    clearTimeout(lightningTimer);
+    var flash = document.createElement('div');
+    flash.className = 'flash';
+    el.fx.appendChild(flash);
+    function strike(){
+      flash.classList.remove('strike'); void flash.offsetWidth;
+      flash.classList.add('strike');
+      lightningTimer = setTimeout(strike, 4000 + Math.random()*7000);
+    }
+    lightningTimer = setTimeout(strike, 1500);
+  }
+
+  /* ============ Utilities ============ */
+  function setStatus(msg){
+    if(!msg){ el.statusMsg.hidden = true; el.statusMsg.textContent=''; return; }
+    el.statusMsg.hidden = false;
+    el.statusMsg.textContent = msg;
+  }
+  var toastTimer = null;
+  function showToast(msg){
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.toast.classList.remove('show'); }, 3200);
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+  function loadJSON(key){
+    try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
