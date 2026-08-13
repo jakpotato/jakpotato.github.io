@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clock</title>
+
+<style>
+    :root {
+        --bg: #f5f5f5;
+        --text: #111;
+        --muted: #777;
+        --control-bg: #e5e5e5;
+        --control-hover: #d5d5d5;
+    }
+
+    body.dark {
+        --bg: #111;
+        --text: #f5f5f5;
+        --muted: #888;
+        --control-bg: #292929;
+        --control-hover: #383838;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .clock-container {
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+    }
+
+    /* Digital clock */
+    #digital {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #time {
+        font-size: clamp(4rem, 15vw, 14rem);
+        font-weight: 300;
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    #date {
+        margin-top: 20px;
+        font-size: clamp(1rem, 3vw, 2rem);
+        color: var(--muted);
+    }
+
+    /* Analog clock */
+    #analog {
+        display: none;
+        width: min(75vw, 70vh, 700px);
+        aspect-ratio: 1;
+        margin: auto;
+        position: relative;
+        border: max(3px, min(0.7vw, 8px)) solid var(--text);
+        border-radius: 50%;
+    }
+
+    .number {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 4%;
+        font-size: clamp(1rem, 5vw, 3rem);
+        font-weight: 500;
+    }
+
+    .number span {
+        display: block;
+    }
+
+    .number:nth-child(2) { transform: rotate(30deg); }
+    .number:nth-child(3) { transform: rotate(60deg); }
+    .number:nth-child(4) { transform: rotate(90deg); }
+    .number:nth-child(5) { transform: rotate(120deg); }
+    .number:nth-child(6) { transform: rotate(150deg); }
+    .number:nth-child(7) { transform: rotate(180deg); }
+    .number:nth-child(8) { transform: rotate(210deg); }
+    .number:nth-child(9) { transform: rotate(240deg); }
+    .number:nth-child(10) { transform: rotate(270deg); }
+    .number:nth-child(11) { transform: rotate(300deg); }
+    .number:nth-child(12) { transform: rotate(330deg); }
+
+    .number:nth-child(2) span { transform: rotate(-30deg); }
+    .number:nth-child(3) span { transform: rotate(-60deg); }
+    .number:nth-child(4) span { transform: rotate(-90deg); }
+    .number:nth-child(5) span { transform: rotate(-120deg); }
+    .number:nth-child(6) span { transform: rotate(-150deg); }
+    .number:nth-child(7) span { transform: rotate(-180deg); }
+    .number:nth-child(8) span { transform: rotate(-210deg); }
+    .number:nth-child(9) span { transform: rotate(-240deg); }
+    .number:nth-child(10) span { transform: rotate(-270deg); }
+    .number:nth-child(11) span { transform: rotate(-300deg); }
+    .number:nth-child(12) span { transform: rotate(-330deg); }
+
+    .hand {
+        position: absolute;
+        bottom: 50%;
+        left: 50%;
+        transform-origin: 50% 100%;
+        transform: translateX(-50%) rotate(0deg);
+        border-radius: 10px;
+    }
+
+    #hour {
+        width: 2%;
+        height: 25%;
+        background: var(--text);
+    }
+
+    #minute {
+        width: 1.4%;
+        height: 35%;
+        background: var(--text);
+    }
+
+    #second {
+        width: 0.6%;
+        height: 39%;
+        background: #d33;
+    }
+
+    .center {
+        position: absolute;
+        width: 3%;
+        aspect-ratio: 1;
+        background: var(--text);
+        border-radius: 50%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+
+    /* Controls */
+    .controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    body:hover .controls,
+    .controls:focus-within {
+        opacity: 1;
+    }
+
+    button {
+        border: none;
+        background: var(--control-bg);
+        color: var(--text);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    button:hover {
+        background: var(--control-hover);
+    }
+
+    @media (max-width: 600px) {
+        .controls {
+            opacity: 1;
+            bottom: 10px;
+        }
+
+        button {
+            padding: 8px 11px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="clock-container">
+
+    <div id="digital">
+        <div id="time">12:00</div>
+    </div>
+
+    <div id="analog">
+        <div class="number"><span>12</span></div>
+        <div class="number"><span>1</span></div>
+        <div class="number"><span>2</span></div>
+        <div class="number"><span>3</span></div>
+        <div class="number"><span>4</span></div>
+        <div class="number"><span>5</span></div>
+        <div class="number"><span>6</span></div>
+        <div class="number"><span>7</span></div>
+        <div class="number"><span>8</span></div>
+        <div class="number"><span>9</span></div>
+        <div class="number"><span>10</span></div>
+        <div class="number"><span>11</span></div>
+
+        <div id="hour" class="hand"></div>
+        <div id="minute" class="hand"></div>
+        <div id="second" class="hand"></div>
+        <div class="center"></div>
+    </div>
+    <div id="date"></div>
+
+</div>
+
+<div class="controls">
+    <button id="formatBtn">24 Hour</button>
+    <button id="secondsBtn">Seconds: On</button>
+    <button id="dateBtn">Date: On</button>
+    <button id="modeBtn">Analog</button>
+    <button id="themeBtn">Dark Mode</button>
+    <button id="fullscreenBtn">Fullscreen</button>
+</div>
+
+<script>
+    const settings = {
+        format24: localStorage.getItem("format24") !== "false",
+        seconds: localStorage.getItem("seconds") !== "false",
+        date: localStorage.getItem("date") !== "false",
+        analog: localStorage.getItem("analog") === "true",
+        dark: localStorage.getItem("dark") === "true"
+    };
+
+    const timeEl = document.getElementById("time");
+    const dateEl = document.getElementById("date");
+    const digitalEl = document.getElementById("digital");
+    const analogEl = document.getElementById("analog");
+
+    const hourHand = document.getElementById("hour");
+    const minuteHand = document.getElementById("minute");
+    const secondHand = document.getElementById("second");
+
+    function saveSettings() {
+        Object.entries(settings).forEach(([key, value]) => {
+            localStorage.setItem(key, value);
+        });
+    }
+
+    function updateClock() {
+        const now = new Date();
+
+        let hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        if (settings.format24) {
+            timeEl.textContent =
+                `${String(hours).padStart(2, "0")}:` +
+                `${String(minutes).padStart(2, "0")}` +
+                (settings.seconds ? `:${String(seconds).padStart(2, "0")}` : "");
+        } else {
+            const suffix = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+
+            timeEl.textContent =
+                `${hours}:${String(minutes).padStart(2, "0")}` +
+                (settings.seconds ? `:${String(seconds).padStart(2, "0")}` : "") +
+                ` ${suffix}`;
+        }
+
+        dateEl.textContent = now.toLocaleDateString(undefined, {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+
+        dateEl.style.display = settings.date ? "block" : "none";
+
+        // Analog clock
+        const secondAngle = seconds * 6;
+        const minuteAngle = minutes * 6 + seconds * 0.1;
+        const hourAngle = (now.getHours() % 12) * 30 + minutes * 0.5;
+
+        hourHand.style.transform =
+            `translateX(-50%) rotate(${hourAngle}deg)`;
+
+        minuteHand.style.transform =
+            `translateX(-50%) rotate(${minuteAngle}deg)`;
+
+        secondHand.style.transform =
+            `translateX(-50%) rotate(${secondAngle}deg)`;
+
+        secondHand.style.display = settings.seconds ? "block" : "none";
+    }
+
+    function updateUI() {
+        digitalEl.style.display = settings.analog ? "none" : "flex";
+        analogEl.style.display = settings.analog ? "block" : "none";
+
+        document.body.classList.toggle("dark", settings.dark);
+
+        document.getElementById("formatBtn").textContent =
+            settings.format24 ? "24 Hour" : "12 Hour";
+
+        document.getElementById("secondsBtn").textContent =
+            `Seconds: ${settings.seconds ? "On" : "Off"}`;
+
+        document.getElementById("dateBtn").textContent =
+            `Date: ${settings.date ? "On" : "Off"}`;
+
+        document.getElementById("modeBtn").textContent =
+            settings.analog ? "Digital" : "Analog";
+
+        document.getElementById("themeBtn").textContent =
+            settings.dark ? "Light Mode" : "Dark Mode";
+    }
+
+    document.getElementById("formatBtn").onclick = () => {
+        settings.format24 = !settings.format24;
+        saveSettings();
+        updateUI();
+        updateClock();
+    };
+
+    document.getElementById("secondsBtn").onclick = () => {
+        settings.seconds = !settings.seconds;
+        saveSettings();
+        updateUI();
+        updateClock();
+    };
+
+    document.getElementById("dateBtn").onclick = () => {
+        settings.date = !settings.date;
+        saveSettings();
+        updateUI();
+        updateClock();
+    };
+
+    document.getElementById("modeBtn").onclick = () => {
+        settings.analog = !settings.analog;
+        saveSettings();
+        updateUI();
+    };
+
+    document.getElementById("themeBtn").onclick = () => {
+        settings.dark = !settings.dark;
+        saveSettings();
+        updateUI();
+    };
+
+    document.getElementById("fullscreenBtn").onclick = async () => {
+        try {
+            if (!document.fullscreenElement) {
+                await document.documentElement.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error("Fullscreen failed:", error);
+        }
+    };
+
+    document.addEventListener("fullscreenchange", () => {
+        document.getElementById("fullscreenBtn").textContent =
+            document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
+    });
+
+    updateUI();
+    updateClock();
+
+    setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
