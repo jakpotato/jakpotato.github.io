@@ -3,199 +3,778 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Bog Bodies</title>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+
         :root {
-            --perfume-name: "Bog Bodies"; /* Change this */
+            --gold: #c9a45c;
+            --dark-gold: #8f6d32;
+            --brown: #3b1d0f;
+            --deep-brown: #1a0d07;
+            --cream: #e8dcc7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             margin: 0;
-            padding: 0;
+            background:
+                radial-gradient(circle at 50% 15%, #21150e 0%, #090706 45%, #000 100%);
+            color: var(--cream);
             font-family: "Playfair Display", serif;
-            color: white;
-            background: black;
             text-align: center;
             overflow-x: hidden;
         }
 
-        /* Background mist effect */
+        /* =========================
+           BACKGROUND MIST
+        ========================= */
+
         .mist {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200vw;
-            height: 200vh;
-            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 80%);
-            animation: mistFlow 6s infinite alternate ease-in-out;
-            transform: translate(-50%, -50%);
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+            background:
+                radial-gradient(
+                    ellipse at 20% 40%,
+                    rgba(255,255,255,0.08),
+                    transparent 45%
+                ),
+                radial-gradient(
+                    ellipse at 80% 70%,
+                    rgba(255,255,255,0.05),
+                    transparent 50%
+                );
         }
 
-        @keyframes mistFlow {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            100% { transform: translate(-50%, -50%) scale(1.1); }
-        }
+        /* =========================
+           HERO
+        ========================= */
 
-        /* Main content */
-        .container {
+        .hero {
             position: relative;
-            top: 10vh;
-            z-index: 2;
+            min-height: 100vh;
+            padding: 80px 20px 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .brand-small {
+            font-family: "Cinzel", serif;
+            font-size: 0.8rem;
+            letter-spacing: 7px;
+            color: var(--gold);
+            margin-bottom: 18px;
         }
 
         .title {
-            font-size: 3rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            display: inline-block;
-            animation: fadeIn 2s ease-out, textGlow 1.5s infinite alternate ease-in-out;
+            font-family: "Cinzel", serif;
+            font-size: clamp(2.8rem, 8vw, 6rem);
+            font-weight: 500;
+            letter-spacing: 8px;
+            margin: 0;
+            color: #eee4d0;
         }
 
-        @keyframes textGlow {
-            0% { text-shadow: 0 0 5px white; }
-            100% { text-shadow: 0 0 15px white; }
+        .tagline {
+            margin-top: 18px;
+            font-size: 1.3rem;
+            font-style: italic;
+            color: #b9aa91;
         }
 
-        /* Bottle */
-        .bottle {
-            width: 150px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            margin: 50px auto;
+        .divider {
+            width: 80px;
+            height: 1px;
+            background: var(--gold);
+            margin: 30px auto;
+        }
+
+        /* =========================
+           PERFUME BOTTLE
+        ========================= */
+
+        .bottle-area {
             position: relative;
-            overflow: hidden;
-            transform: scale(0);
-            animation: popIn 1.5s 1s forwards;
+            width: 330px;
+            height: 470px;
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
         }
 
-        .cap {
-            width: 50px;
-            height: 30px;
-            background: gold;
-            border-radius: 5px;
+        .bottle-shadow {
             position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 5px;
+            width: 230px;
+            height: 30px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 50%;
+            filter: blur(12px);
         }
+
+        .bottle {
+            position: relative;
+            width: 220px;
+            height: 300px;
+            margin-bottom: 35px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.16),
+                    rgba(255,255,255,0.04) 15%,
+                    rgba(255,255,255,0.01) 50%,
+                    rgba(255,255,255,0.12)
+                );
+
+            border: 2px solid rgba(218, 195, 153, 0.7);
+            border-radius: 18px 18px 25px 25px;
+
+            box-shadow:
+                inset 8px 0 15px rgba(255,255,255,0.08),
+                inset -10px 0 20px rgba(0,0,0,0.5),
+                0 20px 50px rgba(0,0,0,0.7);
+        }
+
+        /* Liquid */
 
         .liquid {
-            width: 100%;
-            height: 60%;
-            background: linear-gradient(to top, #8b4513, #a0522d);
             position: absolute;
-            bottom: 0;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            height: 69%;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    #70401f,
+                    #3b1c0c 35%,
+                    #170a05
+                );
+
+            border-radius: 10px 10px 20px 20px;
+
+            box-shadow:
+                inset 0 8px 15px rgba(255,190,100,0.12);
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
+        /* Liquid surface */
+
+        .liquid::before {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(168, 111, 52, 0.35);
         }
 
-        /* Sections */
-        section {
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s ease-out forwards;
+        /* Glass reflection */
+
+        .glass-reflection {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 28px;
+            height: 230px;
+            border-radius: 20px;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.35),
+                rgba(255,255,255,0.03)
+            );
+            filter: blur(2px);
+            opacity: 0.45;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Bottle label */
+
+        .label {
+            position: absolute;
+            z-index: 5;
+            left: 18px;
+            right: 18px;
+            top: 90px;
+            height: 125px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e6d8bb,
+                    #bca982
+                );
+
+            color: #1a1109;
+
+            border: 2px solid #6d5127;
+
+            box-shadow:
+                0 4px 10px rgba(0,0,0,0.5);
         }
 
-        .fragrance {
-            animation-delay: 2s;
+        .label-main {
+            font-family: "Cinzel", serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 2px;
         }
 
-        .meaning {
-            animation-delay: 2.5s;
+        .label-sub {
+            font-family: "Cinzel", serif;
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            margin-top: 7px;
         }
 
-        .brand {
-            animation-delay: 3s;
+        .label-line {
+            width: 70px;
+            height: 1px;
+            background: #5d431f;
+            margin: 10px 0;
         }
 
-        .reviews {
-            animation-delay: 3.5s;
+        .label-bottom {
+            font-size: 0.55rem;
+            letter-spacing: 2px;
         }
 
-        /* Customer reviews */
-        .review {
-            margin: 20px 0;
+        /* Bottle neck */
+
+        .neck {
+            position: absolute;
+            z-index: 4;
+            top: -43px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 75px;
+            height: 48px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #65431d,
+                    #d2ad61,
+                    #72501f
+                );
+
+            border: 1px solid #d1af6a;
+        }
+
+        /* Cap */
+
+        .cap {
+            position: absolute;
+            z-index: 6;
+            top: -92px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 100px;
+            height: 55px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #553814,
+                    #c49a4e,
+                    #6c4819
+                );
+
+            border: 1px solid #d8b86c;
+
+            border-radius: 5px 5px 3px 3px;
+
+            box-shadow:
+                inset 5px 0 rgba(255,255,255,0.15),
+                0 7px 12px rgba(0,0,0,0.5);
+        }
+
+        .cap::after {
+            content: "BB";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: "Cinzel", serif;
+            font-size: 1.2rem;
+            color: #2a1b0c;
+        }
+
+        /* =========================
+           PRODUCT INFO
+        ========================= */
+
+        .product-info {
+            margin-top: 10px;
+        }
+
+        .volume {
+            font-family: "Cinzel", serif;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: var(--gold);
+        }
+
+        .buy-button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 14px 45px;
+
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            background: transparent;
+
+            font-family: "Cinzel", serif;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .buy-button:hover {
+            background: var(--gold);
+            color: #100b06;
+        }
+
+        .warning {
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #8d806d;
             font-style: italic;
-            animation: textZoom 3s infinite alternate ease-in-out;
         }
 
-        @keyframes textZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05) rotate(1deg); }
+        /* =========================
+           CONTENT SECTIONS
+        ========================= */
+
+        main {
+            position: relative;
+            z-index: 2;
         }
+
+        section {
+            max-width: 720px;
+            margin: 0 auto 70px;
+            padding: 45px 35px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.055),
+                    rgba(255,255,255,0.018)
+                );
+
+            border: 1px solid rgba(201,164,92,0.22);
+            border-radius: 3px;
+        }
+
+        h2 {
+            font-family: "Cinzel", serif;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            font-weight: 500;
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        p {
+            line-height: 1.9;
+            color: #bdb19f;
+        }
+
+        /* =========================
+           NOTES
+        ========================= */
+
+        .notes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .note {
+            padding: 8px 15px;
+            border: 1px solid rgba(201,164,92,0.35);
+            color: #b8a98e;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           INGREDIENTS
+        ========================= */
+
+        .ingredients {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0 0;
+        }
+
+        .ingredients li {
+            padding: 10px;
+            color: #a99b88;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* =========================
+           REVIEWS
+        ========================= */
+
+        .review {
+            padding: 22px 0;
+            border-bottom: 1px solid rgba(201,164,92,0.15);
+        }
+
+        .review:last-child {
+            border-bottom: none;
+        }
+
+        .review-text {
+            font-style: italic;
+            color: #d0c3ae;
+            line-height: 1.7;
+        }
+
+        .review-author {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+        }
+
+        /* =========================
+           GUARANTEE
+        ========================= */
+
+        .guarantee {
+            border-color: rgba(201,164,92,0.4);
+        }
+
+        .guarantee h2 {
+            margin-bottom: 25px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            position: relative;
+            z-index: 2;
+            padding: 50px 20px;
+            border-top: 1px solid rgba(201,164,92,0.15);
+            color: #645c50;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media (max-width: 600px) {
-    .title {
-        font-size: 2rem; /* Reduce title size */
-    }
 
-    .bottle {
-        width: 120px;  /* Smaller bottle */
-        height: 160px;
-    }
+            .hero {
+                padding-top: 60px;
+            }
 
-    section {
-        width: 90%;
-        padding: 15px;
-    }
+            .title {
+                letter-spacing: 5px;
+            }
 
-    .review {
-        font-size: 0.9rem; /* Adjust text size */
-    }
-    }
+            .bottle-area {
+                transform: scale(0.85);
+                margin-top: 10px;
+                margin-bottom: -20px;
+            }
 
+            section {
+                width: 90%;
+                padding: 35px 22px;
+            }
 
+            h2 {
+                font-size: 1.2rem;
+                letter-spacing: 3px;
+            }
 
+            .tagline {
+                font-size: 1.05rem;
+            }
+        }
     </style>
 </head>
+
 <body>
+
     <div class="mist"></div>
-    <div class="container">
-        <div class="title"><span id="perfume-name"></span></div>
-        <div class="bottle">
-            <div class="cap"></div>
-            <div class="liquid"></div>
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <header class="hero">
+
+        <div class="brand-small">
+            GRAVE IDEAS
         </div>
-    </div>
 
-    <section class="fragrance">
-        <h2>Fragrance Notes</h2>
-        <p>A deep, musky base with hints of caramel and burnt wood. It combines the fregrance of decompostion and the after life in an uplifting alure.</p>
-    </section>
+        <h1 class="title">
+            BOG BODIES
+        </h1>
 
-    <section class="meaning">
-        <h2>The Meaning</h2>
-        <p>It is, what it is</p>
-    </section>
+        <div class="tagline">
+            Elegance, preserved.
+        </div>
 
-    <section class="brand">
-        <h2>The Brand Story</h2>
-        <p>Founded on the principle that everything should smell expensive.Bog Bodies brings you closer to those that have passed centuries ago while also giving hints of class and elegance</p>
-    </section>
+        <div class="divider"></div>
 
-    <section class="reviews">
-        <h2>Customer Reviews</h2>
-        <div class="review">"I don’t know what I just smelled, but I love it." - My Ex</div>
-        <div class="review">"This scent makes me feel mysterious and slightly concerned." - The person next to me on the train</div>
-        <div class="review">"A masterpiece of safistication and allure." - me </div>
-    </section>
+        <!-- PERFUME BOTTLE -->
 
-    <script>
-        document.getElementById("perfume-name").innerText = getComputedStyle(document.documentElement).getPropertyValue('--perfume-name').trim();
-    </script>
+        <div class="bottle-area">
+
+            <div class="bottle-shadow"></div>
+
+            <div class="bottle">
+
+                <div class="liquid"></div>
+
+                <div class="glass-reflection"></div>
+
+                <div class="neck"></div>
+
+                <div class="cap"></div>
+
+                <div class="label">
+                    <div class="label-main">
+                        BOG BODIES
+                    </div>
+
+                    <div class="label-line"></div>
+
+                    <div class="label-sub">
+                        EAU DE PARFUM
+                    </div>
+
+                    <div class="label-bottom">
+                        27% ESSENCE · 50 ML
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="product-info">
+
+            <div class="volume">
+                50 ML · EAU DE PARFUM · 27% ESSENCE
+            </div>
+
+            <a href="#" class="buy-button">
+                BUY NOW
+            </a>
+
+            <div class="warning">
+                Warning: May cause an inexplicable urge to visit a bog.
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <!-- FRAGRANCE -->
+
+        <section class="fragrance">
+
+            <h2>Fragrance Notes</h2>
+
+            <p>
+                A deep, musky composition inspired by the ancient art
+                of remaining remarkably well preserved in places where
+                absolutely nobody expected to find you.
+            </p>
+
+            <div class="notes">
+                <div class="note">Ancient Peat</div>
+                <div class="note">Burnt Cedar</div>
+                <div class="note">Black Caramel</div>
+                <div class="note">Damp Earth</div>
+                <div class="note">Unidentified Organic Matter</div>
+            </div>
+
+        </section>
+
+
+        <!-- MEANING -->
+
+        <section class="meaning">
+
+            <h2>The Meaning</h2>
+
+            <p>
+                It is, what it is.
+            </p>
+
+            <p>
+                Bog Bodies was created for those who appreciate the finer
+                things in life: expensive fragrances, mysterious smells,
+                and absolutely no explanation whatsoever.
+            </p>
+
+        </section>
+
+
+        <!-- BRAND STORY -->
+
+        <section class="brand">
+
+            <h2>The Brand Story</h2>
+
+            <p>
+                Founded on the principle that everything should smell
+                expensive, Grave Ideas brings you closer to those who
+                passed centuries ago while giving you unmistakable hints
+                of class and elegance.
+            </p>
+
+            <p>
+                Our fragrances are inspired by history's most unusual
+                preservation techniques and bottled with considerably
+                more confidence than scientific evidence.
+            </p>
+
+        </section>
+
+
+        <!-- INGREDIENTS -->
+
+        <section class="ingredients-section">
+
+            <h2>Ingredients</h2>
+
+            <p>
+                Carefully selected from places we probably shouldn't
+                disclose.
+            </p>
+
+            <ul class="ingredients">
+                <li>Ancient Peat</li>
+                <li>Burnt Cedar</li>
+                <li>Black Caramel</li>
+                <li>Damp Earth</li>
+                <li>Moss Absolute</li>
+                <li>A Hint of Something Unidentified</li>
+                <li>27% Essence of Questionable Origin</li>
+            </ul>
+
+        </section>
+
+
+        <!-- GUARANTEE -->
+
+        <section class="guarantee">
+
+            <h2>The Graveyard Guarantee</h2>
+
+            <p>
+                If you don't smell sophisticated, we'll assume you
+                weren't wearing enough.
+            </p>
+
+            <p>
+                Grave Ideas accepts no responsibility for mysterious
+                compliments, sudden fascination with wetlands, or
+                questions regarding your whereabouts in 1347.
+            </p>
+
+        </section>
+
+
+        <!-- REVIEWS -->
+
+        <section class="reviews">
+
+            <h2>Customer Reviews</h2>
+
+            <div class="review">
+                <div class="review-text">
+                    "I don't know what I just smelled, but I love it."
+                </div>
+
+                <div class="review-author">
+                    — MY EX
+                </div>
+            </div>
+
+            <div class="review">
+                <div class="review-text">
+                    "This scent makes me feel mysterious and slightly
+                    concerned."
+                </div>
+
+                <div class="review-author">
+                    — THE PERSON NEXT TO ME ON THE TRAIN
+                </div>
+            </div>
+
+            <div class="review">
+                <div class="review-text">
+                    "A masterpiece of sophistication and allure.
+                    I would absolutely purchase this again."
+                </div>
+
+                <div class="review-author">
+                    — ME
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        GRAVE IDEAS · BOG BODIES
+
+        <br><br>
+
+        © 2026 Grave Ideas. Elegance, preserved.
+
+    </footer>
+
 </body>
 </html>
