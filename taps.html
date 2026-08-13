@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tap The Button</title>
 
 <style>
     * {
         box-sizing: border-box;
         font-family: Arial, sans-serif;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -20,16 +22,25 @@
         align-items: center;
         min-height: 100vh;
         text-align: center;
+        overflow: hidden;
     }
 
     .screen {
         display: none;
         width: 100%;
         padding: 20px;
+        position: relative;
     }
 
     .active {
         display: block;
+    }
+
+    /* Briefly blocks input on a freshly-shown screen so a tap that
+       ends the game can't bleed through onto whatever renders in
+       the same spot right after (fixes the accidental-restart bug). */
+    .screen.locked {
+        pointer-events: none;
     }
 
     h1 {
@@ -64,19 +75,63 @@
         display: block;
         font-size: 2rem;
         color: white;
+        user-select: none;
     }
 
     #scoreText {
         font-size: 2rem;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
+    }
+
+    #newBestBadge {
+        display: none;
+        color: gold;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
     }
 
     p {
         font-size: 1.2rem;
     }
+
+    /* High score badge, always visible, top corner */
+    #highScoreBadge {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        text-align: right;
+        color: #ccc;
+        backdrop-filter: blur(4px);
+    }
+
+    #highScoreBadge .label {
+        color: #888;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    #highScoreBadge .value {
+        color: gold;
+        font-weight: bold;
+        font-size: 1rem;
+    }
 </style>
 </head>
 <body>
+
+<div id="highScoreBadge">
+    <div class="label">Best</div>
+    <div class="value" id="highScoreValue">–</div>
+</div>
 
 <!-- Menu -->
 <div id="menu" class="screen active">
@@ -97,6 +152,7 @@
 <div id="results" class="screen">
     <h1>Round Complete</h1>
     <div id="scoreText"></div>
+    <div id="newBestBadge">★ New Best! ★</div>
 
     <button class="menu-btn" onclick="startAccuracy()">Accuracy Mode</button>
     <br>
@@ -111,21 +167,80 @@ const tapButton = document.getElementById("tapButton");
 const gameTitle = document.getElementById("gameTitle");
 const info = document.getElementById("info");
 const scoreText = document.getElementById("scoreText");
+const newBestBadge = document.getElementById("newBestBadge");
+const highScoreValue = document.getElementById("highScoreValue");
 
 let mode = "";
 let score = 0;
 let gameOver = false;
 
+// High scores, kept separately per mode
+let highScores = { accuracy: 0, speed: 0 };
+
+// ------------------------------------------------------------
+// Persistence (falls back to in-memory only if storage is unavailable)
+// ------------------------------------------------------------
+async function loadHighScores() {
+    try {
+        const result = await window.storage.get("highscores");
+        if (result && result.value) {
+            const parsed = JSON.parse(result.value);
+            highScores.accuracy = parsed.accuracy || 0;
+            highScores.speed = parsed.speed || 0;
+        }
+    } catch (e) {
+        // No saved scores yet, or storage unavailable — start at 0
+    }
+    updateHighScoreBadge();
+}
+
+async function saveHighScores() {
+    try {
+        await window.storage.set("highscores", JSON.stringify(highScores));
+    } catch (e) {
+        console.error("Could not save high scores:", e);
+    }
+}
+
+function updateHighScoreBadge() {
+    if (mode === "speed") {
+        highScoreValue.textContent = highScores.speed;
+    } else if (mode === "accuracy") {
+        highScoreValue.textContent = highScores.accuracy;
+    } else {
+        const best = Math.max(highScores.accuracy, highScores.speed);
+        highScoreValue.textContent = best > 0 ? best : "–";
+    }
+}
+
+// ------------------------------------------------------------
+// Screen handling
+// ------------------------------------------------------------
 function showScreen(screen) {
     document.querySelectorAll(".screen")
         .forEach(s => s.classList.remove("active"));
 
     screen.classList.add("active");
+
+    // Lock the new screen briefly so the tap that just ended the
+    // game can't immediately register on a button that appears
+    // in the same physical spot on the new screen.
+    screen.classList.add("locked");
+    setTimeout(() => screen.classList.remove("locked"), 400);
 }
 
 function endGame(finalScore) {
     gameOver = true;
     scoreText.textContent = `Score: ${finalScore}`;
+
+    const isNewBest = finalScore > highScores[mode];
+    if (isNewBest) {
+        highScores[mode] = finalScore;
+        saveHighScores();
+    }
+    newBestBadge.style.display = isNewBest ? "block" : "none";
+
+    updateHighScoreBadge();
     showScreen(results);
 }
 
@@ -136,6 +251,7 @@ function startSpeed() {
     mode = "speed";
     score = 0;
     gameOver = false;
+    updateHighScoreBadge();
 
     showScreen(game);
     gameTitle.textContent = "Speed Mode";
@@ -163,6 +279,7 @@ function startAccuracy() {
     mode = "accuracy";
     score = 0;
     gameOver = false;
+    updateHighScoreBadge();
 
     showScreen(game);
     gameTitle.textContent = "Accuracy Mode";
@@ -214,6 +331,9 @@ function startAccuracy() {
 function randomTapGoal() {
     return Math.floor(Math.random() * 8) + 5;
 }
+
+// Init
+loadHighScores();
 </script>
 
 </body>
