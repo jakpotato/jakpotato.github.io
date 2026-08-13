@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flies 'R' Us — Premium House Flies</title>
+<style>
+:root{
+  --ink:#171717;--paper:#fffdf7;--yellow:#ffd83d;--orange:#ff8a3d;
+  --red:#ef4444;--green:#39a96b;--muted:#686868;--card:#ffffff;
+  --shadow:0 12px 30px rgba(0,0,0,.12);--radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.55}
+a{color:inherit}
+.container{width:min(1120px,92%);margin:auto}
+header{background:var(--yellow);border-bottom:4px solid var(--ink);position:sticky;top:0;z-index:20}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
+.logo{font-size:clamp(1.4rem,4vw,2rem);font-weight:1000;letter-spacing:-1px}
+.logo span{font-size:.55em;display:block;letter-spacing:1px}
+nav a{text-decoration:none;font-weight:800;margin-left:18px}
+.hero{padding:70px 0 55px;background:
+radial-gradient(circle at 85% 20%,rgba(255,216,61,.65),transparent 25%),
+linear-gradient(135deg,#fffdf7,#fff4b8)}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:45px}
+.badge{display:inline-block;background:var(--ink);color:white;padding:7px 12px;border-radius:999px;font-weight:900;font-size:.82rem;transform:rotate(-2deg)}
+h1{font-size:clamp(3rem,8vw,6.2rem);line-height:.88;letter-spacing:-5px;margin:18px 0}
+h2{font-size:clamp(2rem,5vw,3.2rem);line-height:1;margin:0 0 15px;letter-spacing:-2px}
+.hero p{font-size:1.15rem;max-width:650px}
+.cta{display:inline-block;background:var(--red);color:white;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:1000;margin-top:10px;transition:.15s}
+.cta:hover{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+.fly-display{height:330px;position:relative;background:#fff;border:4px solid var(--ink);border-radius:35px;box-shadow:var(--shadow);overflow:hidden}
+.fly-display:before,.fly-display:after{content:"";position:absolute;width:90px;height:120px;border:5px solid var(--ink);border-radius:50%;background:rgba(180,220,255,.42);top:82px}
+.fly-display:before{left:65px;transform:rotate(-25deg)}
+.fly-display:after{right:65px;transform:rotate(25deg)}
+.fly-body{position:absolute;left:50%;top:105px;transform:translateX(-50%);width:74px;height:125px;background:#202020;border:5px solid var(--ink);border-radius:48%}
+.fly-head{position:absolute;left:50%;top:67px;transform:translateX(-50%);width:65px;height:65px;background:#252525;border:5px solid var(--ink);border-radius:50%}
+.eye{position:absolute;width:23px;height:28px;background:#d93434;border:4px solid var(--ink);border-radius:50%;top:10px}
+.eye.l{left:5px}.eye.r{right:5px}
+.leg{position:absolute;width:85px;height:5px;background:var(--ink);left:50%;top:170px}
+.leg.l1{transform:translateX(-90px) rotate(25deg)}.leg.l2{transform:translateX(-90px) rotate(-25deg)}
+.leg.r1{transform:rotate(25deg)}.leg.r2{transform:rotate(-25deg)}
+.mini-fly{position:absolute;width:18px;height:30px;background:#222;border-radius:50%;transform:rotate(20deg)}
+.mini-fly:before,.mini-fly:after{content:"";position:absolute;width:24px;height:18px;border:2px solid #222;border-radius:50%;top:2px;background:#d9efff88}
+.mini-fly:before{right:12px;transform:rotate(-25deg)}.mini-fly:after{left:12px;transform:rotate(25deg)}
+section{padding:75px 0}
+.center{text-align:center}
+.sub{color:var(--muted);max-width:700px;margin:0 auto 30px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);padding:25px;box-shadow:var(--shadow)}
+.card h3{margin-top:0;font-size:1.35rem}
+.icon{font-size:2.3rem}
+.shop{background:#171717;color:white}
+.shop .card{color:var(--ink)}
+.selector{max-width:700px;margin:30px auto}
+select{width:100%;padding:16px;border:3px solid var(--ink);border-radius:13px;font-size:1rem;font-weight:800;background:white}
+.price{font-size:3rem;font-weight:1000;margin:18px 0 4px}
+.small{color:var(--muted)}
+.shop .small{color:#aaa}
+.buy{width:100%;cursor:pointer;background:var(--yellow);color:var(--ink);border:3px solid var(--ink);padding:17px;border-radius:14px;font-size:1.15rem;font-weight:1000;box-shadow:5px 5px 0 #777}
+.buy:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 #777}
+.reviews{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.review{position:relative}
+.stars{letter-spacing:2px}
+.quote{font-size:1.08rem}
+.who{font-weight:900}
+.faq{max-width:800px;margin:auto}
+details{background:white;border:3px solid var(--ink);border-radius:14px;padding:16px 20px;margin:12px 0}
+summary{font-weight:900;cursor:pointer}
+.notice{background:var(--orange);border:3px solid var(--ink);padding:18px;border-radius:15px;font-weight:800;margin-top:25px}
+footer{background:var(--ink);color:white;padding:40px 0}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr;gap:30px}
+footer p{color:#bbb}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modal-box{background:var(--paper);border:4px solid var(--ink);border-radius:25px;box-shadow:0 20px 60px #0008;max-width:580px;width:100%;padding:30px;position:relative}
+.close{position:absolute;right:14px;top:10px;background:var(--ink);color:white;border:0;border-radius:50%;width:38px;height:38px;font-size:1.3rem;cursor:pointer}
+.tracking{background:#fff;border:3px dashed var(--ink);border-radius:14px;padding:15px;margin-top:18px;font-family:monospace}
+.progress{height:18px;background:#ddd;border:3px solid var(--ink);border-radius:20px;overflow:hidden;margin-top:10px}
+.progress div{height:100%;width:62%;background:var(--green)}
+@media(max-width:760px){
+  nav{display:none}.hero{padding-top:45px}.hero-grid{grid-template-columns:1fr}
+  .fly-display{height:280px}.features,.reviews,.footer-grid{grid-template-columns:1fr}
+  section{padding:55px 0}h1{letter-spacing:-3px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="logo">Flies 'R' Us<span>WE SELL FLIES. SERIOUSLY.</span></div>
+    <nav><a href="#why">Why Flies?</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a></nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="badge">THE INTERNET'S #1 FLY-BASED RETAILER*</span>
+      <h1>BUY.<br>FLIES.<br>NOW.</h1>
+      <p><strong>Ever sat in silence and wish you would hear a faint buzz or a small black object moving out of the corner of your eye?</strong> Nope!</p>
+      <p>But anyway now you can buy one and have it shipped directly to you!</p>
+      <p><strong>Yes that's right:</strong> within <strong>3–83 business days</strong> you'll get some amount of flies delivered to you!</p>
+      <a class="cta" href="#shop">I NEED FLIES →</a>
+    </div>
+    <div class="fly-display" aria-label="Illustration of a house fly">
+      <div class="fly-head"><i class="eye l"></i><i class="eye r"></i></div>
+      <div class="fly-body"></div>
+      <div class="leg l1"></div><div class="leg l2"></div><div class="leg r1"></div><div class="leg r2"></div>
+      <div class="mini-fly" style="left:20px;top:25px"></div>
+      <div class="mini-fly" style="right:25px;bottom:30px;transform:rotate(-30deg)"></div>
+      <div class="mini-fly" style="left:75%;top:35px;transform:scale(.7)"></div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="container center">
+    <h2>Why Buy Flies?</h2>
+    <p class="sub">Great question. We've asked ourselves this every morning since opening the business.</p>
+    <div class="features">
+      <div class="card"><div class="icon">🪰</div><h3>Instant Ambience</h3><p>Nothing says "someone lives here" like a fly that refuses to leave the kitchen.</p></div>
+      <div class="card"><div class="icon">🏆</div><h3>Premium Insect</h3><p>Our flies are selected using a proprietary process known as "looking at them."</p></div>
+      <div class="card"><div class="icon">📦</div><h3>Door-to-Door</h3><p>We ship directly to your door because throwing them over the fence seemed less professional.</p></div>
+    </div>
+    <div class="notice">⚠️ IMPORTANT: Flies are extremely good at being flies. They have not been trained to do tricks, pay rent, or listen to you.</div>
+  </div>
+</section>
+
+<section class="shop" id="shop">
+  <div class="container center">
+    <h2>Choose Your Fly Situation</h2>
+    <p class="sub">Select a quantity. Pretend you have a reason.</p>
+    <div class="card selector">
+      <label for="qty"><strong>HOW MANY FLIES DO YOU REQUIRE?</strong></label>
+      <select id="qty">
+        <option value="4.99" data-label="1–5 Flies">1–5 Flies — $4.99</option>
+        <option value="9.99" data-label="A Handful">A Handful — $9.99</option>
+        <option value="19.99" data-label="Too Many">Too Many — $19.99</option>
+        <option value="29.99" data-label="Mystery Quantity">Mystery Quantity — $29.99</option>
+        <option value="59.99" data-label="The Swarm">The Swarm — $59.99</option>
+      </select>
+      <div class="price" id="price">$4.99</div>
+      <p class="small" id="selection">1–5 Flies</p>
+      <button class="buy" id="buyBtn">🪰 BUY THESE FLIES</button>
+      <p class="small">Shipping: Probably eventually. Timing: spiritually estimated.</p>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="center"><h2>Customer Reviews</h2><p class="sub">Real customers. Probably. We didn't ask for identification.</p></div>
+    <div class="reviews">
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"I ordered 10 flies and received what can only be described as an upsetting number of flies. Five stars."</p><p class="who">— Kevin, Extremely Concerned</p></div>
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"Fast shipping. I know because I saw a fly in my house before the package arrived."</p><p class="who">— Linda, Probably Psychic</p></div>
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"My landlord says I already have enough flies. Clearly he doesn't understand premium flies."</p><p class="who">— Marcus, Repeat Customer</p></div>
+      <div class="card review"><div class="stars">★★★★☆</div><p class="quote">"One of them landed on my sandwich. I consider that a personal endorsement."</p><p class="who">— Jamie, Sandwich Enthusiast</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="center"><h2>Reviews From The Flies</h2><p class="sub">Because apparently we're doing this now.</p></div>
+    <div class="reviews">
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"10/10. Great place. Lots of windows. Would get stuck again."</p><p class="who">— Gerald, House Fly</p></div>
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"My human keeps trying to swat me. Five stars for the challenge."</p><p class="who">— Steve, Experienced Fly</p></div>
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"I was promised a warm kitchen and poor sanitation. They delivered."</p><p class="who">— Barbara, Luxury Fly</p></div>
+      <div class="card review"><div class="stars">★★★★★</div><p class="quote">"Buzz buzz buzz. Buzz. Buzz buzz."</p><p class="who">— █████, Customer Since Tuesday</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container faq">
+    <div class="center"><h2>Frequently Asked Questions</h2></div>
+    <details><summary>What kind of flies are these?</summary><p>House flies. The regular old house fly. No fancy stuff. No tiny hats. No miniature briefcases.</p></details>
+    <details><summary>How many flies will I actually receive?</summary><p>We have absolutely no idea. That's part of the excitement. Our Mystery Quantity option is especially mysterious.</p></details>
+    <details><summary>When will my order arrive?</summary><p>Between 3 and 83 business days. Or sooner. Or possibly in a way that makes the concept of "arrival" complicated.</p></details>
+    <details><summary>Can I track my flies?</summary><p>Absolutely. Once you order, our highly advanced system will attempt to determine where you are and then confidently make something up.</p></details>
+    <details><summary>Are the flies alive?</summary><p>We strongly encourage you to maintain realistic expectations regarding the concept of "fly."</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <div class="logo">Flies 'R' Us</div>
+      <p>The world's least necessary source for premium household flies.</p>
+      <p>© 2026 Flies 'R' Us. All flies reserved. We don't know what that means either.</p>
+    </div>
+    <div>
+      <strong>LEGAL-ish</strong>
+      <p>Not affiliated with any major retailer. No flies were consulted by our lawyers. Results may vary depending on how many flies you already have.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close" id="closeBtn" aria-label="Close">×</button>
+    <span class="badge">ORDER ACCEPTED*</span>
+    <h2>CONGRATULATIONS!</h2>
+    <p>You have made an excellent financial decision that absolutely nobody asked you to make.</p>
+    <div class="tracking">
+      <strong>🪰 FLY TRACKING SYSTEM</strong><br><br>
+      Order: FLY-<span id="orderNo"></span><br>
+      Destination: <span id="location">Determining your location...</span><br>
+      Status: <strong>FLIES ARE PROBABLY MOVING</strong>
+      <div class="progress"><div></div></div>
+    </div>
+    <div class="notice">🎁 YOUR FIRST ORDER IS FREE!<br><br>We have no idea why. Management has been notified. Please don't tell management.</div>
+    <button class="buy" id="closeBuy" style="margin-top:18px">AWESOME. CLOSE THIS WINDOW.</button>
+  </div>
+</div>
+
+<script>
+const qty=document.getElementById('qty'), price=document.getElementById('price'), selection=document.getElementById('selection');
+qty.addEventListener('change',()=>{
+  price.textContent='$'+Number(qty.value).toFixed(2);
+  selection.textContent=qty.options[qty.selectedIndex].dataset.label;
+});
+const modal=document.getElementById('modal');
+document.getElementById('buyBtn').addEventListener('click',()=>{
+  document.getElementById('orderNo').textContent=Math.floor(100000+Math.random()*900000);
+  const loc=document.getElementById('location');
+  loc.textContent='Scanning extremely suspiciously...';
+  modal.classList.add('show');
+  setTimeout(()=>{
+    loc.textContent='Somewhere on Earth (probably)';
+  },900);
+});
+function closeModal(){modal.classList.remove('show')}
+document.getElementById('closeBtn').onclick=closeModal;
+document.getElementById('closeBuy').onclick=closeModal;
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+</script>
+</body>
+</html>
