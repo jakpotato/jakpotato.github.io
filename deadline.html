@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeadLine™ — Ask the Deceased</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&display=swap');
+
+  :root {
+    --bg: #100d0d;
+    --paper: #e8dfca;
+    --ink: #171313;
+    --red: #8d1717;
+    --green: #6f9b70;
+    --muted: #b6aa99;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 50% 0%, #342020 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 4px),
+      var(--bg);
+    color: var(--paper);
+    font-family: "Special Elite", Georgia, serif;
+  }
+
+  .wrap {
+    width: min(1000px, 92%);
+    margin: auto;
+    padding: 42px 0 70px;
+  }
+
+  header {
+    text-align: center;
+    border-bottom: 2px solid #5c3333;
+    padding-bottom: 28px;
+  }
+
+  .eyebrow {
+    color: #c58b8b;
+    letter-spacing: .2em;
+    font-size: .8rem;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: Creepster, cursive;
+    font-size: clamp(4rem, 13vw, 8.5rem);
+    line-height: .8;
+    margin: 20px 0 14px;
+    color: #d8d0ba;
+    text-shadow: 4px 4px 0 #641313;
+    transform: rotate(-1deg);
+  }
+
+  .tagline {
+    font-size: clamp(1rem, 3vw, 1.35rem);
+    margin: 0 auto;
+    max-width: 650px;
+  }
+
+  .stamp {
+    display: inline-block;
+    margin-top: 20px;
+    border: 2px solid #a22;
+    color: #d77;
+    padding: 7px 14px;
+    transform: rotate(2deg);
+    font-weight: bold;
+  }
+
+  section { margin-top: 42px; }
+
+  .intro {
+    text-align: center;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .feature, .review, .trial {
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid #302828;
+    box-shadow: 7px 7px 0 rgba(0,0,0,.35);
+  }
+
+  .feature {
+    padding: 22px;
+    transform: rotate(var(--r));
+  }
+
+  .feature h3 { margin-top: 0; }
+
+  .feature small { color: #5b4b43; }
+
+  .section-title {
+    font-family: Creepster, cursive;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #d8d0ba;
+  }
+
+  .reviews {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .review {
+    padding: 20px;
+    position: relative;
+  }
+
+  .review:nth-child(odd) { transform: rotate(-1deg); }
+  .review:nth-child(even) { transform: rotate(1.2deg); }
+
+  .review p {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+
+  .review cite {
+    font-size: .85rem;
+    color: #554640;
+  }
+
+  .trial {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(22px, 5vw, 38px);
+    transform: rotate(-.4deg);
+  }
+
+  .trial h2 {
+    font-family: Creepster, cursive;
+    font-size: 3rem;
+    margin: 0 0 5px;
+  }
+
+  .warning {
+    color: #7d1717;
+    font-size: .9rem;
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+    padding: 14px;
+    border: 2px solid #3b3030;
+    background: #f4eedf;
+    color: #171313;
+    font: inherit;
+    font-size: 1rem;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 15px;
+    border: 0;
+    background: #771515;
+    color: white;
+    font: inherit;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  button:hover { background: #981c1c; }
+  button:disabled { opacity: .55; cursor: wait; }
+
+  #response {
+    min-height: 72px;
+    margin-top: 20px;
+    padding: 16px;
+    background: #181313;
+    color: #b8d19b;
+    border: 2px solid #3e5934;
+    display: none;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .cursed {
+    font-family: "Times New Roman", serif;
+    font-size: 1.35rem;
+    color: #d7a7d7 !important;
+    text-shadow: 1px 0 #8b438b, -1px 0 #438b70;
+    letter-spacing: .08em;
+  }
+
+  .fineprint {
+    text-align: center;
+    color: var(--muted);
+    font-size: .75rem;
+    margin-top: 42px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 700px) {
+    .features, .reviews { grid-template-columns: 1fr; }
+    .wrap { padding-top: 25px; }
+    .feature, .review { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Patent Pending • Probably Illegal • Legally Dead</div>
+  <h1>DeadLine™</h1>
+  <p class="tagline">Professional conversations with people who have absolutely no business answering you.</p>
+  <div class="stamp">NOW WITH 14% MORE NECROMANCY</div>
+</header>
+
+<section>
+  <p class="intro">
+    Have you ever had a question that only a dead person could answer?
+    Of course you have. That's why <strong>DeadLine™</strong> uses advanced
+    spectral telecommunications, graveyard Wi-Fi, and one intern named Kevin
+    to reach the deceased.
+  </p>
+
+  <div class="features">
+    <div class="feature" style="--r:-1.5deg">
+      <h3>ANY DEAD PERSON</h3>
+      <p>Ancient kings. Your great-grandpa. That guy from history class.</p>
+      <small>Availability may vary depending on decomposition.</small>
+    </div>
+    <div class="feature" style="--r:1deg">
+      <h3>NO APPOINTMENT</h3>
+      <p>They're dead. Their schedules are extremely flexible.</p>
+      <small>Except Tuesdays. Nobody knows why.</small>
+    </div>
+    <div class="feature" style="--r:-.5deg">
+      <h3>100% REAL SPIRITS*</h3>
+      <p>We do not use chatbots, actors, or suspiciously cold interns.</p>
+      <small>*We cannot legally substantiate this claim.</small>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Testimonials From Satisfied Customers</h2>
+  <div class="reviews">
+    <article class="review">
+      <p>“It 100% worked. I asked my grandfather about his secret chili recipe and now my dog's head spins 360 degrees whenever I say ‘paprika.’”</p>
+      <cite>— Brenda, living customer</cite>
+    </article>
+    <article class="review">
+      <p>“Perfect for getting more bodies to inhabit so I can finally fulfil my dreams of being an ice cream man.”</p>
+      <cite>— Spirit of the Damned, 4,000-ish years deceased</cite>
+    </article>
+    <article class="review">
+      <p>“Asked Napoleon for military advice. He told me to put a wet sock in my mailbox. My mailbox has not moved in three weeks.”</p>
+      <cite>— Derek, customer</cite>
+    </article>
+    <article class="review">
+      <p>“Five stars. I had been trapped in a mirror since 1842. They answered my question and now I am trapped in TWO mirrors.”</p>
+      <cite>— Margaret, deceased</cite>
+    </article>
+    <article class="review">
+      <p>“I asked if my husband was faithful. A Victorian child screamed through my ceiling for nine minutes. So, yes? Probably?”</p>
+      <cite>— Anonymous, living customer</cite>
+    </article>
+    <article class="review">
+      <p>“They contacted me instead. I was not expecting this and would like to speak to management.”</p>
+      <cite>— Edwin, formerly deceased</cite>
+    </article>
+    <article class="review">
+      <p>“10/10. Finally found someone willing to haunt my landlord. Rent has been unchanged for six months. My landlord now sleeps exclusively upside down.”</p>
+      <cite>— Tyler, tenant &amp; accidental exorcist</cite>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Try It Yourself</h2>
+  <div class="trial">
+    <h2>Ask The Dead</h2>
+    <div class="warning">WARNING: Do not ask about the basement. We already know about the basement.</div>
+
+    <textarea id="question" placeholder="Ask a deceased person anything..."></textarea>
+    <button id="ask">CONTACT THE DECEASED</button>
+
+    <div id="response"></div>
+  </div>
+</section>
+
+<p class="fineprint">
+  DeadLine™ is not responsible for possessions, hauntings, levitation, spontaneous
+  Victorian children, incorrect prophecies, cursed pets, dimensional instability,
+  or discovering that your dead relatives have been ignoring you on purpose.
+  Results not guaranteed. Spirits are independent contractors.
+</p>
+
+</div>
+
+<script>
+const question = document.getElementById("question");
+const button = document.getElementById("ask");
+const response = document.getElementById("response");
+
+const waitingMessages = [
+  "CONTACTING SPIRIT...",
+  "NO RESPONSE.",
+  "PERSON IS STILL DEAD.",
+  "TRYING ANOTHER SPIRIT...",
+  "SPIRIT HAS NOT RESPONDED.",
+  "THEY ARE, UNFORTUNATELY, STILL DEAD.",
+  "TRY AGAIN AFTER SOMEONE DIES.",
+  "CHECKING LOCAL GRAVEYARDS...",
+  "GRAVEYARD SIGNAL WEAK.",
+  "ASKING A DIFFERENT DEAD PERSON...",
+  "THE DECEASED HAVE BEEN NOTIFIED.",
+  "THE DECEASED HAVE LEFT YOU ON READ."
+];
+
+const cursedResponses = [
+  "̷̢̛T̸H̶E̵ ̴M̷O̶O̵N̴ ̷R̶E̷M̵E̴M̸B̷E̸R̴S̷ ̷Y̸O̴U̷R̸ ̶N̷A̵M̸E̷.̴\n̶D̴O̶ ̸N̵O̷T̷ ̶L̵E̴T̴ ̵T̴H̵E̵ ̴M̵I̵R̴R̴O̶R̴ ̶K̴N̸O̷W̷.",
+  "ᚦᛟ ᚴᚱᛁᚹ ᚦᛖ ᚴᚱᚨᚹ ᛏᚺᚱᛟᚢᚷᚺ ᚦᛖ ᛒᛟᚾᛖᛋ.\nTHE FOURTH DOOR IS ALREADY OPEN.",
+  "I̷ ̴a̶m̵ ̶b̸e̵h̴i̵n̷d̸ ̷y̵o̷u̵.̶\n\nNo.\n\nNot physically.\n\nWorse.",
+  "Y̸O̷U̵R̶ ̴Q̵U̷E̷S̸T̶I̴O̵N̶ ̵H̵A̸S̸ ̶B̸E̴E̵N̴ ̷A̷N̷S̵W̶E̷R̸E̶D̸.\n\nYou just haven't become the answer yet.",
+  "𓂀 𓂀 𓂀\n\nTHE DEAD SAY:\n\nSTOP FEEDING THE WALL AFTER MIDNIGHT.\n\nIT LEARNS.",
+  "̴̡̢̛̹̘̩̫̞͚̺̪̗̲̪̩̱̠͇̲̯̘̟̹̼̠̲̱̖̗̙̝̘̟̖̲̺̼̗̯̱̜̘̼̲̱̠̙̘̪̫̬̪̼̘̟̖̹̠̗̲̪̺̱̹̠̗̲̪̺̱̹̠̗̲̪̺̱\nWE HAVE YOUR TEETH.",
+  "ᛏᚺᛖ ᛞᛖᚨᛞ ᚺᚨᚡᛖ ᚨᛋᚴᛖᛞ ᛏᚺᚨᛏ ᚹᛖ ᛋᛏᛟᛈ.\n\nWe cannot stop.\n\nThe button is hungry."
+];
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function askTheDead() {
+  if (!question.value.trim()) {
+    question.focus();
+    return;
+  }
+
+  button.disabled = true;
+  response.style.display = "block";
+  response.classList.remove("cursed");
+
+  for (let i = 0; i < 7; i++) {
+    response.textContent = waitingMessages[i % waitingMessages.length];
+    await sleep(650 + Math.random() * 450);
+  }
+
+  // Roughly 1 in 10 attempts succeeds.
+  if (Math.random() < 0.1) {
+    response.classList.add("cursed");
+    response.textContent = cursedResponses[Math.floor(Math.random() * cursedResponses.length)];
+    await sleep(5000);
+    location.reload();
+  } else {
+    response.textContent = waitingMessages[Math.floor(Math.random() * waitingMessages.length)];
+    button.disabled = false;
+  }
+}
+
+button.addEventListener("click", askTheDead);
+
+question.addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) askTheDead();
+});
+</script>
+</body>
+</html>
