@@ -58,11 +58,46 @@ canvas {
     const ctx = canvas.getContext("2d");
     const reset = document.getElementById("reset");
 
-    let width;
-    let height;
+    // ------------------------------------------------------------
+    // Settings
+    // ------------------------------------------------------------
+
+    const GRAVITY = 1200;
+
+    // Small bounce between balls. Keeps the satisfying physics.
+    const BALL_BOUNCE = 0.18;
+
+    // Slightly stronger bounce from the walls/floor.
+    const WALL_BOUNCE = 0.28;
+
+    // Balls become eligible for sleeping after this long
+    // without meaningful movement.
+    const SLEEP_DELAY = 0.30;
+
+    // A ball moving slower than this can eventually sleep.
+    const SLEEP_SPEED = 12;
+
+    // Spatial grid cell size.
+    const GRID_SIZE = 24;
+
+    // Physics always runs at this fixed rate.
+    const FIXED_STEP = 1 / 60;
+
+    // Prevents a huge backlog after a tab is inactive.
+    const MAX_ACCUMULATED_TIME = 0.1;
+
+    // ------------------------------------------------------------
+    // State
+    // ------------------------------------------------------------
+
+    let width = 0;
+    let height = 0;
     let dpr = 1;
+
     let balls = [];
     let hue = 0;
+
+    let accumulator = 0;
     let lastTime = performance.now();
 
     const pointer = {
@@ -75,8 +110,9 @@ canvas {
         down: false
     };
 
-    const GRAVITY = 1200;
-    const MAX_BALLS = 1000;
+    // ------------------------------------------------------------
+    // Resize
+    // ------------------------------------------------------------
 
     function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -84,8 +120,8 @@ canvas {
         width = window.innerWidth;
         height = window.innerHeight;
 
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
 
         canvas.style.width = width + "px";
         canvas.style.height = height + "px";
@@ -93,34 +129,59 @@ canvas {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         for (const ball of balls) {
-            ball.x = Math.max(ball.r, Math.min(width - ball.r, ball.x));
-            ball.y = Math.max(ball.r, Math.min(height - ball.r, ball.y));
+            ball.x = Math.max(
+                ball.r,
+                Math.min(width - ball.r, ball.x)
+            );
+
+            ball.y = Math.max(
+                ball.r,
+                Math.min(height - ball.r, ball.y)
+            );
         }
     }
 
+    // ------------------------------------------------------------
+    // Balls
+    // ------------------------------------------------------------
+
     function nextColor() {
         const color = `hsl(${hue} 78% 55%)`;
+
         hue = (hue + 21) % 360;
+
         return color;
     }
 
     function addBall(x, y) {
-        if (balls.length >= MAX_BALLS) {
-            balls.shift();
-        }
-
-        const r = 7 + Math.random() * 4;
+        const radius = 6 + Math.random() * 3.5;
 
         balls.push({
             x,
             y,
+
             vx: 0,
             vy: 0,
-            r,
+
+            r: radius,
+            mass: radius * radius,
+
             color: nextColor(),
-            mass: r * r
+
+            // Sleeping state.
+            sleeping: false,
+
+            // Time spent below the sleeping speed.
+            sleepTimer: 0,
+
+            // Used to determine whether the ball is supported.
+            supported: false
         });
     }
+
+    // ------------------------------------------------------------
+    // Pointer
+    // ------------------------------------------------------------
 
     function getPointerPosition(event) {
         const rect = canvas.getBoundingClientRect();
@@ -140,10 +201,13 @@ canvas {
 
         pointer.x = p.x;
         pointer.y = p.y;
+
         pointer.previousX = p.x;
         pointer.previousY = p.y;
+
         pointer.vx = 0;
         pointer.vy = 0;
+
         pointer.down = true;
 
         try {
@@ -151,6 +215,9 @@ canvas {
         } catch (_) {}
 
         addBall(p.x, p.y);
+
+        // Wake balls near the new ball immediately.
+        wakeNearby(p.x, p.y, 55);
     });
 
     canvas.addEventListener("pointermove", event => {
@@ -164,6 +231,10 @@ canvas {
 
         pointer.vx = pointer.x - pointer.previousX;
         pointer.vy = pointer.y - pointer.previousY;
+
+        if (pointer.down) {
+            wakeNearby(pointer.x, pointer.y, 65);
+        }
     });
 
     canvas.addEventListener("pointerup", () => {
@@ -178,20 +249,153 @@ canvas {
         pointer.vy = 0;
     });
 
+    // ------------------------------------------------------------
+    // Reset
+    // ------------------------------------------------------------
+
     reset.addEventListener("click", () => {
         balls.length = 0;
         hue = 0;
     });
 
-    /*
-     * Keep every ball inside the screen.
-     */
+    // ------------------------------------------------------------
+    // Spatial grid
+    // ------------------------------------------------------------
+
+    const grid = new Map();
+
+    function gridKey(x, y) {
+        return x + "," + y;
+    }
+
+    function rebuildGrid() {
+        grid.clear();
+
+        for (let i = 0; i < balls.length; i++) {
+            const ball = balls[i];
+
+            const gx = Math.floor(ball.x / GRID_SIZE);
+            const gy = Math.floor(ball.y / GRID_SIZE);
+
+            const key = gridKey(gx, gy);
+
+            let cell = grid.get(key);
+
+            if (!cell) {
+                cell = [];
+                grid.set(key, cell);
+            }
+
+            cell.push(i);
+        }
+    }
+
+    function getNearbyBalls(x, y, radius, callback) {
+        const minX = Math.floor((x - radius) / GRID_SIZE);
+        const maxX = Math.floor((x + radius) / GRID_SIZE);
+
+        const minY = Math.floor((y - radius) / GRID_SIZE);
+        const maxY = Math.floor((y + radius) / GRID_SIZE);
+
+        for (let gx = minX; gx <= maxX; gx++) {
+            for (let gy = minY; gy <= maxY; gy++) {
+                const cell = grid.get(gridKey(gx, gy));
+
+                if (!cell) {
+                    continue;
+                }
+
+                for (const index of cell) {
+                    callback(index);
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------
+    // Sleeping
+    // ------------------------------------------------------------
+
+    function wakeBall(ball) {
+        if (!ball.sleeping) {
+            return;
+        }
+
+        ball.sleeping = false;
+        ball.sleepTimer = 0;
+    }
+
+    function wakeNearby(x, y, radius) {
+        getNearbyBalls(x, y, radius, index => {
+            wakeBall(balls[index]);
+        });
+    }
+
+    function wakeConnectedBalls(startIndex) {
+        const queue = [startIndex];
+        const visited = new Set([startIndex]);
+
+        while (queue.length) {
+            const index = queue.shift();
+            const ball = balls[index];
+
+            wakeBall(ball);
+
+            const radius = ball.r + 12;
+
+            getNearbyBalls(ball.x, ball.y, radius, otherIndex => {
+                if (visited.has(otherIndex)) {
+                    return;
+                }
+
+                const other = balls[otherIndex];
+
+                const dx = other.x - ball.x;
+                const dy = other.y - ball.y;
+
+                const distance = Math.hypot(dx, dy);
+
+                if (distance <= ball.r + other.r + 8) {
+                    visited.add(otherIndex);
+                    queue.push(otherIndex);
+                }
+            });
+        }
+    }
+
+    function updateSleeping(ball, dt) {
+        if (ball.sleeping) {
+            return;
+        }
+
+        const speed = Math.hypot(ball.vx, ball.vy);
+
+        if (ball.supported && speed < SLEEP_SPEED) {
+            ball.sleepTimer += dt;
+
+            if (ball.sleepTimer >= SLEEP_DELAY) {
+                ball.vx = 0;
+                ball.vy = 0;
+                ball.sleeping = true;
+                ball.sleepTimer = 0;
+            }
+        } else {
+            ball.sleepTimer = 0;
+        }
+    }
+
+    // ------------------------------------------------------------
+    // Walls
+    // ------------------------------------------------------------
+
     function constrainToWalls(ball) {
+        let touchedFloor = false;
+
         if (ball.x - ball.r < 0) {
             ball.x = ball.r;
 
             if (ball.vx < 0) {
-                ball.vx = 0;
+                ball.vx *= -WALL_BOUNCE;
             }
         }
 
@@ -199,7 +403,7 @@ canvas {
             ball.x = width - ball.r;
 
             if (ball.vx > 0) {
-                ball.vx = 0;
+                ball.vx *= -WALL_BOUNCE;
             }
         }
 
@@ -207,32 +411,33 @@ canvas {
             ball.y = ball.r;
 
             if (ball.vy < 0) {
-                ball.vy = 0;
+                ball.vy *= -WALL_BOUNCE;
             }
         }
 
         if (ball.y + ball.r > height) {
             ball.y = height - ball.r;
 
+            touchedFloor = true;
+
             if (ball.vy > 0) {
-                ball.vy = 0;
+                ball.vy *= -WALL_BOUNCE;
             }
 
-            // Ground friction.
-            ball.vx *= 0.75;
+            // Floor friction.
+            ball.vx *= 0.82;
         }
+
+        return touchedFloor;
     }
 
-    /*
-     * Strong cursor/finger interaction.
-     *
-     * The pointer acts like a physical circular object pushing
-     * nearby balls away from it. Pointer movement also transfers
-     * momentum into the balls.
-     */
-    function applyPointerForce(ball) {
+    // ------------------------------------------------------------
+    // Pointer physics
+    // ------------------------------------------------------------
+
+    function applyPointer(ball) {
         if (!pointer.down) {
-            return;
+            return false;
         }
 
         const dx = ball.x - pointer.x;
@@ -240,12 +445,10 @@ canvas {
 
         const distance = Math.hypot(dx, dy);
 
-        const influence =
-            ball.r +
-            45;
+        const influenceRadius = 48 + ball.r;
 
-        if (distance > influence) {
-            return;
+        if (distance > influenceRadius) {
+            return false;
         }
 
         let nx;
@@ -259,38 +462,40 @@ canvas {
             ny = dy / distance;
         }
 
-        const strength = 1 - distance / influence;
+        const strength =
+            1 - distance / influenceRadius;
 
         /*
-         * Strong radial push.
+         * The pointer acts as a physical moving object.
          */
-        const force = strength * 180;
+        const force = 220 * strength;
 
         ball.vx += nx * force;
         ball.vy += ny * force;
 
         /*
-         * Transfer cursor/finger movement into the ball.
+         * Transfer finger/mouse velocity.
          */
-        ball.vx += pointer.vx * strength * 4;
-        ball.vy += pointer.vy * strength * 4;
+        ball.vx += pointer.vx * strength * 5;
+        ball.vy += pointer.vy * strength * 5;
 
         /*
-         * Prevent a ball from being dragged through the pointer.
+         * Don't allow the pointer to pass through a ball.
          */
-        const minimumDistance = ball.r + 8;
+        const minimumDistance = ball.r + 5;
 
         if (distance < minimumDistance) {
             ball.x = pointer.x + nx * minimumDistance;
             ball.y = pointer.y + ny * minimumDistance;
         }
+
+        return true;
     }
 
-    /*
-     * Very strict circle-vs-circle collision.
-     *
-     * Balls are never allowed to occupy the same physical space.
-     */
+    // ------------------------------------------------------------
+    // Ball collision
+    // ------------------------------------------------------------
+
     function solveCollision(a, b) {
         const dx = b.x - a.x;
         const dy = b.y - a.y;
@@ -298,8 +503,11 @@ canvas {
         const minimumDistance = a.r + b.r;
         const distanceSquared = dx * dx + dy * dy;
 
-        if (distanceSquared >= minimumDistance * minimumDistance) {
-            return;
+        if (
+            distanceSquared >=
+            minimumDistance * minimumDistance
+        ) {
+            return false;
         }
 
         let distance = Math.sqrt(distanceSquared);
@@ -308,10 +516,6 @@ canvas {
         let ny;
 
         if (distance < 0.0001) {
-            /*
-             * Balls somehow ended up at exactly the same position.
-             * Give them a deterministic separation direction.
-             */
             nx = 0;
             ny = -1;
             distance = 0;
@@ -321,16 +525,17 @@ canvas {
         }
 
         /*
-         * Move the balls apart until their edges exactly touch.
-         *
-         * This is the important part that prevents overlapping.
+         * Absolutely no overlap.
          */
         const overlap = minimumDistance - distance;
 
         const totalMass = a.mass + b.mass;
 
-        const moveA = overlap * (b.mass / totalMass);
-        const moveB = overlap * (a.mass / totalMass);
+        const moveA =
+            overlap * (b.mass / totalMass);
+
+        const moveB =
+            overlap * (a.mass / totalMass);
 
         a.x -= nx * moveA;
         a.y -= ny * moveA;
@@ -339,7 +544,7 @@ canvas {
         b.y += ny * moveB;
 
         /*
-         * Calculate relative velocity along the collision normal.
+         * Determine which ball is moving into the other.
          */
         const relativeVx = b.vx - a.vx;
         const relativeVy = b.vy - a.vy;
@@ -349,22 +554,26 @@ canvas {
             relativeVy * ny;
 
         /*
-         * They are already separating.
+         * Mark balls as supported when the collision is mostly
+         * vertical and the lower ball is beneath the upper one.
          */
-        if (velocityAlongNormal > 0) {
-            return;
+        if (Math.abs(ny) > 0.55) {
+            if (a.y < b.y) {
+                a.supported = true;
+            } else {
+                b.supported = true;
+            }
+        }
+
+        if (velocityAlongNormal >= 0) {
+            return true;
         }
 
         /*
-         * Very low bounce.
-         *
-         * This lets balls settle into a stable stack instead of
-         * constantly bouncing.
+         * Preserve a little bounce.
          */
-        const restitution = 0.05;
-
         const impulse =
-            -(1 + restitution) *
+            -(1 + BALL_BOUNCE) *
             velocityAlongNormal /
             (1 / a.mass + 1 / b.mass);
 
@@ -376,87 +585,153 @@ canvas {
 
         b.vx += ix / b.mass;
         b.vy += iy / b.mass;
+
+        /*
+         * If a moving ball hits a sleeping ball, wake the connected
+         * portion of the pile.
+         */
+        if (a.sleeping && !b.sleeping) {
+            wakeConnectedBalls(balls.indexOf(a));
+        }
+
+        if (b.sleeping && !a.sleeping) {
+            wakeConnectedBalls(balls.indexOf(b));
+        }
+
+        return true;
     }
 
-    /*
-     * Additional positional collision pass.
-     *
-     * Several passes are used each frame so that a pile becomes
-     * tightly packed instead of slowly sinking into itself.
-     */
-    function solveAllCollisions() {
-        for (let pass = 0; pass < 5; pass++) {
+    // ------------------------------------------------------------
+    // Physics
+    // ------------------------------------------------------------
+
+    function physicsStep(dt) {
+        /*
+         * Reset support information.
+         */
+        for (const ball of balls) {
+            ball.supported = false;
+        }
+
+        rebuildGrid();
+
+        /*
+         * Apply gravity and movement only to awake balls.
+         *
+         * Sleeping balls completely ignore gravity.
+         */
+        for (const ball of balls) {
+            if (ball.sleeping) {
+                continue;
+            }
+
+            ball.vy += GRAVITY * dt;
+
+            const touchedPointer = applyPointer(ball);
+
+            if (touchedPointer) {
+                wakeBall(ball);
+            }
+
+            ball.vx *= 0.995;
+            ball.vy *= 0.995;
+
+            ball.x += ball.vx * dt;
+            ball.y += ball.vy * dt;
+
+            const touchedFloor =
+                constrainToWalls(ball);
+
+            if (touchedFloor) {
+                ball.supported = true;
+            }
+        }
+
+        /*
+         * Several inexpensive passes are much more stable than
+         * one large collision correction.
+         */
+        for (let pass = 0; pass < 3; pass++) {
+            rebuildGrid();
+
             for (let i = 0; i < balls.length; i++) {
-                for (let j = i + 1; j < balls.length; j++) {
-                    solveCollision(balls[i], balls[j]);
+                const a = balls[i];
+
+                const gx = Math.floor(a.x / GRID_SIZE);
+                const gy = Math.floor(a.y / GRID_SIZE);
+
+                for (let ox = -1; ox <= 1; ox++) {
+                    for (let oy = -1; oy <= 1; oy++) {
+
+                        const cell =
+                            grid.get(
+                                gridKey(
+                                    gx + ox,
+                                    gy + oy
+                                )
+                            );
+
+                        if (!cell) {
+                            continue;
+                        }
+
+                        for (const j of cell) {
+                            if (j <= i) {
+                                continue;
+                            }
+
+                            solveCollision(
+                                a,
+                                balls[j]
+                            );
+                        }
+                    }
                 }
             }
 
+            /*
+             * Keep balls inside the screen after positional
+             * collision correction.
+             */
             for (const ball of balls) {
                 constrainToWalls(ball);
             }
         }
-    }
-
-    function update(dt) {
-        dt = Math.min(dt, 0.016);
 
         /*
-         * Gravity.
-         *
-         * There is no horizontal gravity. A stationary ball only
-         * accelerates downward.
+         * Stop tiny amounts of jitter.
          */
         for (const ball of balls) {
-            ball.vy += GRAVITY * dt;
+            if (ball.sleeping) {
+                continue;
+            }
 
-            applyPointerForce(ball);
+            if (Math.abs(ball.vx) < 2) {
+                ball.vx = 0;
+            }
 
-            /*
-             * Air resistance.
-             */
-            ball.vx *= 0.995;
-            ball.vy *= 0.995;
-
-            /*
-             * Move.
-             */
-            ball.x += ball.vx * dt;
-            ball.y += ball.vy * dt;
-
-            constrainToWalls(ball);
-        }
-
-        /*
-         * Multiple collision passes make the stack rigid.
-         */
-        solveAllCollisions();
-
-        /*
-         * Once a ball is sitting on another ball, remove tiny
-         * vertical jitter so the pile settles.
-         */
-        for (const ball of balls) {
-            if (Math.abs(ball.vy) < 12) {
+            if (Math.abs(ball.vy) < 4) {
                 ball.vy = 0;
             }
 
-            if (Math.abs(ball.vx) < 3) {
-                ball.vx = 0;
-            }
+            updateSleeping(ball, dt);
         }
-
-        /*
-         * One final collision pass after velocity cleanup.
-         */
-        solveAllCollisions();
     }
 
+    // ------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------
+
     function draw() {
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(
+            0,
+            0,
+            width,
+            height
+        );
 
         /*
-         * Ground shadow.
+         * Subtle ground shadow.
          */
         if (balls.length) {
             ctx.save();
@@ -483,7 +758,7 @@ canvas {
 
         for (const ball of balls) {
             /*
-             * Small drop shadow.
+             * Drop shadow.
              */
             ctx.beginPath();
 
@@ -495,21 +770,24 @@ canvas {
                 Math.PI * 2
             );
 
-            ctx.fillStyle = "rgba(0,0,0,.14)";
+            ctx.fillStyle =
+                "rgba(0,0,0,.13)";
+
             ctx.fill();
 
             /*
-             * Ball highlight.
+             * Highlight.
              */
-            const gradient = ctx.createRadialGradient(
-                ball.x - ball.r * 0.35,
-                ball.y - ball.r * 0.4,
-                ball.r * 0.05,
+            const gradient =
+                ctx.createRadialGradient(
+                    ball.x - ball.r * 0.35,
+                    ball.y - ball.r * 0.4,
+                    ball.r * 0.05,
 
-                ball.x,
-                ball.y,
-                ball.r
-            );
+                    ball.x,
+                    ball.y,
+                    ball.r
+                );
 
             gradient.addColorStop(
                 0,
@@ -517,7 +795,7 @@ canvas {
             );
 
             gradient.addColorStop(
-                0.2,
+                0.22,
                 ball.color
             );
 
@@ -541,19 +819,80 @@ canvas {
         }
     }
 
+    // ------------------------------------------------------------
+    // Animation
+    // ------------------------------------------------------------
+
     function animate(now) {
-        const dt = (now - lastTime) / 1000;
+        let elapsed =
+            (now - lastTime) / 1000;
+
         lastTime = now;
 
-        update(dt);
+        elapsed = Math.min(
+            elapsed,
+            MAX_ACCUMULATED_TIME
+        );
+
+        accumulator += elapsed;
+
+        while (accumulator >= FIXED_STEP) {
+            physicsStep(FIXED_STEP);
+            accumulator -= FIXED_STEP;
+        }
+
         draw();
 
         requestAnimationFrame(animate);
     }
 
-    window.addEventListener("resize", resize);
+    // ------------------------------------------------------------
+    // Ball counter
+    // -----------------------------------------------
+
+    const counter = document.createElement("div");
+
+    counter.id = "ballCounter";
+
+    counter.style.position = "fixed";
+    counter.style.top = "16px";
+    counter.style.left = "16px";
+    counter.style.zIndex = "2";
+    counter.style.padding = "9px 12px";
+    counter.style.borderRadius = "10px";
+    counter.style.background = "rgba(255,255,255,.92)";
+    counter.style.color = "#333";
+    counter.style.font = "14px system-ui,sans-serif";
+    counter.style.boxShadow =
+        "0 2px 12px rgba(0,0,0,.12)";
+    counter.style.backdropFilter = "blur(6px)";
+
+    document.body.appendChild(counter);
+
+    function updateCounter() {
+        counter.textContent =
+            `Balls: ${balls.length}`;
+    }
+
+    /*
+     * Updating this at 10 FPS is plenty and avoids doing DOM work
+     * every animation frame.
+     */
+    setInterval(updateCounter, 100);
+
+    // ------------------------------------------------------------
+    // Start
+    // ------------------------------------------------------------
+
+    window.addEventListener(
+        "resize",
+        resize
+    );
 
     resize();
+
+    updateCounter();
+
     requestAnimationFrame(animate);
 })();
 </script>
