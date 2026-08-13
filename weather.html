@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Sky Glass — Weather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --glass-bg: rgba(255,255,255,0.14);
+    --glass-bg-strong: rgba(255,255,255,0.22);
+    --glass-border: rgba(255,255,255,0.35);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    --text: #ffffff;
+    --text-dim: rgba(255,255,255,0.72);
+    --text-faint: rgba(255,255,255,0.5);
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+    --accent: #ffe9a8;
+    --transition-bg: 1.1s ease;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:'Inter', system-ui, sans-serif;
+    color: var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+    background: linear-gradient(135deg,#3a6ea5,#6a9fd8 45%,#cfe0f0);
+    transition: background var(--transition-bg);
+    position:relative;
+  }
+
+  h1,h2,h3, .display{
+    font-family:'Space Grotesk', system-ui, sans-serif;
+  }
+
+  /* ---------- Weather backdrop categories ---------- */
+  body[data-weather="clear-day"]{
+    background:
+      radial-gradient(circle at 82% 12%, rgba(255,236,168,0.95) 0%, rgba(255,224,140,0.55) 16%, rgba(255,224,140,0) 38%),
+      linear-gradient(160deg, #1f5fa8 0%, #3f8ae0 45%, #8fc4ef 100%);
+  }
+  body[data-weather="clear-night"]{
+    background: linear-gradient(160deg, #06122e 0%, #101d4a 45%, #1c2f66 100%);
+  }
+  body[data-weather="partly-day"]{
+    background:
+      radial-gradient(circle at 85% 10%, rgba(255,236,168,0.55) 0%, rgba(255,224,140,0) 32%),
+      linear-gradient(160deg, #4a6d94 0%, #7ea0c4 55%, #b9cde0 100%);
+  }
+  body[data-weather="partly-night"]{
+    background: linear-gradient(160deg, #131b33 0%, #263355 55%, #3a4a72 100%);
+  }
+  body[data-weather="cloudy"]{
+    background: linear-gradient(160deg, #545f6b 0%, #7c8a97 55%, #a7b3bd 100%);
+  }
+  body[data-weather="fog"]{
+    background: linear-gradient(160deg, #97a3ab 0%, #c3cdd3 55%, #e7edf0 100%);
+    color:#233;
+    --text: #22303a;
+    --text-dim: rgba(34,48,58,0.72);
+    --text-faint: rgba(34,48,58,0.5);
+    --glass-border: rgba(34,48,58,0.18);
+  }
+  body[data-weather="rain"]{
+    background: linear-gradient(160deg, #22303f 0%, #3a5164 55%, #5c7789 100%);
+  }
+  body[data-weather="snow"]{
+    background: linear-gradient(160deg, #7fa0be 0%, #b9d3e6 55%, #eef5fa 100%);
+    color:#1c2733;
+    --text:#1c2733;
+    --text-dim: rgba(28,39,51,0.72);
+    --text-faint: rgba(28,39,51,0.5);
+    --glass-border: rgba(28,39,51,0.18);
+  }
+  body[data-weather="thunder"]{
+    background: linear-gradient(160deg, #14131f 0%, #241f38 55%, #362c4d 100%);
+  }
+
+  /* ---------- Effects layer ---------- */
+  #fx{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+  }
+  .cloud{
+    position:absolute; opacity:0.55; filter:blur(0.5px);
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.55) 60%, rgba(255,255,255,0) 75%);
+    border-radius:50%;
+    animation: drift linear infinite;
+  }
+  @keyframes drift{
+    from{ transform: translateX(-15vw); }
+    to{ transform: translateX(115vw); }
+  }
+  .drop{
+    position:absolute; top:-5vh; width:2px; height:3vh;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.65));
+    animation: fall linear infinite;
+  }
+  @keyframes fall{
+    to{ transform: translateY(115vh); }
+  }
+  .flake{
+    position:absolute; top:-5vh; border-radius:50%;
+    background: rgba(255,255,255,0.9);
+    animation: fallsway linear infinite;
+  }
+  @keyframes fallsway{
+    0%{ transform: translate(0,0); }
+    50%{ transform: translate(2vw, 55vh); }
+    100%{ transform: translate(-1vw, 115vh); }
+  }
+  .flash{
+    position:absolute; inset:0; background:rgba(255,255,255,0.55); opacity:0;
+  }
+  .flash.strike{ animation: strike 1.6s ease-out; }
+  @keyframes strike{
+    0%{opacity:0;} 4%{opacity:0.85;} 8%{opacity:0.1;} 12%{opacity:0.6;} 18%{opacity:0;} 100%{opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cloud,.drop,.flake,.flash.strike{ animation: none !important; }
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding: 28px 16px 60px;
+  }
+  .topbar{
+    width:100%; max-width:640px;
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:18px; gap:10px;
+  }
+  .brand{
+    font-size:15px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--text-dim); font-weight:600;
+  }
+  .unit-toggle{
+    display:flex; background:var(--glass-bg); border:1px solid var(--glass-border);
+    border-radius:999px; padding:3px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  }
+  .unit-toggle button{
+    border:none; background:transparent; color:var(--text-dim); font-family:inherit;
+    font-size:13px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer;
+    transition: background .2s, color .2s;
+  }
+  .unit-toggle button.active{ background:var(--glass-bg-strong); color:var(--text); }
+
+  .card{
+    width:100%; max-width:640px;
+    background: var(--glass-bg);
+    border:1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    box-shadow: var(--glass-shadow);
+    padding:22px;
+    margin-bottom:16px;
+  }
+
+  /* ---- location picker ---- */
+  .picker-row{ display:flex; flex-direction:column; gap:10px; }
+  .picker-row.inline{ flex-direction:row; flex-wrap:wrap; }
+  select, input[type="text"]{
+    font-family:inherit; font-size:15px; color:var(--text);
+    background: var(--glass-bg-strong); border:1px solid var(--glass-border);
+    border-radius: var(--radius-sm); padding:11px 14px; outline:none; width:100%;
+  }
+  select option{ color:#222; }
+  input[type="text"]::placeholder{ color: var(--text-faint); }
+  .field{ position:relative; flex:1; min-width:180px; }
+  .suggestions{
+    position:absolute; top:calc(100% + 6px); left:0; right:0;
+    background: rgba(30,40,55,0.92); border-radius: var(--radius-sm);
+    overflow:hidden; z-index:5; box-shadow: var(--glass-shadow);
+    max-height:240px; overflow-y:auto;
+  }
+  body[data-weather="fog"] .suggestions, body[data-weather="snow"] .suggestions{
+    background: rgba(255,255,255,0.97);
+  }
+  .suggestions button{
+    display:block; width:100%; text-align:left; background:none; border:none;
+    color:#fff; padding:10px 14px; font-family:inherit; font-size:14px; cursor:pointer;
+  }
+  body[data-weather="fog"] .suggestions button, body[data-weather="snow"] .suggestions button{ color:#233; }
+  .suggestions button:hover{ background: rgba(255,255,255,0.15); }
+  .suggestions .empty{ padding:10px 14px; font-size:13px; color:var(--text-faint); }
+
+  .row-buttons{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+    border-radius: var(--radius-sm); padding:11px 16px; border:1px solid var(--glass-border);
+    background: var(--glass-bg-strong); color:var(--text);
+    transition: transform .15s ease, background .2s;
+  }
+  .btn:hover{ background: rgba(255,255,255,0.32); }
+  .btn:active{ transform: scale(0.97); }
+  .btn.ghost{ background:transparent; }
+  .btn:disabled{ opacity:0.45; cursor:default; }
+  .btn:disabled:hover{ background: var(--glass-bg-strong); }
+
+  .location-label{
+    font-size:13px; color:var(--text-dim); display:flex; align-items:center; gap:8px; cursor:pointer;
+    text-decoration:underline; text-underline-offset:3px; width:fit-content; background:none; border:none; padding:0; font-family:inherit;
+  }
+
+  /* ---- current weather hero ---- */
+  .hero{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 4px; }
+  .hero .place{ font-size:18px; font-weight:600; margin-bottom:2px; }
+  .hero .place-sub{ font-size:13px; color:var(--text-dim); margin-bottom:14px; }
+  .hero .icon{ font-size:64px; line-height:1; margin-bottom:6px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
+  .hero .temp{ font-size:76px; font-weight:600; line-height:1; letter-spacing:-0.02em; }
+  .hero .desc{ font-size:16px; color:var(--text-dim); margin-top:4px; text-transform:capitalize; }
+
+  .stat-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:20px;
+  }
+  .stat{
+    background: var(--glass-bg-strong); border:1px solid var(--glass-border);
+    border-radius: var(--radius-md); padding:12px; text-align:center;
+  }
+  .stat .k{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim); margin-bottom:4px; }
+  .stat .v{ font-size:18px; font-weight:600; }
+
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:16px; font-size:12px; color:var(--text-faint); flex-wrap:wrap; gap:8px;
+  }
+
+  /* ---- forecast ---- */
+  .forecast-title{ font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin:0 0 12px 2px; font-weight:600; }
+  .forecast-scroll{
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:thin;
+  }
+  .fday{
+    flex: 0 0 auto; width:82px; text-align:center; background:var(--glass-bg-strong);
+    border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:12px 6px;
+  }
+  .fday .d{ font-size:13px; font-weight:600; margin-bottom:6px; }
+  .fday .dd{ font-size:11px; color:var(--text-faint); margin-bottom:6px; }
+  .fday .fi{ font-size:26px; margin-bottom:6px; }
+  .fday .hi{ font-size:14px; font-weight:600; }
+  .fday .lo{ font-size:13px; color:var(--text-dim); }
+
+  .status{ text-align:center; font-size:13px; color:var(--text-dim); padding:20px 0; }
+  .error{
+    background: rgba(200,60,60,0.25); border:1px solid rgba(255,120,120,0.4);
+    border-radius: var(--radius-sm); padding:10px 14px; font-size:13px; margin-top:10px;
+  }
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform: translateX(-50%);
+    background: rgba(20,25,35,0.9); color:#fff; padding:10px 18px; border-radius:999px;
+    font-size:13px; z-index:10; box-shadow: var(--glass-shadow); opacity:0; pointer-events:none;
+    transition: opacity .25s;
+  }
+  .toast.show{ opacity:1; }
+
+  footer{
+    margin-top:8px; font-size:11px; color:var(--text-faint); text-align:center;
+  }
+  footer a{ color:inherit; }
+
+  @media (max-width:480px){
+    .hero .temp{ font-size:64px; }
+    .hero .icon{ font-size:54px; }
+    .stat-grid{ gap:8px; }
+    .card{ padding:16px; border-radius:22px; }
+  }
+</style>
+</head>
+<body data-weather="clear-day">
+<div id="fx"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Sky Glass</div>
+    <div class="unit-toggle" id="unitToggle">
+      <button data-unit="c" id="unitC">°C</button>
+      <button data-unit="f" id="unitF">°F</button>
+    </div>
+  </div>
+
+  <!-- LOCATION PICKER -->
+  <div class="card" id="pickerCard">
+    <div class="picker-row">
+      <div class="picker-row inline">
+        <select id="countrySelect" style="flex:1; min-width:160px;">
+          <option value="">Select country…</option>
+        </select>
+        <div class="field">
+          <input type="text" id="citySearch" placeholder="Type a town or city…" disabled autocomplete="off">
+          <div class="suggestions" id="suggestions" hidden></div>
+        </div>
+      </div>
+      <div class="row-buttons">
+        <button class="btn ghost" id="useLocationBtn">📍 Use my location</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRENT WEATHER -->
+  <div class="card" id="weatherCard" hidden>
+    <button class="location-label" id="changeLocationBtn">↻ Change location</button>
+    <div class="hero">
+      <div class="place" id="placeName">—</div>
+      <div class="place-sub" id="placeSub"></div>
+      <div class="icon" id="currentIcon">—</div>
+      <div class="temp"><span id="currentTemp">--</span>°</div>
+      <div class="desc" id="currentDesc"></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Feels like</div><div class="v" id="feelsLike">--°</div></div>
+      <div class="stat"><div class="k">Wind</div><div class="v" id="windVal">--</div></div>
+      <div class="stat"><div class="k">Today H / L</div><div class="v" id="hiLo">--/--</div></div>
+    </div>
+    <div class="meta-row">
+      <span id="updatedAt">—</span>
+      <button class="btn ghost" id="refreshBtn" style="padding:6px 12px; font-size:12px;">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- FORECAST -->
+  <div class="card" id="forecastCard" hidden>
+    <div class="forecast-title">7-day forecast</div>
+    <div class="forecast-scroll" id="forecastScroll"></div>
+  </div>
+
+  <div class="status" id="statusMsg" hidden></div>
+
+  <footer>Weather data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a></footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ Country list ============ */
+  var COUNTRIES = [
+    ["Afghanistan","AF"],["Albania","AL"],["Algeria","DZ"],["Andorra","AD"],["Angola","AO"],
+    ["Argentina","AR"],["Armenia","AM"],["Australia","AU"],["Austria","AT"],["Azerbaijan","AZ"],
+    ["Bahamas","BS"],["Bahrain","BH"],["Bangladesh","BD"],["Barbados","BB"],["Belarus","BY"],
+    ["Belgium","BE"],["Belize","BZ"],["Benin","BJ"],["Bhutan","BT"],["Bolivia","BO"],
+    ["Bosnia and Herzegovina","BA"],["Botswana","BW"],["Brazil","BR"],["Brunei","BN"],["Bulgaria","BG"],
+    ["Burkina Faso","BF"],["Burundi","BI"],["Cambodia","KH"],["Cameroon","CM"],["Canada","CA"],
+    ["Cape Verde","CV"],["Central African Republic","CF"],["Chad","TD"],["Chile","CL"],["China","CN"],
+    ["Colombia","CO"],["Comoros","KM"],["Costa Rica","CR"],["Croatia","HR"],["Cuba","CU"],
+    ["Cyprus","CY"],["Czechia","CZ"],["Denmark","DK"],["Djibouti","DJ"],["Dominica","DM"],
+    ["Dominican Republic","DO"],["Ecuador","EC"],["Egypt","EG"],["El Salvador","SV"],["Estonia","EE"],
+    ["Eswatini","SZ"],["Ethiopia","ET"],["Fiji","FJ"],["Finland","FI"],["France","FR"],
+    ["Gabon","GA"],["Gambia","GM"],["Georgia","GE"],["Germany","DE"],["Ghana","GH"],
+    ["Greece","GR"],["Grenada","GD"],["Guatemala","GT"],["Guinea","GN"],["Guyana","GY"],
+    ["Haiti","HT"],["Honduras","HN"],["Hong Kong","HK"],["Hungary","HU"],["Iceland","IS"],
+    ["India","IN"],["Indonesia","ID"],["Iran","IR"],["Iraq","IQ"],["Ireland","IE"],
+    ["Israel","IL"],["Italy","IT"],["Ivory Coast","CI"],["Jamaica","JM"],["Japan","JP"],
+    ["Jordan","JO"],["Kazakhstan","KZ"],["Kenya","KE"],["Kiribati","KI"],["Kosovo","XK"],
+    ["Kuwait","KW"],["Kyrgyzstan","KG"],["Laos","LA"],["Latvia","LV"],["Lebanon","LB"],
+    ["Lesotho","LS"],["Liberia","LR"],["Libya","LY"],["Liechtenstein","LI"],["Lithuania","LT"],
+    ["Luxembourg","LU"],["Madagascar","MG"],["Malawi","MW"],["Malaysia","MY"],["Maldives","MV"],
+    ["Mali","ML"],["Malta","MT"],["Marshall Islands","MH"],["Mauritania","MR"],["Mauritius","MU"],
+    ["Mexico","MX"],["Micronesia","FM"],["Moldova","MD"],["Monaco","MC"],["Mongolia","MN"],
+    ["Montenegro","ME"],["Morocco","MA"],["Mozambique","MZ"],["Myanmar","MM"],["Namibia","NA"],
+    ["Nauru","NR"],["Nepal","NP"],["Netherlands","NL"],["New Zealand","NZ"],["Nicaragua","NI"],
+    ["Niger","NE"],["Nigeria","NG"],["North Korea","KP"],["North Macedonia","MK"],["Norway","NO"],
+    ["Oman","OM"],["Pakistan","PK"],["Palau","PW"],["Palestine","PS"],["Panama","PA"],
+    ["Papua New Guinea","PG"],["Paraguay","PY"],["Peru","PE"],["Philippines","PH"],["Poland","PL"],
+    ["Portugal","PT"],["Qatar","QA"],["Romania","RO"],["Russia","RU"],["Rwanda","RW"],
+    ["Saint Lucia","LC"],["Samoa","WS"],["San Marino","SM"],["Saudi Arabia","SA"],["Senegal","SN"],
+    ["Serbia","RS"],["Seychelles","SC"],["Sierra Leone","SL"],["Singapore","SG"],["Slovakia","SK"],
+    ["Slovenia","SI"],["Solomon Islands","SB"],["Somalia","SO"],["South Africa","ZA"],["South Korea","KR"],
+    ["South Sudan","SS"],["Spain","ES"],["Sri Lanka","LK"],["Sudan","SD"],["Suriname","SR"],
+    ["Sweden","SE"],["Switzerland","CH"],["Syria","SY"],["Taiwan","TW"],["Tajikistan","TJ"],
+    ["Tanzania","TZ"],["Thailand","TH"],["Timor-Leste","TL"],["Togo","TG"],["Tonga","TO"],
+    ["Trinidad and Tobago","TT"],["Tunisia","TN"],["Turkey","TR"],["Turkmenistan","TM"],["Tuvalu","TV"],
+    ["Uganda","UG"],["Ukraine","UA"],["United Arab Emirates","AE"],["United Kingdom","GB"],
+    ["United States","US"],["Uruguay","UY"],["Uzbekistan","UZ"],["Vanuatu","VU"],
+    ["Vatican City","VA"],["Venezuela","VE"],["Vietnam","VN"],["Yemen","YE"],["Zambia","ZM"],["Zimbabwe","ZW"]
+  ];
+  var FAHRENHEIT_COUNTRIES = {US:1,BS:1,BZ:1,KY:1,LR:1,PW:1,FM:1,MH:1};
+
+  /* ============ State ============ */
+  var state = {
+    unit: "c", // c | f
+    country: "",
+    lat: null, lon: null,
+    label: "", sub: "",
+    cacheKey: null,
+    data: null // {ts, current:{}, daily:{}}
+  };
+  var CACHE_MS = 30 * 60 * 1000;
+  var refreshTimer = null;
+  var suggestTimer = null;
+
+  /* ============ Elements ============ */
+  var el = {
+    countrySelect: document.getElementById('countrySelect'),
+    citySearch: document.getElementById('citySearch'),
+    suggestions: document.getElementById('suggestions'),
+    useLocationBtn: document.getElementById('useLocationBtn'),
+    pickerCard: document.getElementById('pickerCard'),
+    weatherCard: document.getElementById('weatherCard'),
+    forecastCard: document.getElementById('forecastCard'),
+    changeLocationBtn: document.getElementById('changeLocationBtn'),
+    placeName: document.getElementById('placeName'),
+    placeSub: document.getElementById('placeSub'),
+    currentIcon: document.getElementById('currentIcon'),
+    currentTemp: document.getElementById('currentTemp'),
+    currentDesc: document.getElementById('currentDesc'),
+    feelsLike: document.getElementById('feelsLike'),
+    windVal: document.getElementById('windVal'),
+    hiLo: document.getElementById('hiLo'),
+    updatedAt: document.getElementById('updatedAt'),
+    refreshBtn: document.getElementById('refreshBtn'),
+    forecastScroll: document.getElementById('forecastScroll'),
+    statusMsg: document.getElementById('statusMsg'),
+    unitC: document.getElementById('unitC'),
+    unitF: document.getElementById('unitF'),
+    toast: document.getElementById('toast'),
+    fx: document.getElementById('fx')
+  };
+
+  /* ============ Init ============ */
+  function init(){
+    COUNTRIES.forEach(function(c){
+      var o = document.createElement('option');
+      o.value = c[1]; o.textContent = c[0];
+      el.countrySelect.appendChild(o);
+    });
+
+    var savedUnit = localStorage.getItem('weather:unit');
+    if(savedUnit){ state.unit = savedUnit; }
+    updateUnitButtons();
+
+    el.countrySelect.addEventListener('change', onCountryChange);
+    el.citySearch.addEventListener('input', onCityInput);
+    el.citySearch.addEventListener('focus', function(){ if(el.suggestions.childElementCount) el.suggestions.hidden = false; });
+    document.addEventListener('click', function(e){
+      if(!el.suggestions.contains(e.target) && e.target !== el.citySearch){ el.suggestions.hidden = true; }
+    });
+    el.useLocationBtn.addEventListener('click', useMyLocation);
+    el.changeLocationBtn.addEventListener('click', showPicker);
+    el.refreshBtn.addEventListener('click', function(){ requestRefresh(true); });
+    el.unitC.addEventListener('click', function(){ setUnit('c'); });
+    el.unitF.addEventListener('click', function(){ setUnit('f'); });
+
+    var saved = loadJSON('weather:lastSelection');
+    if(saved && saved.lat != null){
+      state.lat = saved.lat; state.lon = saved.lon;
+      state.label = saved.label; state.sub = saved.sub || '';
+      state.country = s
