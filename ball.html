@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ball Pile</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #f4f4f4;
+    touch-action: none;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+#reset {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 14px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #333;
+    font: 14px system-ui, sans-serif;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+}
+
+#reset:active {
+    transform: scale(0.96);
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+<button id="reset">Reset</button>
+
+<script>
+(() => {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const reset = document.getElementById("reset");
+
+    let width;
+    let height;
+    let dpr = 1;
+
+    let balls = [];
+    let hue = 0;
+    let lastTime = performance.now();
+
+    const pointer = {
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        down: false
+    };
+
+    const GRAVITY = 1450;
+    const BOUNCE = 0.30;
+    const MAX_BALLS = 900;
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        for (const ball of balls) {
+            ball.x = Math.max(
+                ball.r,
+                Math.min(width - ball.r, ball.x)
+            );
+
+            ball.y = Math.max(
+                ball.r,
+                Math.min(height - ball.r, ball.y)
+            );
+        }
+    }
+
+    function nextColor() {
+        const color = `hsl(${hue} 78% 55%)`;
+
+        // Move through the color spectrum.
+        hue = (hue + 21) % 360;
+
+        return color;
+    }
+
+    function addBall(x, y) {
+        if (balls.length >= MAX_BALLS) {
+            balls.shift();
+        }
+
+        const radius = 7 + Math.random() * 4.5;
+
+        balls.push({
+            x,
+            y,
+            r: radius,
+
+            vx: (Math.random() - 0.5) * 35,
+            vy: Math.random() * 20,
+
+            color: nextColor(),
+
+            // Larger balls have more mass.
+            mass: radius * radius
+        });
+    }
+
+    function getPointerPosition(event) {
+        const rect = canvas.getBoundingClientRect();
+
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    }
+
+    canvas.addEventListener("pointerdown", event => {
+        if (event.pointerType === "mouse" && event.button !== 0) {
+            return;
+        }
+
+        const position = getPointerPosition(event);
+
+        pointer.x = position.x;
+        pointer.y = position.y;
+        pointer.vx = 0;
+        pointer.vy = 0;
+        pointer.down = true;
+
+        try {
+            canvas.setPointerCapture(event.pointerId);
+        } catch (_) {}
+
+        addBall(position.x, position.y);
+    });
+
+    canvas.addEventListener("pointermove", event => {
+        const position = getPointerPosition(event);
+
+        pointer.vx = position.x - pointer.x;
+        pointer.vy = position.y - pointer.y;
+
+        pointer.x = position.x;
+        pointer.y = position.y;
+    });
+
+    canvas.addEventListener("pointerup", () => {
+        pointer.down = false;
+    });
+
+    canvas.addEventListener("pointercancel", () => {
+        pointer.down = false;
+    });
+
+    reset.addEventListener("click", () => {
+        balls.length = 0;
+        hue = 0;
+    });
+
+    function resolveWalls(ball) {
+        // Left wall
+        if (ball.x - ball.r < 0) {
+            ball.x = ball.r;
+
+            if (ball.vx < 0) {
+                ball.vx *= -BOUNCE;
+            }
+
+            ball.vy *= 0.82;
+        }
+
+        // Right wall
+        else if (ball.x + ball.r > width) {
+            ball.x = width - ball.r;
+
+            if (ball.vx > 0) {
+                ball.vx *= -BOUNCE;
+            }
+
+            ball.vy *= 0.82;
+        }
+
+        // Ceiling
+        if (ball.y - ball.r < 0) {
+            ball.y = ball.r;
+
+            if (ball.vy < 0) {
+                ball.vy *= -BOUNCE;
+            }
+        }
+
+        // Floor
+        else if (ball.y + ball.r > height) {
+            ball.y = height - ball.r;
+
+            if (ball.vy > 0) {
+                ball.vy *= -BOUNCE;
+            }
+
+            // Friction against the floor.
+            ball.vx *= 0.92;
+        }
+    }
+
+    function applyPointerForce(ball, dt) {
+        if (!pointer.down) {
+            return;
+        }
+
+        const dx = ball.x - pointer.x;
+        const dy = ball.y - pointer.y;
+
+        const distanceSquared = dx * dx + dy * dy;
+        const influenceRadius = 42 + ball.r;
+
+        if (
+            distanceSquared > influenceRadius * influenceRadius ||
+            distanceSquared < 0.001
+        ) {
+            return;
+        }
+
+        const distance = Math.sqrt(distanceSquared);
+
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        const strength = 1 - distance / influenceRadius;
+
+        // Push balls away from the pointer.
+        ball.vx +=
+            pointer.vx * strength * 18 * dt +
+            nx * strength * 850 * dt;
+
+        ball.vy +=
+            pointer.vy * strength * 18 * dt +
+            ny * strength * 850 * dt;
+    }
+
+    function collide(a, b) {
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+
+        const minimumDistance = a.r + b.r;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared >= minimumDistance * minimumDistance) {
+            return;
+        }
+
+        let distance = Math.sqrt(distanceSquared);
+
+        let nx;
+        let ny;
+
+        // Prevent division by zero.
+        if (distance < 0.001) {
+            nx = 1;
+            ny = 0;
+            distance = minimumDistance;
+        } else {
+            nx = dx / distance;
+            ny = dy / distance;
+        }
+
+        const overlap = minimumDistance - distance;
+        const totalMass = a.mass + b.mass;
+
+        // Separate overlapping balls.
+        a.x -= nx * overlap * (b.mass / totalMass);
+        a.y -= ny * overlap * (b.mass / totalMass);
+
+        b.x += nx * overlap * (a.mass / totalMass);
+        b.y += ny * overlap * (a.mass / totalMass);
+
+        // Relative velocity.
+        const relativeVx = b.vx - a.vx;
+        const relativeVy = b.vy - a.vy;
+
+        const relativeNormalVelocity =
+            relativeVx * nx +
+            relativeVy * ny;
+
+        // Already moving apart.
+        if (relativeNormalVelocity >= 0) {
+            return;
+        }
+
+        const impulse =
+            -(1 + 0.22) *
+            relativeNormalVelocity /
+            (1 / a.mass + 1 / b.mass);
+
+        const impulseX = impulse * nx;
+        const impulseY = impulse * ny;
+
+        a.vx -= impulseX / a.mass;
+        a.vy -= impulseY / a.mass;
+
+        b.vx += impulseX / b.mass;
+        b.vy += impulseY / b.mass;
+    }
+
+    function update(dt) {
+        // Prevent physics from exploding after switching tabs.
+        dt = Math.min(dt, 0.025);
+
+        // Apply gravity and movement.
+        for (const ball of balls) {
+            ball.vy += GRAVITY * dt;
+
+            applyPointerForce(ball, dt);
+
+            const friction = Math.pow(0.999, dt * 60);
+
+            ball.vx *= friction;
+            ball.vy *= friction;
+
+            // Maximum velocity.
+            const speed = Math.hypot(ball.vx, ball.vy);
+
+            if (speed > 1800) {
+                const scale = 1800 / speed;
+
+                ball.vx *= scale;
+                ball.vy *= scale;
+            }
+
+            ball.x += ball.vx * dt;
+            ball.y += ball.vy * dt;
+
+            resolveWalls(ball);
+        }
+
+        /*
+         * Spatial grid.
+         *
+         * Instead of checking every ball against every other ball,
+         * only check balls that are in nearby grid cells.
+         */
+        const cellSize = 28;
+        const grid = new Map();
+
+        for (let i = 0; i < balls.length; i++) {
+            const ball = balls[i];
+
+            const gridX = Math.floor(ball.x / cellSize);
+            const gridY = Math.floor(ball.y / cellSize);
+
+            const key = gridX + "," + gridY;
+
+            if (!grid.has(key)) {
+                grid.set(key, []);
+            }
+
+            grid.get(key).push(i);
+        }
+
+        // Collision detection.
+        for (let i = 0; i < balls.length; i++) {
+            const ball = balls[i];
+
+            const gridX = Math.floor(ball.x / cellSize);
+            const gridY = Math.floor(ball.y / cellSize);
+
+            for (let offsetX = -1; offsetX <= 1; offsetX++) {
+                for (let offsetY = -1; offsetY <= 1; offsetY++) {
+
+                    const key =
+                        (gridX + offsetX) +
+                        "," +
+                        (gridY + offsetY);
+
+                    const nearby = grid.get(key);
+
+                    if (!nearby) {
+                        continue;
+                    }
+
+                    for (const j of nearby) {
+                        if (j > i) {
+                            collide(ball, balls[j]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Make sure collision corrections haven't pushed balls outside.
+        for (const ball of balls) {
+            resolveWalls(ball);
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Subtle shadow underneath the pile.
+        if (balls.length > 0) {
+            ctx.save();
+
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = "#000";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                width / 2,
+                height + 5,
+                Math.min(width * 0.48, 600),
+                18,
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+            ctx.restore();
+        }
+
+        for (const ball of balls) {
+            // Drop shadow.
+            ctx.beginPath();
+
+            ctx.arc(
+                ball.x + 1,
+                ball.y + 2,
+                ball.r,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle = "rgba(0,0,0,.13)";
+            ctx.fill();
+
+            // Highlighted ball surface.
+            const gradient = ctx.createRadialGradient(
+                ball.x - ball.r * 0.35,
+                ball.y - ball.r * 0.4,
+                ball.r * 0.08,
+
+                ball.x,
+                ball.y,
+                ball.r
+            );
+
+            gradient.addColorStop(
+                0,
+                "rgba(255,255,255,.72)"
+            );
+
+            gradient.addColorStop(
+                0.22,
+                ball.color
+            );
+
+            gradient.addColorStop(
+                1,
+                ball.color
+            );
+
+            ctx.beginPath();
+
+            ctx.arc(
+                ball.x,
+                ball.y,
+                ball.r,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+    }
+
+    function frame(now) {
+        const dt = (now - lastTime) / 1000;
+
+        lastTime = now;
+
+        update(dt);
+        draw();
+
+        requestAnimationFrame(frame);
+    }
+
+    window.addEventListener("resize", resize);
+
+    resize();
+    requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
