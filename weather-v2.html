@@ -655,16 +655,22 @@ Configuration
 */
 
 const WEATHER_API = "https://api.open-meteo.com/v1/forecast";
-const GEOCODING_API = "https://geocoding-api.open-meteo.com/v1/search";
+
+const GEOCODING_API =
+    "https://geocoding-api.open-meteo.com/v1/search";
+
 const REVERSE_GEOCODING_API =
     "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
 const CACHE_DURATION = 30 * 60 * 1000;
-const CACHE_KEY = "weatherLocationCache";
+const CACHE_KEY = "weatherCache";
 
 let unit = localStorage.getItem("weatherUnit") || "C";
+
 let currentLocation = null;
 let currentWeatherData = null;
+let currentCacheTimestamp = null;
+
 let searchTimeout = null;
 
 
@@ -737,44 +743,83 @@ DOM
 ==================================================
 */
 
-const countrySelect = document.getElementById("countrySelect");
-const cityInput = document.getElementById("cityInput");
-const searchResults = document.getElementById("searchResults");
-const locationButton = document.getElementById("locationButton");
+const countrySelect =
+    document.getElementById("countrySelect");
 
-const loading = document.getElementById("loading");
-const errorMessage = document.getElementById("errorMessage");
+const cityInput =
+    document.getElementById("cityInput");
 
-const locationName = document.getElementById("locationName");
-const locationRegion = document.getElementById("locationRegion");
-const updated = document.getElementById("updated");
+const searchResults =
+    document.getElementById("searchResults");
 
-const temperature = document.getElementById("temperature");
-const temperatureUnit = document.getElementById("temperatureUnit");
-const condition = document.getElementById("condition");
-const weatherIcon = document.getElementById("weatherIcon");
+const locationButton =
+    document.getElementById("locationButton");
 
-const feelsLike = document.getElementById("feelsLike");
-const high = document.getElementById("high");
-const low = document.getElementById("low");
-const humidity = document.getElementById("humidity");
-const wind = document.getElementById("wind");
-const conditionStat = document.getElementById("conditionStat");
+const loading =
+    document.getElementById("loading");
 
-const forecastList = document.getElementById("forecastList");
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const locationName =
+    document.getElementById("locationName");
+
+const locationRegion =
+    document.getElementById("locationRegion");
+
+const updated =
+    document.getElementById("updated");
+
+const temperature =
+    document.getElementById("temperature");
+
+const temperatureUnit =
+    document.getElementById("temperatureUnit");
+
+const condition =
+    document.getElementById("condition");
+
+const weatherIcon =
+    document.getElementById("weatherIcon");
+
+const feelsLike =
+    document.getElementById("feelsLike");
+
+const high =
+    document.getElementById("high");
+
+const low =
+    document.getElementById("low");
+
+const humidity =
+    document.getElementById("humidity");
+
+const wind =
+    document.getElementById("wind");
+
+const conditionStat =
+    document.getElementById("conditionStat");
+
+const forecastList =
+    document.getElementById("forecastList");
 
 
 /*
 ==================================================
-Country dropdown
+ Countries
 ==================================================
 */
 
 function getTimezoneCountry() {
+
     const timezone =
-        Intl.DateTimeFormat().resolvedOptions().timeZone.toLowerCase();
+        Intl.DateTimeFormat()
+            .resolvedOptions()
+            .timeZone
+            .toLowerCase();
 
     const map = {
+
         "america/edmonton":"CA",
         "america/vancouver":"CA",
         "america/winnipeg":"CA",
@@ -825,21 +870,33 @@ function getTimezoneCountry() {
     return map[timezone] || null;
 }
 
-function populateCountries() {
-    const timezoneCountry = getTimezoneCountry();
 
-    let ordered = [...countries];
+function populateCountries() {
+
+    const timezoneCountry =
+        getTimezoneCountry();
+
+    let ordered =
+        [...countries];
 
     ordered.sort((a,b) => {
-        if (a[0] === timezoneCountry) return -1;
-        if (b[0] === timezoneCountry) return 1;
+
+        if (a[0] === timezoneCountry)
+            return -1;
+
+        if (b[0] === timezoneCountry)
+            return 1;
+
         return a[1].localeCompare(b[1]);
     });
 
     ordered.forEach(([code,name]) => {
-        const option = document.createElement("option");
+
+        const option =
+            document.createElement("option");
 
         option.value = code;
+
         option.textContent =
             code === timezoneCountry
                 ? `${name} — likely location`
@@ -849,19 +906,22 @@ function populateCountries() {
     });
 
     if (timezoneCountry) {
-        countrySelect.value = timezoneCountry;
+        countrySelect.value =
+            timezoneCountry;
     }
 }
 
 
 /*
 ==================================================
-Weather codes
+ Weather Codes
 ==================================================
 */
 
 function getWeatherInfo(code) {
+
     const weather = {
+
         0:{text:"Clear sky",icon:"☀️",type:"clear"},
         1:{text:"Mainly clear",icon:"🌤️",type:"clear"},
         2:{text:"Partly cloudy",icon:"⛅",type:"cloudy"},
@@ -911,197 +971,292 @@ function getWeatherInfo(code) {
 
 /*
 ==================================================
-Cache
+ Cache
 ==================================================
 */
 
+/*
+Cache format:
+
+{
+    location: {
+        latitude,
+        longitude,
+        name,
+        admin1,
+        country,
+        timezone
+    },
+
+    weather: {...},
+
+    timestamp: 123456789
+}
+*/
+
 function getCache() {
+
     try {
-        return JSON.parse(
-            localStorage.getItem(CACHE_KEY) || "{}"
+
+        const raw =
+            localStorage.getItem(CACHE_KEY);
+
+        if (!raw) {
+            return null;
+        }
+
+        return JSON.parse(raw);
+
+    } catch (error) {
+
+        console.error(
+            "Unable to read weather cache:",
+            error
         );
-    } catch {
-        return {};
+
+        return null;
     }
 }
 
-function saveCache(cache) {
-    localStorage.setItem(
-        CACHE_KEY,
-        JSON.stringify(cache)
-    );
+
+function saveCache(location,data,timestamp = Date.now()) {
+
+    const cache = {
+
+        location: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            name: location.name || "Current Location",
+            admin1: location.admin1 || "",
+            country: location.country || "",
+            timezone: location.timezone || data.timezone || ""
+        },
+
+        weather: data,
+
+        timestamp
+    };
+
+    try {
+
+        localStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify(cache)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to save weather cache:",
+            error
+        );
+    }
 }
 
-function getLocationKey(latitude, longitude) {
-    /*
-     * Round coordinates slightly so tiny GPS differences
-     * don't create a completely new cache entry.
-     */
+
+function getLocationKey(latitude,longitude) {
+
     return `${Number(latitude).toFixed(3)},${Number(longitude).toFixed(3)}`;
 }
 
-function getCachedWeather(latitude, longitude) {
-    const cache = getCache();
-    const key = getLocationKey(latitude,longitude);
-    const entry = cache[key];
 
-    if (!entry) {
-        return null;
+function isCacheFresh(cache) {
+
+    if (!cache || !cache.weather || !cache.location) {
+        return false;
     }
 
-    const age = Date.now() - entry.timestamp;
+    const age =
+        Date.now() - cache.timestamp;
 
-    if (age < CACHE_DURATION) {
-        return entry;
-    }
-
-    return null;
-}
-
-function cacheWeather(latitude, longitude, data) {
-    const cache = getCache();
-    const key = getLocationKey(latitude,longitude);
-
-    cache[key] = {
-        timestamp: Date.now(),
-        data
-    };
-
-    saveCache(cache);
-}
-
-function getMostRecentCache() {
-    const cache = getCache();
-
-    let newest = null;
-
-    Object.values(cache).forEach(entry => {
-        if (!entry || !entry.data) return;
-
-        if (!newest || entry.timestamp > newest.timestamp) {
-            newest = entry;
-        }
-    });
-
-    return newest;
+    return age < CACHE_DURATION;
 }
 
 
 /*
 ==================================================
-Weather API
+ Get Weather
 ==================================================
 */
 
 async function getWeather(location) {
+
     hideError();
 
-    currentLocation = location;
+    currentLocation =
+        location;
 
     /*
-     * Check this location's cache first.
+     * Check the saved cache.
+     *
+     * We compare coordinates so that changing
+     * to another city doesn't accidentally use
+     * the previous city's weather.
      */
-    const cached = getCachedWeather(
-        location.latitude,
-        location.longitude
-    );
+    const cache =
+        getCache();
 
-    if (cached) {
+    if (
+        cache &&
+        cache.location &&
+        getLocationKey(
+            cache.location.latitude,
+            cache.location.longitude
+        ) ===
+        getLocationKey(
+            location.latitude,
+            location.longitude
+        ) &&
+        isCacheFresh(cache)
+    ) {
+
+        currentCacheTimestamp =
+            cache.timestamp;
+
         displayWeather(
-            cached.data,
-            location,
-            cached.timestamp,
+            cache.weather,
+            cache.location,
+            cache.timestamp,
             true
         );
 
         return;
     }
 
+    /*
+     * Cache exists but is expired.
+     * Show the loading indicator while we
+     * get fresh weather.
+     */
     showLoading(true);
 
-    const params = new URLSearchParams({
-        latitude:location.latitude,
-        longitude:location.longitude,
+    const params =
+        new URLSearchParams({
 
-        current:
-            "temperature_2m," +
-            "relative_humidity_2m," +
-            "apparent_temperature," +
-            "weather_code," +
-            "wind_speed_10m",
+            latitude:location.latitude,
+            longitude:location.longitude,
 
-        daily:
-            "weather_code," +
-            "temperature_2m_max," +
-            "temperature_2m_min," +
-            "sunrise," +
-            "sunset",
+            current:
+                "temperature_2m," +
+                "relative_humidity_2m," +
+                "apparent_temperature," +
+                "weather_code," +
+                "wind_speed_10m",
 
-        forecast_days:"7",
+            daily:
+                "weather_code," +
+                "temperature_2m_max," +
+                "temperature_2m_min," +
+                "sunrise," +
+                "sunset",
 
-        temperature_unit:"celsius",
-        wind_speed_unit:"kmh",
+            forecast_days:"7",
 
-        timezone:"auto"
-    });
+            temperature_unit:"celsius",
+
+            wind_speed_unit:"kmh",
+
+            timezone:"auto"
+        });
+
 
     try {
-        const response = await fetch(
-            `${WEATHER_API}?${params}`
-        );
+
+        const response =
+            await fetch(
+                `${WEATHER_API}?${params}`
+            );
 
         if (!response.ok) {
-            throw new Error("Weather request failed.");
+            throw new Error(
+                "Weather request failed."
+            );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         /*
-         * Save this location separately.
+         * Save the location and weather
+         * together with the exact update time.
          */
-        cacheWeather(
-            location.latitude,
-            location.longitude,
-            data
+        const timestamp =
+            Date.now();
+
+        saveCache(
+            location,
+            data,
+            timestamp
         );
+
+        currentCacheTimestamp =
+            timestamp;
+
+        /*
+         * Use the normalized location from
+         * the cache so everything is consistent.
+         */
+        const savedCache =
+            getCache();
+
+        currentLocation =
+            savedCache.location;
 
         displayWeather(
             data,
-            location,
-            Date.now(),
+            savedCache.location,
+            timestamp,
             false
         );
 
     } catch (error) {
+
         console.error(error);
 
         /*
-         * If the API failed, try stale cached data.
+         * If the API fails, use stale cache
+         * if it belongs to the requested location.
          */
-        const cache = getCache();
-        const key = getLocationKey(
-            location.latitude,
-            location.longitude
-        );
+        if (
+            cache &&
+            cache.weather &&
+            cache.location &&
+            getLocationKey(
+                cache.location.latitude,
+                cache.location.longitude
+            ) ===
+            getLocationKey(
+                location.latitude,
+                location.longitude
+            )
+        ) {
 
-        if (cache[key]) {
+            currentCacheTimestamp =
+                cache.timestamp;
+
+            currentLocation =
+                cache.location;
+
             displayWeather(
-                cache[key].data,
-                location,
-                cache[key].timestamp,
+                cache.weather,
+                cache.location,
+                cache.timestamp,
                 true
             );
 
             showError(
                 "Unable to get fresh weather data. Showing the saved weather."
             );
+
         } else {
+
             showError(
                 "Unable to get the weather right now. Please try again."
             );
         }
 
     } finally {
+
         showLoading(false);
     }
 }
@@ -1109,37 +1264,85 @@ async function getWeather(location) {
 
 /*
 ==================================================
-Display weather
+ Display Weather
 ==================================================
 */
 
-function displayWeather(data,location,timestamp,fromCache) {
-    currentWeatherData = data;
+function displayWeather(
+    data,
+    location,
+    timestamp,
+    fromCache
+) {
 
-    const current = data.current;
-    const daily = data.daily;
+    currentWeatherData =
+        data;
 
-    const info = getWeatherInfo(
-        current.weather_code
-    );
+    currentLocation =
+        location;
+
+    currentCacheTimestamp =
+        timestamp;
+
+    const current =
+        data.current;
+
+    const daily =
+        data.daily;
+
+    const info =
+        getWeatherInfo(
+            current.weather_code
+        );
+
 
     locationName.textContent =
-        location.name || "Current Location";
+        location.name ||
+        "Current Location";
+
 
     const regionParts = [];
 
     if (location.admin1) {
-        regionParts.push(location.admin1);
+        regionParts.push(
+            location.admin1
+        );
     }
 
     if (location.country) {
-        regionParts.push(location.country);
+        regionParts.push(
+            location.country
+        );
     }
 
     locationRegion.textContent =
         regionParts.join(", ") ||
         location.timezone ||
         "";
+
+
+    /*
+     * Restore the controls from the saved location.
+     */
+    cityInput.value =
+        location.name ||
+        "";
+
+
+    if (location.country) {
+
+        const country =
+            countries.find(
+                ([code,name]) =>
+                    name === location.country
+            );
+
+        if (country) {
+            countrySelect.value =
+                country[0];
+        }
+    }
+
 
     temperature.textContent =
         Math.round(
@@ -1148,11 +1351,19 @@ function displayWeather(data,location,timestamp,fromCache) {
             )
         );
 
-    temperatureUnit.textContent = `°${unit}`;
+    temperatureUnit.textContent =
+        `°${unit}`;
 
-    condition.textContent = info.text;
-    conditionStat.textContent = info.text;
-    weatherIcon.textContent = info.icon;
+
+    condition.textContent =
+        info.text;
+
+    conditionStat.textContent =
+        info.text;
+
+    weatherIcon.textContent =
+        info.icon;
+
 
     feelsLike.textContent =
         formatTemperature(
@@ -1179,8 +1390,13 @@ function displayWeather(data,location,timestamp,fromCache) {
             current.wind_speed_10m
         );
 
+
     updated.textContent =
-        getUpdatedText(timestamp,fromCache);
+        getUpdatedText(
+            timestamp,
+            fromCache
+        );
+
 
     setWeatherBackground(
         info.type,
@@ -1189,35 +1405,79 @@ function displayWeather(data,location,timestamp,fromCache) {
         data.timezone
     );
 
-    displayForecast(daily);
+
+    displayForecast(
+        daily
+    );
 }
 
 
 /*
 ==================================================
-Updated time
+ Updated Text
 ==================================================
 */
 
-function getUpdatedText(timestamp,fromCache) {
-    const age = Date.now() - timestamp;
+function getUpdatedText(
+    timestamp,
+    fromCache
+) {
 
-    const minutes = Math.floor(
-        age / 60000
-    );
+    const age =
+        Date.now() - timestamp;
+
+    const minutes =
+        Math.floor(
+            age / 60000
+        );
+
 
     if (minutes < 1) {
+
         return fromCache
             ? "Updated less than a minute ago"
             : "Updated just now";
     }
 
+
     if (minutes === 1) {
         return "Updated 1 minute ago";
     }
 
+
     return `Updated ${minutes} minutes ago`;
 }
+
+
+/*
+==================================================
+ Update Cached Timestamp Display
+==================================================
+*/
+
+function refreshUpdatedText() {
+
+    if (
+        currentCacheTimestamp &&
+        currentLocation
+    ) {
+
+        updated.textContent =
+            getUpdatedText(
+                currentCacheTimestamp,
+                true
+            );
+    }
+}
+
+
+/*
+ * Update the displayed age every minute.
+ */
+setInterval(
+    refreshUpdatedText,
+    60000
+);
 
 
 /*
@@ -1227,31 +1487,45 @@ function getUpdatedText(timestamp,fromCache) {
 */
 
 function displayForecast(daily) {
+
     forecastList.innerHTML = "";
 
-    for (let i = 0; i < daily.time.length; i++) {
+    for (
+        let i = 0;
+        i < daily.time.length;
+        i++
+    ) {
 
-        const date = new Date(
-            `${daily.time[i]}T12:00:00`
-        );
+        const date =
+            new Date(
+                `${daily.time[i]}T12:00:00`
+            );
 
-        const info = getWeatherInfo(
-            daily.weather_code[i]
-        );
+        const info =
+            getWeatherInfo(
+                daily.weather_code[i]
+            );
 
         const dayName =
             i === 0
                 ? "Today"
                 : date.toLocaleDateString(
                     undefined,
-                    {weekday:"short"}
+                    {
+                        weekday:"short"
+                    }
                 );
 
-        const card = document.createElement("div");
 
-        card.className = "forecast-day";
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "forecast-day";
+
 
         card.innerHTML = `
+
             <div class="forecast-name">
                 ${dayName}
             </div>
@@ -1265,25 +1539,33 @@ function displayForecast(daily) {
             </div>
 
             <div class="forecast-temp">
+
                 ${formatTemperature(
                     daily.temperature_2m_max[i]
                 )}
+
                 <span class="forecast-low">
+
                     ${formatTemperature(
                         daily.temperature_2m_min[i]
                     )}
+
                 </span>
+
             </div>
         `;
 
-        forecastList.appendChild(card);
+
+        forecastList.appendChild(
+            card
+        );
     }
 }
 
 
 /*
 ==================================================
- Day / night
+ Day / Night
 ==================================================
 */
 
@@ -1293,6 +1575,7 @@ function setWeatherBackground(
     sunset,
     timezone
 ) {
+
     document.body.classList.remove(
         "weather-clear",
         "weather-cloudy",
@@ -1303,80 +1586,85 @@ function setWeatherBackground(
         "night"
     );
 
+
     document.body.classList.add(
         `weather-${type}`
     );
+
 
     if (!sunrise || !sunset) {
         return;
     }
 
-    /*
-     * Open-Meteo gives sunrise/sunset as local time
-     * for the requested timezone.
-     */
-    const now = new Date();
 
-    const nowParts = new Intl.DateTimeFormat(
-        "en-CA",
-        {
-            timeZone: timezone,
-            year:"numeric",
-            month:"2-digit",
-            day:"2-digit",
-            hour:"2-digit",
-            minute:"2-digit",
-            second:"2-digit",
-            hour12:false
-        }
-    ).formatToParts(now);
+    const now =
+        new Date();
+
+
+    const nowParts =
+        new Intl.DateTimeFormat(
+            "en-CA",
+            {
+                timeZone:timezone,
+                year:"numeric",
+                month:"2-digit",
+                day:"2-digit",
+                hour:"2-digit",
+                minute:"2-digit",
+                second:"2-digit",
+                hour12:false
+            }
+        ).formatToParts(now);
+
 
     const parts = {};
 
+
     nowParts.forEach(part => {
+
         if (part.type !== "literal") {
-            parts[part.type] = part.value;
+            parts[part.type] =
+                part.value;
         }
+
     });
 
-    const localNow =
-        `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`;
 
-    const sunriseDate = new Date(
-        `${sunrise[0]}`
-    );
-
-    const sunsetDate = new Date(
-        `${sunset[0]}`
-    );
-
-    /*
-     * Compare using the local clock values rather than
-     * the browser's timezone.
-     */
     const nowMinutes =
         Number(parts.hour) * 60 +
         Number(parts.minute);
 
+
     const sunriseParts =
-        sunrise[0].substring(11,16).split(":");
+        sunrise[0]
+            .substring(11,16)
+            .split(":");
+
 
     const sunsetParts =
-        sunset[0].substring(11,16).split(":");
+        sunset[0]
+            .substring(11,16)
+            .split(":");
+
 
     const sunriseMinutes =
         Number(sunriseParts[0]) * 60 +
         Number(sunriseParts[1]);
 
+
     const sunsetMinutes =
         Number(sunsetParts[0]) * 60 +
         Number(sunsetParts[1]);
+
 
     if (
         nowMinutes < sunriseMinutes ||
         nowMinutes >= sunsetMinutes
     ) {
-        document.body.classList.add("night");
+
+        document.body.classList.add(
+            "night"
+        );
     }
 }
 
@@ -1387,40 +1675,64 @@ function setWeatherBackground(
 ==================================================
 */
 
-function convertTemperature(celsius) {
+function convertTemperature(
+    celsius
+) {
+
     return unit === "F"
         ? celsius * 9 / 5 + 32
         : celsius;
 }
 
-function formatTemperature(value) {
+
+function formatTemperature(
+    value
+) {
+
     return `${Math.round(
         convertTemperature(value)
     )}°`;
 }
 
-function convertWind(kmh) {
+
+function convertWind(
+    kmh
+) {
+
     return unit === "F"
-        ? kmh * .621371
+        ? kmh * 0.621371
         : kmh;
 }
 
-function formatWind(value) {
+
+function formatWind(
+    value
+) {
+
     return unit === "F"
-        ? `${Math.round(convertWind(value))} mph`
+        ? `${Math.round(
+            convertWind(value)
+          )} mph`
         : `${Math.round(value)} km/h`;
 }
 
-function updateUnitButtons() {
-    document.querySelectorAll(".unit-button")
-        .forEach(button => {
-            button.classList.toggle(
-                "active",
-                button.dataset.unit === unit
-            );
-        });
 
-    temperatureUnit.textContent = `°${unit}`;
+function updateUnitButtons() {
+
+    document.querySelectorAll(
+        ".unit-button"
+    ).forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.unit === unit
+        );
+
+    });
+
+
+    temperatureUnit.textContent =
+        `°${unit}`;
 }
 
 
@@ -1430,115 +1742,193 @@ function updateUnitButtons() {
 ==================================================
 */
 
-cityInput.addEventListener("input",() => {
-    clearTimeout(searchTimeout);
+cityInput.addEventListener(
+    "input",
+    () => {
 
-    const query = cityInput.value.trim();
+        clearTimeout(
+            searchTimeout
+        );
 
-    if (query.length < 2) {
-        searchResults.style.display = "none";
-        return;
+        const query =
+            cityInput.value.trim();
+
+
+        if (query.length < 2) {
+
+            searchResults.style.display =
+                "none";
+
+            return;
+        }
+
+
+        searchTimeout =
+            setTimeout(
+                () => searchLocations(query),
+                350
+            );
     }
+);
 
-    searchTimeout = setTimeout(
-        () => searchLocations(query),
-        350
-    );
-});
 
-async function searchLocations(query) {
-    const countryCode = countrySelect.value;
+async function searchLocations(
+    query
+) {
 
-    const params = new URLSearchParams({
-        name:query,
-        count:"8",
-        language:"en",
-        format:"json"
-    });
+    const countryCode =
+        countrySelect.value;
+
+
+    const params =
+        new URLSearchParams({
+
+            name:query,
+            count:"8",
+            language:"en",
+            format:"json"
+        });
+
 
     if (countryCode) {
+
         params.set(
             "countryCode",
             countryCode
         );
     }
 
+
     try {
-        const response = await fetch(
-            `${GEOCODING_API}?${params}`
-        );
+
+        const response =
+            await fetch(
+                `${GEOCODING_API}?${params}`
+            );
+
 
         if (!response.ok) {
-            throw new Error("Location search failed.");
+            throw new Error(
+                "Location search failed."
+            );
         }
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         showSearchResults(
             data.results || []
         );
 
+
     } catch (error) {
+
         console.error(error);
-        searchResults.style.display = "none";
+
+        searchResults.style.display =
+            "none";
     }
 }
 
-function showSearchResults(results) {
+
+function showSearchResults(
+    results
+) {
+
     searchResults.innerHTML = "";
 
+
     if (!results.length) {
-        searchResults.style.display = "none";
+
+        searchResults.style.display =
+            "none";
+
         return;
     }
 
-    results.forEach((result,index) => {
 
-        const item = document.createElement("div");
+    results.forEach(
+        (result,index) => {
 
-        item.className = "search-result";
+            const item =
+                document.createElement("div");
 
-        const details = [
-            result.name,
-            result.admin1,
-            result.country
-        ].filter(Boolean);
 
-        item.textContent =
-            details.join(", ");
+            item.className =
+                "search-result";
 
-        if (index === 0) {
-            item.title =
-                "Most likely result";
+
+            const details = [
+
+                result.name,
+                result.admin1,
+                result.country
+
+            ].filter(Boolean);
+
+
+            item.textContent =
+                details.join(", ");
+
+
+            if (index === 0) {
+
+                item.title =
+                    "Most likely result";
+            }
+
+
+            item.addEventListener(
+                "click",
+                () => selectLocation(result)
+            );
+
+
+            searchResults.appendChild(
+                item
+            );
         }
+    );
 
-        item.addEventListener(
-            "click",
-            () => selectLocation(result)
-        );
 
-        searchResults.appendChild(item);
-    });
-
-    searchResults.style.display = "block";
+    searchResults.style.display =
+        "block";
 }
 
-function selectLocation(result) {
-    cityInput.value = result.name;
+
+function selectLocation(
+    result
+) {
+
+    cityInput.value =
+        result.name;
+
 
     if (result.country_code) {
+
         countrySelect.value =
             result.country_code.toUpperCase();
     }
 
-    searchResults.style.display = "none";
+
+    searchResults.style.display =
+        "none";
+
 
     getWeather({
+
         latitude:result.latitude,
+
         longitude:result.longitude,
+
         name:result.name,
+
         admin1:result.admin1,
+
         country:result.country,
+
         timezone:result.timezone
     });
 }
@@ -1546,7 +1936,7 @@ function selectLocation(result) {
 
 /*
 ==================================================
- Browser location
+ Browser Location
 ==================================================
 */
 
@@ -1555,21 +1945,31 @@ locationButton.addEventListener(
     useMyLocation
 );
 
+
 function useMyLocation() {
+
     hideError();
 
+
     if (!navigator.geolocation) {
+
         showError(
             "Your browser does not support location services."
         );
+
         return;
     }
 
-    locationButton.disabled = true;
+
+    locationButton.disabled =
+        true;
+
     locationButton.textContent =
         "Finding Location...";
 
+
     navigator.geolocation.getCurrentPosition(
+
         async position => {
 
             const latitude =
@@ -1578,23 +1978,36 @@ function useMyLocation() {
             const longitude =
                 position.coords.longitude;
 
+
             try {
-                const response = await fetch(
-                    `${REVERSE_GEOCODING_API}?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-                );
+
+                /*
+                 * First reverse-geocode the GPS
+                 * coordinates so we can save the
+                 * actual city name.
+                 */
+                const response =
+                    await fetch(
+                        `${REVERSE_GEOCODING_API}?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                    );
+
 
                 if (!response.ok) {
+
                     throw new Error(
                         "Reverse geocoding failed."
                     );
                 }
 
+
                 const data =
                     await response.json();
+
 
                 const countryCode =
                     data.countryCode ||
                     data.countryCodeAlpha2;
+
 
                 const city =
                     data.city ||
@@ -1602,68 +2015,113 @@ function useMyLocation() {
                     data.principalSubdivision ||
                     "Current Location";
 
+
                 if (countryCode) {
+
                     countrySelect.value =
                         countryCode.toUpperCase();
                 }
 
-                cityInput.value = city;
 
-                getWeather({
+                cityInput.value =
+                    city;
+
+
+                const timezone =
+                    data.localityInfo?.informative?.find(
+                        item =>
+                            item.description ===
+                            "timezone"
+                    )?.name;
+
+
+                await getWeather({
+
                     latitude,
                     longitude,
+
                     name:city,
-                    admin1:data.principalSubdivision,
-                    country:data.countryName,
-                    timezone:
-                        data.localityInfo?.informative?.find(
-                            item =>
-                                item.description ===
-                                "timezone"
-                        )?.name
+
+                    admin1:
+                        data.principalSubdivision,
+
+                    country:
+                        data.countryName,
+
+                    timezone
                 });
+
 
             } catch (error) {
+
                 console.error(error);
 
-                getWeather({
+
+                /*
+                 * Even if reverse geocoding fails,
+                 * weather can still be retrieved.
+                 */
+                await getWeather({
+
                     latitude,
                     longitude,
+
                     name:"Current Location"
                 });
+
 
                 showError(
                     "Weather was found, but the exact location name could not be determined."
                 );
 
+
             } finally {
-                locationButton.disabled = false;
+
+                locationButton.disabled =
+                    false;
+
                 locationButton.textContent =
                     "Use My Location";
             }
         },
 
+
         error => {
+
             console.error(error);
 
-            locationButton.disabled = false;
+
+            locationButton.disabled =
+                false;
+
             locationButton.textContent =
                 "Use My Location";
 
+
             if (error.code === 1) {
+
                 showError(
                     "Location permission was denied. Select your country and town manually."
                 );
+
             } else {
+
                 showError(
                     "Unable to determine your location."
                 );
             }
         },
 
+
         {
             enableHighAccuracy:true,
+
             timeout:10000,
+
+            /*
+             * Allow the browser to reuse a GPS
+             * position for up to 5 minutes.
+             */
             maximumAge:300000
         }
     );
@@ -1672,53 +2130,58 @@ function useMyLocation() {
 
 /*
 ==================================================
- Unit changes
+ Unit Changes
 ==================================================
 */
 
-document.querySelectorAll(".unit-button")
-    .forEach(button => {
+document.querySelectorAll(
+    ".unit-button"
+).forEach(button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+    button.addEventListener(
+        "click",
+        () => {
 
-                unit = button.dataset.unit;
+            unit =
+                button.dataset.unit;
 
-                localStorage.setItem(
-                    "weatherUnit",
-                    unit
+
+            localStorage.setItem(
+                "weatherUnit",
+                unit
+            );
+
+
+            updateUnitButtons();
+
+
+            /*
+             * Re-render the existing weather.
+             *
+             * No API request is necessary because
+             * temperature conversion happens locally.
+             */
+            if (
+                currentLocation &&
+                currentWeatherData
+            ) {
+
+                displayWeather(
+                    currentWeatherData,
+                    currentLocation,
+                    currentCacheTimestamp ||
+                        Date.now(),
+                    true
                 );
-
-                updateUnitButtons();
-
-                if (
-                    currentLocation &&
-                    currentWeatherData
-                ) {
-                    const cache =
-                        getCachedWeather(
-                            currentLocation.latitude,
-                            currentLocation.longitude
-                        );
-
-                    if (cache) {
-                        displayWeather(
-                            cache.data,
-                            currentLocation,
-                            cache.timestamp,
-                            true
-                        );
-                    }
-                }
             }
-        );
-    });
+        }
+    );
+});
 
 
 /*
 ==================================================
- Country change
+ Country Change
 ==================================================
 */
 
@@ -1729,8 +2192,12 @@ countrySelect.addEventListener(
         const query =
             cityInput.value.trim();
 
+
         if (query.length >= 2) {
-            searchLocations(query);
+
+            searchLocations(
+                query
+            );
         }
     }
 );
@@ -1738,7 +2205,7 @@ countrySelect.addEventListener(
 
 /*
 ==================================================
- Close search dropdown
+ Close Search Dropdown
 ==================================================
 */
 
@@ -1747,8 +2214,11 @@ document.addEventListener(
     event => {
 
         if (
-            !event.target.closest(".search-wrapper")
+            !event.target.closest(
+                ".search-wrapper"
+            )
         ) {
+
             searchResults.style.display =
                 "none";
         }
@@ -1758,124 +2228,203 @@ document.addEventListener(
 
 /*
 ==================================================
- Loading / errors
+ Loading / Errors
 ==================================================
 */
 
 function showLoading(show) {
+
     loading.style.display =
-        show ? "block" : "none";
+        show
+            ? "block"
+            : "none";
 }
+
 
 function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = "block";
+
+    errorMessage.textContent =
+        message;
+
+    errorMessage.style.display =
+        "block";
 }
 
+
 function hideError() {
-    errorMessage.style.display = "none";
+
+    errorMessage.style.display =
+        "none";
 }
 
 
 /*
 ==================================================
- Restore last location
+ Restore Last Location
 ==================================================
 */
 
 function restoreLastLocation() {
-    const cached = getMostRecentCache();
 
-    if (!cached) {
-        return;
+    const cache =
+        getCache();
+
+
+    if (
+        !cache ||
+        !cache.location ||
+        !cache.weather
+    ) {
+
+        return false;
     }
 
-    /*
-     * Cache entries only contain the weather response,
-     * so the API's coordinates are used to restore the
-     * location. The exact city name is reconstructed
-     * from the weather response where possible.
-     */
-    const coordinates =
-        Object.entries(getCache())
-            .find(
-                ([,entry]) =>
-                    entry.timestamp === cached.timestamp
-            );
 
-    if (!coordinates) {
-        return;
+    /*
+     * Restore the controls immediately.
+     */
+    currentLocation =
+        cache.location;
+
+    currentWeatherData =
+        cache.weather;
+
+    currentCacheTimestamp =
+        cache.timestamp;
+
+
+    /*
+     * Display the saved weather immediately.
+     *
+     * This means reopening the page does NOT
+     * require an API request if the cache is fresh.
+     */
+    displayWeather(
+        cache.weather,
+        cache.location,
+        cache.timestamp,
+        true
+    );
+
+
+    /*
+     * If the cache has expired, refresh it
+     * in the background.
+     */
+    if (!isCacheFresh(cache)) {
+
+        getWeather(
+            cache.location
+        );
     }
 
-    const [key] = coordinates;
-    const [latitude,longitude] =
-        key.split(",").map(Number);
 
-    /*
-     * We don't automatically reverse-geocode here.
-     * The browser may have no need to make another request.
-     * Keep the cached weather available and let the user
-     * choose/search a location if desired.
-     */
+    return true;
 }
 
 
 /*
 ==================================================
- Create effects
+ Create Rain
 ==================================================
 */
 
 function createRain() {
-    const container =
-        document.getElementById("rainContainer");
 
-    for (let i=0;i<45;i++) {
+    const container =
+        document.getElementById(
+            "rainContainer"
+        );
+
+
+    for (
+        let i = 0;
+        i < 45;
+        i++
+    ) {
+
         const drop =
             document.createElement("div");
 
-        drop.className = "rain-drop";
+
+        drop.className =
+            "rain-drop";
+
 
         drop.style.left =
-            `${Math.random()*100}%`;
+            `${Math.random() * 100}%`;
+
 
         drop.style.animationDuration =
-            `${.7+Math.random()*.8}s`;
+            `${0.7 + Math.random() * 0.8}s`;
+
 
         drop.style.animationDelay =
-            `${Math.random()*2}s`;
+            `${Math.random() * 2}s`;
+
 
         drop.style.opacity =
-            `${.2+Math.random()*.4}`;
+            `${0.2 + Math.random() * 0.4}`;
 
-        container.appendChild(drop);
+
+        container.appendChild(
+            drop
+        );
     }
 }
 
-function createSnow() {
-    const container =
-        document.getElementById("snowContainer");
 
-    for (let i=0;i<35;i++) {
+/*
+==================================================
+ Create Snow
+==================================================
+*/
+
+function createSnow() {
+
+    const container =
+        document.getElementById(
+            "snowContainer"
+        );
+
+
+    for (
+        let i = 0;
+        i < 35;
+        i++
+    ) {
+
         const snow =
             document.createElement("div");
 
-        snow.className = "snowflake";
-        snow.textContent = "•";
+
+        snow.className =
+            "snowflake";
+
+
+        snow.textContent =
+            "•";
+
 
         snow.style.left =
-            `${Math.random()*100}%`;
+            `${Math.random() * 100}%`;
+
 
         snow.style.fontSize =
-            `${8+Math.random()*15}px`;
+            `${8 + Math.random() * 15}px`;
+
 
         snow.style.animationDuration =
-            `${5+Math.random()*7}s`;
+            `${5 + Math.random() * 7}s`;
+
 
         snow.style.animationDelay =
-            `${Math.random()*5}s`;
+            `${Math.random() * 5}s`;
 
-        container.appendChild(snow);
+
+        container.appendChild(
+            snow
+        );
     }
 }
 
@@ -1887,9 +2436,21 @@ function createSnow() {
 */
 
 populateCountries();
+
 updateUnitButtons();
+
 createRain();
+
 createSnow();
+
+
+/*
+ * Try to restore the last saved weather.
+ *
+ * If nothing has ever been saved, the page simply
+ * remains on "Select a location" as before.
+ */
+restoreLastLocation();
 
 </script>
 
