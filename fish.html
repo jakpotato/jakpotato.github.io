@@ -56,6 +56,23 @@
         margin-top: 2px;
     }
 
+    .max-badge {
+        display: none;
+        margin-left: 6px;
+        padding: 1px 6px;
+        border-radius: 6px;
+        background: #e8b23f;
+        color: #2a2118;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        vertical-align: middle;
+    }
+
+    .max-badge.show {
+        display: inline-block;
+    }
+
     button {
         border: 0;
         border-radius: 10px;
@@ -314,7 +331,7 @@
 <div id="app">
     <div id="topbar">
         <div class="stats">
-            <div class="stat">Money<strong id="money">$15.00</strong></div>
+            <div class="stat">Money<strong id="money">$15.00</strong><span id="moneyMaxBadge" class="max-badge">MAX</span></div>
             <div class="stat">Fish<strong id="fishCount">0</strong></div>
             <div class="stat">Income/sec<strong id="income">$0.00</strong></div>
         </div>
@@ -353,8 +370,9 @@
     "use strict";
 
     const SAVE_KEY = "virtualAquariumSave_v1";
-    const INCOME_RATE = 0.005; // 5% of purchase price per second
+    const INCOME_RATE = 0.005; // 0.5% of purchase price per second
     const STARTING_MONEY = 50;
+    const MAX_MONEY = 1000; // hard cap — tune to taste (most expensive background is 500)
 
     const fishTypes = [
         {
@@ -364,7 +382,7 @@
             size: 1.0,
             speed: 0.55,
             variants: [
-                ["Brown", "#9b633f", 10],
+                ["Gold", "#9b633f", 10],
                 ["Red", "#d54a3f", 15],
                 ["Pink", "#e98aa4", 20],
                 ["White", "#e9e4d8", 25]
@@ -539,6 +557,7 @@
     const tank = document.getElementById("tank");
 
     const moneyEl = document.getElementById("money");
+    const moneyMaxBadge = document.getElementById("moneyMaxBadge");
     const fishCountEl = document.getElementById("fishCount");
     const incomeEl = document.getElementById("income");
     const shopMoneyEl = document.getElementById("shopMoney");
@@ -571,7 +590,7 @@
             const parsed = JSON.parse(raw);
             if (!parsed || typeof parsed !== "object") return defaultSave();
             return {
-                money: Number.isFinite(parsed.money) ? parsed.money : STARTING_MONEY,
+                money: Number.isFinite(parsed.money) ? Math.min(MAX_MONEY, parsed.money) : STARTING_MONEY,
                 fish: Array.isArray(parsed.fish) ? parsed.fish : [],
                 background: parsed.background || "basic",
                 ownedBackgrounds: Array.isArray(parsed.ownedBackgrounds)
@@ -612,6 +631,7 @@
         shopMoneyEl.textContent = moneyFormat(save.money);
         fishCountEl.textContent = save.fish.length;
         incomeEl.textContent = moneyFormat(incomePerSecond());
+        moneyMaxBadge.classList.toggle("show", save.money >= MAX_MONEY);
     }
 
     function showToast(message) {
@@ -871,9 +891,9 @@
         fish.sort((a, b) => a.y - b.y);
         fish.forEach(drawFish);
 
-        if (now - lastMoneyUpdate >= 100) {
+        if (now - lastMoneyUpdate >= 1000) {
             const elapsed = (now - lastMoneyUpdate) / 1000;
-            save.money += incomePerSecond() * elapsed;
+            save.money = Math.min(MAX_MONEY, save.money + incomePerSecond() * elapsed);
             lastMoneyUpdate = now;
             updateUI();
             saveGame();
