@@ -173,13 +173,9 @@
         overflow: hidden;
     }
 
-    .fish-sprite-img {
-        max-width: 110px;
-        max-height: 85px;
-        width: auto;
-        height: auto;
-        object-fit: contain;
-        image-rendering: -webkit-optimize-contrast;
+    .fish-svg {
+        width: 110px;
+        height: 70px;
     }
 
     .shop-card h3 {
@@ -353,14 +349,15 @@
     "use strict";
 
     const SAVE_KEY = "virtualAquariumSave_v1";
-    const INCOME_RATE = 0.05; // 5% of purchase price per second
-    const STARTING_MONEY = 100;
+    const INCOME_RATE = 0.005; // 0.5% of purchase price per second
+    const STARTING_MONEY = 15;
 
     const fishTypes = [
         {
             id: "goldfish",
             name: "Goldfish",
             description: "A classic little aquarium fish.",
+            shape: "goldfish",
             size: 1.0,
             speed: 0.55,
             variants: [
@@ -374,6 +371,7 @@
             id: "tetra",
             name: "Tetra",
             description: "Small, quick and easy to keep.",
+            shape: "tetra",
             size: 0.72,
             speed: 0.85,
             variants: [
@@ -387,6 +385,7 @@
             id: "clownfish",
             name: "Clownfish",
             description: "A striped fish with plenty of personality.",
+            shape: "clownfish",
             size: 1.05,
             speed: 0.50,
             variants: [
@@ -400,6 +399,7 @@
             id: "angelfish",
             name: "Angelfish",
             description: "Tall fins make this one stand out.",
+            shape: "angelfish",
             size: 1.35,
             speed: 0.38,
             variants: [
@@ -413,6 +413,7 @@
             id: "betta",
             name: "Betta",
             description: "A small fish with a dramatic tail.",
+            shape: "betta",
             size: 1.0,
             speed: 0.45,
             variants: [
@@ -426,6 +427,7 @@
             id: "puffer",
             name: "Pufferfish",
             description: "Round, curious and slightly grumpy.",
+            shape: "puffer",
             size: 1.18,
             speed: 0.32,
             variants: [
@@ -439,6 +441,7 @@
             id: "guppy",
             name: "Guppy",
             description: "Tiny fish with a colorful tail.",
+            shape: "guppy",
             size: 0.70,
             speed: 0.90,
             variants: [
@@ -452,6 +455,7 @@
             id: "lionfish",
             name: "Lionfish",
             description: "Large fins and a distinctive silhouette.",
+            shape: "lionfish",
             size: 1.30,
             speed: 0.28,
             variants: [
@@ -501,38 +505,6 @@
             plant: "#456d55"
         }
     ];
-
-    // Sprite images live in a folder next to this HTML file, named
-    // "<fishTypeId>_<colorname>.png" (e.g. fish-sprites/goldfish_brown.png).
-    // Sprites should be transparent PNGs with the fish facing RIGHT.
-    // To add a new fish or color later: add it to fishTypes above and
-    // drop a matching PNG in the folder — no other code changes needed.
-    const SPRITE_FOLDER = "fish-sprites";
-    const SPRITE_HEIGHT_FACTOR = 2.5; // sprite height relative to physics radius
-
-    const spriteCache = new Map();
-
-    function colorSlug(name) {
-        return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-+|-+$)/g, "");
-    }
-
-    function spritePath(typeId, colorName) {
-        return `${SPRITE_FOLDER}/${typeId}_${colorSlug(colorName)}.png`;
-    }
-
-    function getSprite(typeId, colorName) {
-        const key = typeId + "_" + colorSlug(colorName);
-        let entry = spriteCache.get(key);
-        if (!entry) {
-            const img = new Image();
-            entry = { img, status: "loading" };
-            img.onload = () => { entry.status = "loaded"; };
-            img.onerror = () => { entry.status = "error"; };
-            img.src = spritePath(typeId, colorName);
-            spriteCache.set(key, entry);
-        }
-        return entry;
-    }
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
@@ -797,21 +769,294 @@
     }
 
     function drawFish(f) {
-        const variant = getVariant(f.typeId, f.variantIndex);
-        if (!variant) return;
-
-        const entry = getSprite(f.typeId, variant[0]);
-        if (entry.status !== "loaded") return; // still loading or failed — skip this frame
-
-        const img = entry.img;
-        const targetHeight = f.radius * SPRITE_HEIGHT_FACTOR;
-        const targetWidth = targetHeight * (img.naturalWidth / img.naturalHeight);
+        const def = getFishDefinition(f.typeId);
+        if (!def) return;
 
         ctx.save();
         ctx.translate(f.x, f.y);
         ctx.scale(f.dir, 1);
-        ctx.drawImage(img, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
+
+        const s = f.radius / 20;
+        ctx.scale(s, s);
+
+        const c = f.color;
+        const dark = shadeColor(c, -35);
+        const light = shadeColor(c, 30);
+
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+
+        switch (def.shape) {
+            case "goldfish":
+                drawGoldfish(c, dark, light);
+                break;
+            case "tetra":
+                drawTetra(c, dark, light);
+                break;
+            case "clownfish":
+                drawClownfish(c, dark, light);
+                break;
+            case "angelfish":
+                drawAngelfish(c, dark, light);
+                break;
+            case "betta":
+                drawBetta(c, dark, light);
+                break;
+            case "puffer":
+                drawPuffer(c, dark, light);
+                break;
+            case "guppy":
+                drawGuppy(c, dark, light);
+                break;
+            case "lionfish":
+                drawLionfish(c, dark, light);
+                break;
+        }
+
         ctx.restore();
+    }
+
+    function drawGoldfish(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-13, 0);
+        ctx.lineTo(-27, -10);
+        ctx.lineTo(-25, 1);
+        ctx.lineTo(-27, 11);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 17, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(3, -3, 8, 4, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.lineTo(6, -17);
+        ctx.lineTo(10, -8);
+        ctx.closePath();
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawTetra(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-9, 0);
+        ctx.lineTo(-23, -8);
+        ctx.lineTo(-20, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(-12, 0);
+        ctx.lineTo(3, -8);
+        ctx.lineTo(15, 0);
+        ctx.lineTo(3, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.moveTo(1, -5);
+        ctx.lineTo(10, 0);
+        ctx.lineTo(1, 5);
+        ctx.closePath();
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawClownfish(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-12, 0);
+        ctx.lineTo(-27, -10);
+        ctx.lineTo(-25, 10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 17, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#f5eee0";
+        ctx.fillRect(-6, -11, 5, 22);
+        ctx.fillRect(7, -9, 4, 18);
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(4, -4, 7, 3, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawAngelfish(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-8, 0);
+        ctx.lineTo(-28, -15);
+        ctx.lineTo(-25, 14);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(-10, 0);
+        ctx.quadraticCurveTo(0, -11, 13, -7);
+        ctx.quadraticCurveTo(20, 0, 13, 7);
+        ctx.quadraticCurveTo(0, 11, -10, 0);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-2, -6);
+        ctx.lineTo(3, -22);
+        ctx.lineTo(9, -7);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(7, -2, 5, 2, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawBetta(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-10, 0);
+        ctx.quadraticCurveTo(-25, -18, -30, -5);
+        ctx.quadraticCurveTo(-27, 0, -30, 5);
+        ctx.quadraticCurveTo(-25, 18, -10, 0);
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(4, 0, 15, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(7, -4, 7, 3, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawPuffer(c, dark, light) {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = dark;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 12; i++) {
+            const a = i / 12 * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * 13, Math.sin(a) * 13);
+            ctx.lineTo(Math.cos(a) * 17, Math.sin(a) * 17);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(3, -4, 7, 4, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawGuppy(c, dark, light) {
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        ctx.moveTo(-10, 0);
+        ctx.lineTo(-27, -11);
+        ctx.lineTo(-24, 0);
+        ctx.lineTo(-27, 11);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(3, 0, 13, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(7, -3, 6, 2.5, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function drawLionfish(c, dark, light) {
+        ctx.fillStyle = dark;
+        for (let i = -2; i <= 2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(-4 + i * 4, -5);
+            ctx.lineTo(-10 + i * 7, -22);
+            ctx.lineTo(1 + i * 4, -8);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(-4 + i * 4, 5);
+            ctx.lineTo(-10 + i * 7, 22);
+            ctx.lineTo(1 + i * 4, 8);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(3, 0, 16, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = light;
+        ctx.beginPath();
+        ctx.ellipse(8, -3, 6, 3, -.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        eye();
+    }
+
+    function eye() {
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(12, -3, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#17212a";
+        ctx.beginPath();
+        ctx.arc(13, -3, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function shadeColor(hex, amount) {
+        let c = hex.replace("#", "");
+        if (c.length === 3) c = c.split("").map(x => x + x).join("");
+        const num = parseInt(c, 16);
+        let r = (num >> 16) + amount;
+        let g = ((num >> 8) & 255) + amount;
+        let b = (num & 255) + amount;
+        r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+        return "#" + [r,g,b].map(v => v.toString(16).padStart(2, "0")).join("");
     }
 
     function updateFish(f, dt) {
@@ -882,6 +1127,33 @@
         requestAnimationFrame(animate);
     }
 
+    function fishSVG(type, color) {
+        // Simple preview generated as SVG data.
+        let body = "";
+        if (type.shape === "puffer") {
+            body = `<circle cx="60" cy="38" r="17" fill="${color}"/>
+                    <circle cx="66" cy="33" r="3" fill="white"/><circle cx="67" cy="33" r="1.4" fill="#222"/>`;
+        } else if (type.shape === "angelfish") {
+            body = `<path d="M42 38 Q55 22 72 28 Q84 38 72 48 Q55 54 42 38Z" fill="${color}"/>
+                    <path d="M53 29 L58 8 L65 29Z" fill="${color}"/>
+                    <path d="M45 38 L20 20 L25 56Z" fill="${shadeColor(color,-35)}"/>
+                    <circle cx="70" cy="34" r="3" fill="white"/><circle cx="71" cy="34" r="1.3" fill="#222"/>`;
+        } else if (type.shape === "betta") {
+            body = `<path d="M48 38 Q30 17 18 27 Q25 38 18 49 Q32 58 48 38Z" fill="${shadeColor(color,-35)}"/>
+                    <ellipse cx="62" cy="38" rx="17" ry="10" fill="${color}"/>
+                    <circle cx="75" cy="34" r="3" fill="white"/><circle cx="76" cy="34" r="1.3" fill="#222"/>`;
+        } else if (type.shape === "lionfish") {
+            body = `<ellipse cx="64" cy="38" rx="19" ry="11" fill="${color}"/>
+                    <path d="M55 32 L42 12 L59 28 M60 31 L53 8 L65 28 M55 44 L42 64 L59 48 M61 45 L53 68 L66 48" fill="${shadeColor(color,-35)}"/>
+                    <circle cx="78" cy="34" r="3" fill="white"/><circle cx="79" cy="34" r="1.3" fill="#222"/>`;
+        } else {
+            body = `<path d="M45 38 L22 23 L25 38 L22 53 Z" fill="${shadeColor(color,-35)}"/>
+                    <ellipse cx="62" cy="38" rx="20" ry="13" fill="${color}"/>
+                    <circle cx="77" cy="34" r="3" fill="white"/><circle cx="78" cy="34" r="1.3" fill="#222"/>`;
+        }
+        return `<svg class="fish-svg" viewBox="0 0 120 76">${body}</svg>`;
+    }
+
     function renderFishShop() {
         fishShop.innerHTML = "";
 
@@ -889,13 +1161,9 @@
             const card = document.createElement("div");
             card.className = "shop-card";
 
-            const firstColorName = type.variants[0][0];
+            const firstColor = type.variants[0][1];
             card.innerHTML = `
-                <div class="fish-preview">
-                    <img class="fish-sprite-img" src="${spritePath(type.id, firstColorName)}"
-                         alt="${type.name} (${firstColorName})"
-                         onerror="this.style.display='none'">
-                </div>
+                <div class="fish-preview">${fishSVG(type, firstColor)}</div>
                 <h3>${type.name}</h3>
                 <p>${type.description}</p>
             `;
