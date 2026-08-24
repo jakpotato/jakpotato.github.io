@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jsontidy — a json formatter with no ads</title>
+<style>
+  :root {
+    --bg: #0F1115;
+    --surface: #171A21;
+    --surface-2: #1D2129;
+    --border: #262B36;
+    --border-strong: #343B4A;
+    --text: #E5E7EB;
+    --text-dim: #8B92A5;
+    --text-faint: #5A6072;
+    --accent: #34D399;
+    --accent-text: #06251B;
+    --accent-dim: #1F6B4E;
+    --danger: #F87171;
+    --danger-bg: #2A1616;
+    --danger-border: #4A2323;
+
+    --k: #7DD3FC;
+    --s: #A7F3D0;
+    --n: #FCD34D;
+    --b: #F0ABFC;
+    --p: #5A6072;
+  }
+
+  html[data-theme="light"] {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --surface-2: #F1F1EC;
+    --border: #E3E2DB;
+    --border-strong: #CBCAC1;
+    --text: #1B1C1E;
+    --text-dim: #63656B;
+    --text-faint: #9A9C98;
+    --accent: #0F9D6B;
+    --accent-text: #FFFFFF;
+    --accent-dim: #BFE9D9;
+    --danger: #C0362C;
+    --danger-bg: #FBEAE8;
+    --danger-border: #EFC1BC;
+
+    --k: #0369A1;
+    --s: #0F7B4E;
+    --n: #B45309;
+    --b: #A21CAF;
+    --p: #9A9C98;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, monospace;
+    min-height: 100vh;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand .mark {
+    color: var(--accent);
+    font-size: 20px;
+  }
+
+  h1 {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 11px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 5px 12px 5px 10px;
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover { color: var(--text); border-color: var(--accent-dim); }
+  .theme-toggle svg { width: 13px; height: 13px; }
+
+  .tagline {
+    color: var(--text-faint);
+    font-size: 12px;
+    margin: 0 0 28px;
+  }
+
+  .tagline .no-ads { color: var(--accent); }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .controls .group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  select {
+    font-family: inherit;
+    font-size: 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 4px 8px;
+  }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle input { accent-color: var(--accent); }
+
+  .spacer { flex: 1; }
+
+  .btn {
+    font-family: inherit;
+    font-size: 12px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+  }
+
+  .btn:hover { border-color: var(--accent-dim); color: var(--text); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+
+  .editor {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    min-height: 480px;
+    overflow: hidden;
+  }
+
+  .editor-inner {
+    position: relative;
+    min-height: 480px;
+  }
+
+  .highlight, textarea#input {
+    margin: 0;
+    padding: 18px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 480px;
+  }
+
+  .highlight {
+    position: absolute;
+    inset: 0;
+    color: var(--text);
+    pointer-events: none;
+    overflow: auto;
+  }
+
+  .highlight:empty::before {
+    content: "Paste your one-line json here — it'll tidy itself up right in this box.";
+    color: var(--text-faint);
+  }
+
+  textarea#input {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 480px;
+    resize: vertical;
+    border: none;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text);
+    outline: none;
+    overflow: auto;
+  }
+
+  .error-banner {
+    display: none;
+    align-items: baseline;
+    gap: 8px;
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-top: 14px;
+  }
+
+  .error-banner.show { display: flex; }
+
+  .stats {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .stats b { color: var(--text-dim); font-weight: 500; }
+
+  .depth-rail { display: flex; gap: 3px; margin-top: 3px; }
+
+  .depth-rail span {
+    width: 10px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border-strong);
+  }
+
+  .depth-rail span.filled { background: var(--accent); }
+
+  .k { color: var(--k); }
+  .s { color: var(--s); }
+  .n { color: var(--n); }
+  .b { color: var(--b); }
+  .p { color: var(--p); }
+
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="mark">{ }</span>
+      <h1>jsontidy</h1>
+    </div>
+    <button class="theme-toggle" id="themeToggle">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span id="themeLabel">Dark</span>
+    </button>
+  </header>
+  <p class="tagline">paste ugly json, get tidy json — <span class="no-ads">simple, easy</span></p>
+
+  <div class="controls">
+    <button class="btn primary" id="formatBtn">Format</button>
+    <button class="btn" id="minifyBtn">Minify</button>
+    <button class="btn" id="clearBtn">Clear</button>
+    <div class="group">
+      <label for="indent">Indent</label>
+      <select id="indent">
+        <option value="2" selected>2 spaces</option>
+        <option value="4">4 spaces</option>
+        <option value="tab">Tab</option>
+      </select>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="sortKeys">
+      Sort keys
+    </label>
+    <div class="spacer"></div>
+    <button class="btn" id="pasteBtn">Paste</button>
+    <button class="btn" id="copyBtn">Copy</button>
+    <button class="btn" id="downloadBtn">Download .json</button>
+  </div>
+
+  <div class="editor">
+    <div class="editor-inner">
+      <div class="highlight" id="highlight"></div>
+      <textarea id="input" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner">
+    <span>⚠</span>
+    <span id="errorText"></span>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+    <div><b id="statChars">0</b> chars</div>
+    <div><b id="statKeys">0</b> keys</div>
+    <div><b id="statDepth">0</b> levels deep
+      <div class="depth-rail" id="depthRail"></div>
+    </div>
+    <div><b id="statSize">0 B</b> size</div>
+  </div>
+
+  <footer>closing the page clears data</footer>
+</div>
+
+<script>
+  const input = document.getElementById('input');
+  const highlightEl = document.getElementById('highlight');
+  const errorBanner = document.getElementById('errorBanner');
+  const errorText = document.getElementById('errorText');
+  const stats = document.getElementById('stats');
+  const indentSelect = document.getElementById('indent');
+  const sortKeysBox = document.getElementById('sortKeys');
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const themeIcon = document.getElementById('themeIcon');
+
+  const SUN = '<path d="M12 4V2M12 22v-2M4.93 4.93 3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2M22 12h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42"/><circle cx="12" cy="12" r="5"/>';
+  const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    themeLabel.textContent = theme === 'light' ? 'Light' : 'Dark';
+    themeIcon.innerHTML = theme === 'light' ? SUN : MOON;
+    try { localStorage.setItem('jsontidy-theme', theme); } catch (e) {}
+  }
+
+  (function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem('jsontidy-theme'); } catch (e) {}
+    if (!saved) {
+      saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    applyTheme(saved);
+  })();
+
+  themeToggle.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+  });
+
+  function getIndent() {
+    const v = indentSelect.value;
+    if (v === 'tab') return '\t';
+    return ' '.repeat(parseInt(v, 10));
+  }
+
+  function sortObjectKeys(obj) {
+    if (Array.isArray(obj)) return obj.map(sortObjectKeys);
+    if (obj !== null && typeof obj === 'object') {
+      const sorted = {};
+      Object.keys(obj).sort().forEach(k => { sorted[k] = sortObjectKeys(obj[k]); });
+      return sorted;
+    }
+    return obj;
+  }
+
+  function countKeysAndDepth(obj, depth = 0) {
+    let keys = 0;
+    let maxDepth = depth;
+    if (Array.isArray(obj)) {
+      for (const item of obj) {
+        const r = countKeysAndDepth(item, depth + 1);
+        keys += r.keys;
+        maxDepth = Math.max(maxDepth, r.maxDepth);
+      }
+    } else if (obj !== null && typeof obj === 'object') {
+      const objKeys = Object.keys(obj);
+      keys += objKeys.length;
+      for (const k of objKeys) {
+        const r = countKeysAndDepth(obj[k], depth + 1);
+        keys += r.keys;
+        maxDepth = Math.max(maxDepth, r.maxDepth);
+      }
+    }
+    return { keys, maxDepth };
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+
+  function highlightJson(jsonStr) {
+    const escaped = escapeHtml(jsonStr);
+    return escaped.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+-]?\d+)?)/g,
+      (match) => {
+        let cls = 'n';
+        if (/^"/.test(match)) {
+          cls = /:$/.test(match) ? 'k' : 's';
+        } else if (/true|false|null/.test(match)) {
+          cls = 'b';
+        }
+        return `<span class="${cls}">${match}</span>`;
+      }
+    ).replace(/([{}\[\],])/g, '<span class="p">$1</span>');
+  }
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function updateStats(raw, parsed, formatted) {
+    const { keys, maxDepth } = countKeysAndDepth(parsed);
+    document.getElementById('statChars').textContent = raw.length.toLocaleString();
+    document.getElementById('statKeys').textContent = keys.toLocaleString();
+    document.getElementById('statDepth').textContent = maxDepth;
+    document.getElementById('statSize').textContent = formatBytes(new Blob([formatted]).size);
+
+    const rail = document.getElementById('depthRail');
+    rail.innerHTML = '';
+    const shown = Math.min(maxDepth, 12);
+    for (let i = 0; i < Math.max(shown, 1); i++) {
+      const span = document.createElement('span');
+      if (i < shown) span.classList.add('filled');
+      rail.appendChild(span);
+    }
+    stats.style.display = 'flex';
+  }
+
+  function showError(message) {
+    errorText.textContent = message;
+    errorBanner.classList.add('show');
+    stats.style.display = 'none';
+  }
+
+  function clearError() {
+    errorBanner.classList.remove('show');
+  }
+
+  function tryParse(raw) {
+    try {
+      return { ok: true, value: JSON.parse(raw) };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  function friendlyError(raw, message) {
+    const posMatch = message.match(/position (\d+)/);
+    if (!posMatch) return message;
+    const pos = parseInt(posMatch[1], 10);
+    const before = raw.slice(0, pos);
+    const line = before.split('\n').length;
+    const col = pos - before.lastIndexOf('\n');
+    return `${message} (line ${line}, column ${col})`;
+  }
+
+  // Live highlight of whatever is currently in the box, valid or not —
+  // keeps the view in sync while typing without touching the actual value.
+  function renderHighlightOnly() {
+    highlightEl.innerHTML = highlightJson(input.value);
+    syncScroll();
+  }
+
+  // Full reformat: re-indent (or minify) and replace the textarea's own
+  // value, so the box itself becomes the tidy output.
+  function reformat(mode) {
+    const raw = input.value.trim();
+    if (!raw) {
+      highlightEl.innerHTML = '';
+      clearError();
+      stats.style.display = 'none';
+      return;
+    }
+    const result = tryParse(raw);
+    if (!result.ok) {
+      renderHighlightOnly();
+      showError(friendlyError(raw, result.error));
+      return;
+    }
+    clearError();
+    const data = sortKeysBox.checked ? sortObjectKeys(result.value) : result.value;
+    const text = mode === 'minify' ? JSON.stringify(data) : JSON.stringify(data, null, getIndent());
+    input.value = text;
+    highlightEl.innerHTML = highlightJson(text);
+    updateStats(raw, result.value, text);
+    syncScroll();
+  }
+
+  function syncScroll() {
+    highlightEl.scrollTop = input.scrollTop;
+    highlightEl.scrollLeft = input.scrollLeft;
+  }
+
+  document.getElementById('formatBtn').addEventListener('click', () => reformat('pretty'));
+  document.getElementById('minifyBtn').addEventListener('click', () => reformat('minify'));
+  indentSelect.addEventListener('change', () => reformat('pretty'));
+  sortKeysBox.addEventListener('change', () => reformat('pretty'));
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    input.value = '';
+    highlightEl.innerHTML = '';
+    clearError();
+    stats.style.display = 'none';
+    input.focus();
+  });
+
+  document.getElementById('pasteBtn').addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      input.value = text;
+      reformat('pretty');
+    } catch (e) {
+      input.focus();
+    }
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const text = input.value;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      const original = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = original; }, 1200);
+    });
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const text = input.value;
+    if (!text) return;
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'formatted.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Reformat (re-indent) whenever content actually arrives via paste —
+  // this is the main "just paste it and see tidy json" flow.
+  input.addEventListener('paste', () => {
+    setTimeout(() => reformat('pretty'), 0);
+  });
+
+  // While actively typing, just keep the syntax colors in sync — don't
+  // re-indent on every keystroke, since that would fight the cursor.
+  input.addEventListener('input', renderHighlightOnly);
+
+  // Leaving the box tidies it up if what's there is valid json.
+  input.addEventListener('blur', () => {
+    if (input.value.trim()) reformat('pretty');
+  });
+
+  input.addEventListener('scroll', syncScroll);
+
+  // seed with an example so the page isn't empty on first load
+  input.value = '{"name":"ada lovelace","born":1815,"tags":["mathematician","programmer"],"active":true,"notes":null,"address":{"city":"london","country":"uk"}}';
+  reformat('pretty');
+</script>
+</body>
+</html>
