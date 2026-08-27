@@ -13,7 +13,7 @@ export const TEMPLATES = {
     "Nobody appreciates {subject} enough.",
     "Having a good {subject} day can fix almost anything."
   ],
-  hate: [
+  thought: [
     "I hate {subject}. That's it. That's the post.",
     "Why does everyone pretend {subject} is okay?",
     "I am once again asking people to stop defending {subject}.",
