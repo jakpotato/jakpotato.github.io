@@ -58,7 +58,15 @@ export const COMMENT_TEMPLATES = [
   "I need more information.",
   "This is going to bother me all day.",
   "Nobody is ready for this conversation.",
-  "I have several follow-up questions."
+  "I have several follow-up questions.",
+  "Ughhh not again.",
+  "It's always this and never about the Roman Empire!", 
+   "But why?",
+   "Yeah I'm pretty sure you're wrong about whatever that is.",
+    "Shut up"
+    "Not related but I'm selling flies if you want some, I bought too many",
+    "Could we talk about I important stuff",
+    "I can help with that."
 ];
 
 export const TRENDS = [
