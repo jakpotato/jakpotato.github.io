@@ -3,9 +3,9 @@ import { PERSONALITIES } from "./data/personalities.js";
 import { SUBJECTS, TEMPLATES, COMMENT_TEMPLATES, TRENDS } from "./data/content.js";
 
 const STORAGE = {
-  user: "clowder_user_v1",
-  people: "clowder_people_v1",
-  customPosts: "clowder_custom_posts_v1"
+  user: "clowder_user_v2",
+  people: "clowder_people_v2",
+  customPosts: "clowder_custom_posts_v2"
 };
 
 const state = {
@@ -13,11 +13,12 @@ const state = {
   visibleCount: 0,
   filter: "all",
   search: "",
-  loading: false
+  loading: false,
+  reportPostId: null
 };
 
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
 
 function random(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -29,8 +30,16 @@ function id(prefix = "id") {
 
 function escapeHtml(value) {
   const div = document.createElement("div");
-  div.textContent = value;
+  div.textContent = String(value ?? "");
   return div.innerHTML;
+}
+
+function currentUser() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE.user));
+  } catch {
+    return null;
+  }
 }
 
 function makePerson() {
@@ -55,17 +64,31 @@ function savePeople(people) {
   localStorage.setItem(STORAGE.people, JSON.stringify(people));
 }
 
-function getPerson() {
+function ensurePeople() {
   const people = getPeople();
-  if (people.length < 20) {
-    for (let i = people.length; i < 20; i++) people.push(makePerson());
-    savePeople(people);
-  }
-  return random(people);
+  while (people.length < 30) people.push(makePerson());
+  savePeople(people);
+  return people;
 }
 
 function getPersonById(personId) {
-  return getPeople().find(p => p.id === personId) || getPerson();
+  if (personId === "local_user") {
+    return currentUser() || { id: "local_user", name: "You", avatar: "🙂" };
+  }
+
+  const people = ensurePeople();
+  return people.find(p => p.id === personId) || people[0];
+}
+
+function getRandomFakePerson() {
+  return random(ensurePeople());
+}
+
+function replaceTemplate(template, subject = random(SUBJECTS)) {
+  // Replace every known placeholder before anything is displayed.
+  return template
+    .replaceAll("{subject}", subject)
+    .replaceAll("{name}", getPersonById("local_user").name);
 }
 
 function makeText(personalityId) {
@@ -78,28 +101,35 @@ function makeText(personalityId) {
   }
 
   const type = random(Object.keys(TEMPLATES));
-  return random(TEMPLATES[type]).replaceAll("{subject}", random(SUBJECTS));
+  return replaceTemplate(random(TEMPLATES[type]));
 }
 
 function makeComments() {
   const count = Math.floor(Math.random() * 4);
   return Array.from({ length: count }, () => ({
     id: id("comment"),
-    personId: getPerson().id,
-    text: random(COMMENT_TEMPLATES)
+    personId: getRandomFakePerson().id,
+    text: replaceTemplate(random(COMMENT_TEMPLATES))
   }));
 }
 
 function makePost() {
-  const person = getPerson();
-  const personality = PERSONALITIES.find(p => p.id === person.personality);
+  const person = getRandomFakePerson();
   const categories = ["thought", "opinion", "rant", "question", "love", "vague"];
   const category = random(categories);
+
+  let text;
+  if (Math.random() < 0.65) {
+    text = makeText(person.personality);
+  } else {
+    const templateType = category === "vague" ? "vague" : category;
+    text = replaceTemplate(random(TEMPLATES[templateType]));
+  }
 
   return {
     id: id("post"),
     personId: person.id,
-    text: Math.random() < 0.65 ? makeText(personality.id) : random(TEMPLATES[category === "vague" ? "vague" : category]),
+    text,
     category,
     createdAt: Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 72),
     reactions: {
@@ -115,16 +145,22 @@ function makePost() {
 
 function loadCustomPosts() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE.customPosts)) || [];
+    const posts = JSON.parse(localStorage.getItem(STORAGE.customPosts)) || [];
+    return posts.map(post => ({
+      ...post,
+      personId: "local_user",
+      reactions: { like: 0, laugh: 0, heart: 0, cat: 0, ...(post.reactions || {}) },
+      comments: Array.isArray(post.comments) ? post.comments : [],
+      reacted: post.reacted || {}
+    }));
   } catch {
     return [];
   }
 }
 
-function saveCustomPost(post) {
-  const posts = loadCustomPosts();
-  posts.unshift(post);
-  localStorage.setItem(STORAGE.customPosts, JSON.stringify(posts.slice(0, 100)));
+function saveCustomPosts() {
+  const custom = state.posts.filter(post => post.personId === "local_user");
+  localStorage.setItem(STORAGE.customPosts, JSON.stringify(custom.slice(0, 100)));
 }
 
 function generatePosts(count) {
@@ -132,7 +168,7 @@ function generatePosts(count) {
 }
 
 function formatTime(timestamp) {
-  const diff = Date.now() - timestamp;
+  const diff = Math.max(0, Date.now() - timestamp);
   const minute = 60 * 1000;
   const hour = 60 * minute;
   const day = 24 * hour;
@@ -142,6 +178,10 @@ function formatTime(timestamp) {
   if (diff < day) return `${Math.floor(diff / hour)}h`;
   if (diff < 7 * day) return `${Math.floor(diff / day)}d`;
   return new Date(timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function totalReactions(post) {
+  return Object.values(post.reactions).reduce((sum, value) => sum + Number(value || 0), 0);
 }
 
 function visiblePosts() {
@@ -166,24 +206,23 @@ function visiblePosts() {
   return posts;
 }
 
-function totalReactions(post) {
-  return Object.values(post.reactions).reduce((a, b) => a + b, 0);
-}
-
 function renderFeed(reset = false) {
   const feed = $("#feed");
+
   if (reset) {
     feed.innerHTML = "";
     state.visibleCount = 0;
   }
 
   const posts = visiblePosts();
-  const next = posts.slice(state.visibleCount, state.visibleCount + 10);
+  const next = posts.slice(state.visibleCount, state.visibleCount + 5);
 
   next.forEach(post => feed.appendChild(renderPost(post)));
   state.visibleCount += next.length;
 
   $("#emptyState").classList.toggle("hidden", posts.length !== 0);
+
+  return next.length;
 }
 
 function renderPost(post) {
@@ -192,9 +231,11 @@ function renderPost(post) {
   const person = getPersonById(post.personId);
 
   article.dataset.id = post.id;
+
   fragment.querySelector(".post-avatar").textContent = person.avatar;
   fragment.querySelector(".post-name").textContent = person.name;
-  fragment.querySelector(".handle").textContent = `@${person.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+  fragment.querySelector(".handle").textContent =
+    `@${person.name.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
   fragment.querySelector(".timestamp").textContent = formatTime(post.createdAt);
   fragment.querySelector(".post-category").textContent = post.category;
   fragment.querySelector(".post-text").textContent = post.text;
@@ -208,6 +249,7 @@ function renderPost(post) {
   fragment.querySelector(".comment-count").textContent = post.comments.length;
 
   const commentsList = fragment.querySelector(".comments-list");
+
   post.comments.forEach(comment => {
     const commenter = getPersonById(comment.personId);
     const row = document.createElement("div");
@@ -230,11 +272,19 @@ function renderPost(post) {
     preview.classList.remove("hidden");
   }
 
+  // Keep the current user's reaction highlighted after a re-render.
+  const reactionButtons = fragment.querySelectorAll(".reaction-button");
+  reactionButtons.forEach(button => {
+    if (post.reacted?.[button.dataset.reaction]) {
+      button.classList.add("selected");
+    }
+  });
+
   return fragment;
 }
 
 function updateUserUI() {
-  const user = JSON.parse(localStorage.getItem(STORAGE.user));
+  const user = currentUser();
   if (!user) return;
 
   $("#headerName").textContent = user.name;
@@ -248,9 +298,12 @@ function startApp() {
   $("#loginScreen").classList.add("hidden");
   $("#nameScreen").classList.add("hidden");
   $("#app").classList.remove("hidden");
+
   updateUserUI();
+  ensurePeople();
+
   state.posts = loadCustomPosts();
-  generatePosts(35);
+  generatePosts(20);
   renderFeed(true);
   renderTrends();
 }
@@ -276,31 +329,118 @@ function closeComposer() {
   $("#characterCount").textContent = "0 / 500";
 }
 
-$("#loginForm").addEventListener("submit", e => {
-  e.preventDefault();
+function openProfile() {
+  const user = currentUser();
+  if (!user) return;
+
+  $("#profileName").value = user.name;
+  renderAvatarPicker(user.avatar);
+  $("#profileModal").classList.remove("hidden");
+}
+
+function closeProfile() {
+  $("#profileModal").classList.add("hidden");
+}
+
+function renderAvatarPicker(selected) {
+  $("#avatarPicker").innerHTML = AVATARS.map(avatar => `
+    <button type="button" class="avatar-choice ${avatar === selected ? "selected" : ""}" data-avatar="${escapeHtml(avatar)}">
+      ${escapeHtml(avatar)}
+    </button>
+  `).join("");
+}
+
+function openReport(postId) {
+  state.reportPostId = postId;
+  $("#reportConfirmation").classList.add("hidden");
+  $("#reportReasons").classList.remove("hidden");
+  $("#reportModal").classList.remove("hidden");
+}
+
+function closeReport() {
+  state.reportPostId = null;
+  $("#reportModal").classList.add("hidden");
+}
+
+function showMorePosts() {
+  if (state.loading || state.search || state.filter !== "all") return;
+
+  state.loading = true;
+  $("#loadingIndicator").classList.remove("hidden");
+
+  // A tiny delay makes the loading state visible without holding up the feed.
+  setTimeout(() => {
+    generatePosts(5);
+    renderFeed();
+    state.loading = false;
+    $("#loadingIndicator").classList.add("hidden");
+  }, 80);
+}
+
+// Login: explicitly prevent the browser's default form navigation.
+$("#loginForm").addEventListener("submit", event => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const email = $("#email").value.trim();
+  const password = $("#password").value;
+
+  if (!email || !password) return;
+
   $("#loginScreen").classList.add("hidden");
   $("#nameScreen").classList.remove("hidden");
   $("#displayName").focus();
 });
 
-$("#nameForm").addEventListener("submit", e => {
-  e.preventDefault();
+$("#nameForm").addEventListener("submit", event => {
+  event.preventDefault();
+  event.stopPropagation();
+
   const name = $("#displayName").value.trim();
   if (!name) return;
 
-  const user = {
+  localStorage.setItem(STORAGE.user, JSON.stringify({
     id: "local_user",
     name,
     avatar: random(AVATARS)
-  };
+  }));
 
-  localStorage.setItem(STORAGE.user, JSON.stringify(user));
   startApp();
 });
 
 $("#logoutButton").addEventListener("click", () => {
   localStorage.removeItem(STORAGE.user);
   location.reload();
+});
+
+$("#profileButton").addEventListener("click", openProfile);
+$("#closeProfile").addEventListener("click", closeProfile);
+
+$("#avatarPicker").addEventListener("click", event => {
+  const choice = event.target.closest(".avatar-choice");
+  if (!choice) return;
+
+  $$(".avatar-choice").forEach(button => button.classList.remove("selected"));
+  choice.classList.add("selected");
+});
+
+$("#saveProfile").addEventListener("click", () => {
+  const user = currentUser();
+  if (!user) return;
+
+  const name = $("#profileName").value.trim();
+  const selected = $(".avatar-choice.selected");
+
+  if (!name || !selected) return;
+
+  user.name = name;
+  user.avatar = selected.dataset.avatar;
+  localStorage.setItem(STORAGE.user, JSON.stringify(user));
+
+  updateUserUI();
+  closeProfile();
+  renderFeed(true);
+  saveCustomPosts();
 });
 
 $("#composerButton").addEventListener("click", () => openComposer());
@@ -319,10 +459,9 @@ $("#publishButton").addEventListener("click", () => {
   const text = $("#postText").value.trim();
   if (!text) return;
 
-  const user = JSON.parse(localStorage.getItem(STORAGE.user));
   const post = {
     id: id("post"),
-    personId: user.id,
+    personId: "local_user",
     text,
     category: $("#postCategory").value,
     createdAt: Date.now(),
@@ -331,73 +470,92 @@ $("#publishButton").addEventListener("click", () => {
     reacted: {}
   };
 
-  saveCustomPost(post);
   state.posts.unshift(post);
+  saveCustomPosts();
   closeComposer();
   renderFeed(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-$("#feed").addEventListener("click", e => {
-  const article = e.target.closest(".post");
+$("#feed").addEventListener("click", event => {
+  const article = event.target.closest(".post");
   if (!article) return;
 
   const post = state.posts.find(p => p.id === article.dataset.id);
   if (!post) return;
 
-  const reactionButton = e.target.closest(".reaction-button");
+  const reactionButton = event.target.closest(".reaction-button");
   if (reactionButton) {
     const type = reactionButton.dataset.reaction;
+
     if (!post.reacted[type]) {
       post.reactions[type]++;
       post.reacted[type] = true;
-      reactionButton.classList.add("selected");
+
+      if (post.personId === "local_user") saveCustomPosts();
       renderFeed(true);
     }
     return;
   }
 
-  if (e.target.closest(".comment-button")) {
+  if (event.target.closest(".comment-button")) {
     article.querySelector(".comments").classList.toggle("hidden");
     return;
   }
 
-  if (e.target.closest(".more-button")) {
-    alert("There is nothing to report. This is Clowder.");
+  if (event.target.closest(".more-button")) {
+    openReport(post.id);
   }
 });
 
-$("#feed").addEventListener("submit", e => {
-  if (!e.target.classList.contains("comment-form")) return;
-  e.preventDefault();
+$("#feed").addEventListener("submit", event => {
+  if (!event.target.classList.contains("comment-form")) return;
 
-  const article = e.target.closest(".post");
+  event.preventDefault();
+
+  const article = event.target.closest(".post");
   const post = state.posts.find(p => p.id === article.dataset.id);
-  const input = e.target.querySelector("input");
+  const input = event.target.querySelector("input");
   const text = input.value.trim();
-  if (!text) return;
 
-  const user = JSON.parse(localStorage.getItem(STORAGE.user));
+  if (!post || !text) return;
+
   post.comments.push({
     id: id("comment"),
-    personId: user.id,
+    personId: "local_user",
     text
   });
+
+  if (post.personId === "local_user") saveCustomPosts();
 
   input.value = "";
   renderFeed(true);
 });
 
+$("#reportReasons").addEventListener("click", event => {
+  const button = event.target.closest("[data-reason]");
+  if (!button) return;
+
+  $("#reportReasons").classList.add("hidden");
+  $("#reportConfirmation").textContent =
+    `Report submitted as "${button.dataset.reason}". Thanks. The post will remain exactly where it is.`;
+  $("#reportConfirmation").classList.remove("hidden");
+});
+
+$("#closeReport").addEventListener("click", closeReport);
+
 $$(".nav-item").forEach(button => {
   button.addEventListener("click", () => {
     $$(".nav-item").forEach(b => b.classList.remove("active"));
     button.classList.add("active");
+
     state.filter = button.dataset.filter;
     renderFeed(true);
   });
 });
 
-$("#searchInput").addEventListener("input", e => {
-  state.search = e.target.value;
+$("#searchInput").addEventListener("input", event => {
+  state.search = event.target.value;
   renderFeed(true);
 });
 
@@ -405,32 +563,41 @@ $("#homeButton").addEventListener("click", () => {
   state.filter = "all";
   state.search = "";
   $("#searchInput").value = "";
-  $$(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.filter === "all"));
+
+  $$(".nav-item").forEach(button => {
+    button.classList.toggle("active", button.dataset.filter === "all");
+  });
+
   renderFeed(true);
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-window.addEventListener("scroll", () => {
-  if (state.loading || state.search || state.filter !== "all") return;
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 700) {
-    state.loading = true;
-    $("#loadingIndicator").classList.remove("hidden");
+// More reliable infinite scrolling: observe a sentinel near the bottom
+// rather than relying on document height/scroll events.
+const sentinel = document.createElement("div");
+sentinel.id = "feedSentinel";
+sentinel.style.height = "1px";
+$("#feed").after(sentinel);
 
-    setTimeout(() => {
-      generatePosts(15);
-      renderFeed();
-      state.loading = false;
-      $("#loadingIndicator").classList.add("hidden");
-    }, 250);
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) showMorePosts();
+}, {
+  root: null,
+  rootMargin: "0px 0px 700px 0px",
+  threshold: 0
+});
+
+observer.observe(sentinel);
+
+window.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeComposer();
+    closeProfile();
+    closeReport();
   }
 });
 
-window.addEventListener("keydown", e => {
-  if (e.key === "Escape") closeComposer();
-});
-
-const existingUser = localStorage.getItem(STORAGE.user);
-if (existingUser) {
+if (currentUser()) {
   startApp();
 } else {
   $("#loginScreen").classList.remove("hidden");

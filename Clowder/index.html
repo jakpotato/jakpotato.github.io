@@ -14,7 +14,7 @@
       <h1>Clowder</h1>
       <p class="muted">A perfectly normal place for people to have opinions.</p>
 
-      <form id="loginForm">
+      <form id="loginForm" novalidate>
         <label for="email">Email</label>
         <input id="email" type="email" placeholder="you@example.com" required>
 
@@ -110,6 +110,41 @@
     </main>
   </div>
 
+  <div id="profileModal" class="modal-screen hidden">
+    <div class="compose-card profile-card">
+      <div class="modal-header">
+        <h2>Edit profile</h2>
+        <button id="closeProfile" class="close-button">×</button>
+      </div>
+      <label for="profileName">Display name</label>
+      <input id="profileName" maxlength="40" placeholder="Your name">
+      <label class="avatar-label">Choose your avatar</label>
+      <div id="avatarPicker" class="avatar-picker"></div>
+      <div class="compose-footer">
+        <span class="muted">Changes are saved locally.</span>
+        <button id="saveProfile" class="primary-button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reportModal" class="modal-screen hidden">
+    <div class="compose-card report-card">
+      <div class="modal-header">
+        <h2>Report post</h2>
+        <button id="closeReport" class="close-button">×</button>
+      </div>
+      <p class="muted">What's wrong with this post?</p>
+      <div id="reportReasons" class="report-reasons">
+        <button data-reason="Spam">Spam</button>
+        <button data-reason="Misleading">Misleading</button>
+        <button data-reason="Unfunny">Unfunny</button>
+        <button data-reason="I just don't like it">I just don't like it</button>
+        <button data-reason="Other">Other</button>
+      </div>
+      <p id="reportConfirmation" class="report-confirmation hidden">Thanks. Your report has been received and absolutely nothing will happen to this post.</p>
+    </div>
+  </div>
+
   <div id="composeModal" class="modal-screen hidden">
     <div class="compose-card">
       <div class="modal-header">
@@ -150,8 +185,6 @@
       </div>
       <div class="post-category"></div>
       <div class="post-text"></div>
-      <div class="comment-preview hidden"></div>
-      <div class="reaction-row"></div>
       <div class="post-actions">
         <button class="comment-button">💬 <span class="comment-count">0</span></button>
         <button class="reaction-button" data-reaction="like">👍 <span>0</span></button>
@@ -159,6 +192,7 @@
         <button class="reaction-button" data-reaction="heart">❤️ <span>0</span></button>
         <button class="reaction-button" data-reaction="cat">🐱 <span>0</span></button>
       </div>
+      <div class="comment-preview hidden"></div>
       <div class="comments hidden">
         <div class="comments-list"></div>
         <form class="comment-form">
