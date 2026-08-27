@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Clowder — a perfectly normal social network. Probably.">
+  <title>Clowder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="brand-mark">🐱</div>
+      <h1>Clowder</h1>
+      <p class="muted">A perfectly normal place for people to have opinions.</p>
+
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Anything works" required>
+
+        <button class="primary-button" type="submit">Create account</button>
+      </form>
+
+      <p class="login-note">This is a parody social network. Nothing is actually sent anywhere.</p>
+    </div>
+  </div>
+
+  <div id="nameScreen" class="modal-screen hidden">
+    <div class="login-card">
+      <div class="brand-mark">👋</div>
+      <h2>Welcome to Clowder</h2>
+      <p class="muted">What should everyone call you?</p>
+      <form id="nameForm">
+        <label for="displayName">Display name</label>
+        <input id="displayName" maxlength="40" placeholder="Your name" required>
+        <button class="primary-button" type="submit">Enter Clowder</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <button class="brand-button" id="homeButton" aria-label="Go home">
+          <span class="brand-icon">🐱</span>
+          <span>Clowder</span>
+        </button>
+
+        <div class="search-box">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Search Clowder">
+        </div>
+
+        <div class="account-menu">
+          <button id="profileButton" class="profile-button">
+            <span id="headerAvatar">🙂</span>
+            <span id="headerName">You</span>
+          </button>
+          <button id="logoutButton" class="logout-button">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar left-sidebar">
+        <nav>
+          <button class="nav-item active" data-filter="all">🏠 <span>Home</span></button>
+          <button class="nav-item" data-filter="popular">🔥 <span>Popular</span></button>
+          <button class="nav-item" data-filter="questions">❓ <span>Questions</span></button>
+          <button class="nav-item" data-filter="rants">💢 <span>Rants</span></button>
+        </nav>
+        <div class="sidebar-card">
+          <strong>Clowder tip</strong>
+          <p>There is no such thing as posting too much. Someone else will probably do it anyway.</p>
+        </div>
+      </aside>
+
+      <section class="feed-column">
+        <div class="composer card">
+          <div class="composer-top">
+            <span id="composerAvatar" class="avatar">🙂</span>
+            <button id="composerButton" class="composer-placeholder">What's on your mind?</button>
+          </div>
+          <div class="composer-actions">
+            <button data-compose="thought">💭 Thought</button>
+            <button data-compose="question">❓ Question</button>
+            <button data-compose="rant">💢 Rant</button>
+          </div>
+        </div>
+
+        <div id="feed"></div>
+        <div id="loadingIndicator" class="loading hidden">Loading more extremely important opinions…</div>
+        <div id="emptyState" class="empty-state hidden">Nothing to see here. Somehow.</div>
+      </section>
+
+      <aside class="sidebar right-sidebar">
+        <div class="card trend-card">
+          <h3>Trending now</h3>
+          <div id="trends"></div>
+        </div>
+        <div class="card about-card">
+          <h3>About Clowder</h3>
+          <p>A social network where everyone has something to say, whether or not anyone asked.</p>
+          <small>© 2026 Clowder</small>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="composeModal" class="modal-screen hidden">
+    <div class="compose-card">
+      <div class="modal-header">
+        <h2>Create a post</h2>
+        <button id="closeCompose" class="close-button">×</button>
+      </div>
+      <div class="compose-author">
+        <span id="modalAvatar" class="avatar">🙂</span>
+        <strong id="modalName">You</strong>
+      </div>
+      <select id="postCategory">
+        <option value="thought">Thought</option>
+        <option value="question">Question</option>
+        <option value="rant">Rant</option>
+        <option value="love">Love</option>
+        <option value="opinion">Opinion</option>
+      </select>
+      <textarea id="postText" maxlength="500" placeholder="Say something..."></textarea>
+      <div class="compose-footer">
+        <span id="characterCount">0 / 500</span>
+        <button id="publishButton" class="primary-button">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="postTemplate">
+    <article class="post card">
+      <div class="post-header">
+        <span class="avatar post-avatar"></span>
+        <div class="post-meta">
+          <div class="name-line">
+            <strong class="post-name"></strong>
+            <span class="handle"></span>
+          </div>
+          <div class="timestamp"></div>
+        </div>
+        <button class="more-button">•••</button>
+      </div>
+      <div class="post-category"></div>
+      <div class="post-text"></div>
+      <div class="comment-preview hidden"></div>
+      <div class="reaction-row"></div>
+      <div class="post-actions">
+        <button class="comment-button">💬 <span class="comment-count">0</span></button>
+        <button class="reaction-button" data-reaction="like">👍 <span>0</span></button>
+        <button class="reaction-button" data-reaction="laugh">😂 <span>0</span></button>
+        <button class="reaction-button" data-reaction="heart">❤️ <span>0</span></button>
+        <button class="reaction-button" data-reaction="cat">🐱 <span>0</span></button>
+      </div>
+      <div class="comments hidden">
+        <div class="comments-list"></div>
+        <form class="comment-form">
+          <input maxlength="250" placeholder="Write a comment...">
+          <button type="submit">Post</button>
+        </form>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
