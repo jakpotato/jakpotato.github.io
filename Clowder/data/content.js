@@ -65,7 +65,7 @@ export const COMMENT_TEMPLATES = [
    "Yeah I'm pretty sure you're wrong about whatever that is.",
     "Shut up",
     "Not related but I'm selling flies if you want some, I bought too many",
-    "Could we talk about I important stuff",
+    "Could we talk about important stuff",
     "I can help with that."
 ];
 
