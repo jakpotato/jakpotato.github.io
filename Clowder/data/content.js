@@ -63,7 +63,7 @@ export const COMMENT_TEMPLATES = [
   "It's always this and never about the Roman Empire!", 
    "But why?",
    "Yeah I'm pretty sure you're wrong about whatever that is.",
-    "Shut up"
+    "Shut up",
     "Not related but I'm selling flies if you want some, I bought too many",
     "Could we talk about I important stuff",
     "I can help with that."
