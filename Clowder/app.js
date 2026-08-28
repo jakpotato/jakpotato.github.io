@@ -130,7 +130,7 @@ function makePost() {
     id: id("post"),
     personId: person.id,
     text,
-    category,
+    "Post",
     createdAt: Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 72),
     reactions: {
       like: Math.floor(Math.random() * 70),
