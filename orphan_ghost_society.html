@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orphan Ghost Society | Every Ghost Deserves Somewhere to Haunt</title>
+<meta name="description" content="The Orphan Ghost Society provides intake, temporary hosting, and placement services for ghosts without a suitable residence.">
+<style>
+:root{
+  --navy:#172536; --navy2:#22364a; --ink:#24313d; --muted:#65727d;
+  --paper:#f7f8f6; --white:#fff; --line:#dce2e5; --teal:#3c7774;
+  --teal2:#e8f1f0; --gold:#b28a45; --red:#9c4e4e; --shadow:0 10px 30px rgba(20,35,48,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);line-height:1.6}
+a{color:inherit}
+.container{width:min(1120px,calc(100% - 40px));margin:auto}
+header{background:var(--navy);color:white;border-bottom:4px solid var(--gold)}
+.topbar{font-size:12px;letter-spacing:.03em;background:#101b27;color:#cdd6dc}
+.topbar .container{display:flex;justify-content:space-between;padding:7px 0}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.logo{display:flex;gap:13px;align-items:center;text-decoration:none}
+.logo-mark{width:42px;height:42px;border:1px solid rgba(255,255,255,.3);border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.06)}
+.logo-mark svg{width:29px;height:29px}
+.logo strong{display:block;font-family:Georgia,serif;font-size:20px;letter-spacing:.01em}
+.logo small{display:block;color:#b9c5ce;font-size:10px;text-transform:uppercase;letter-spacing:.13em}
+.navlinks{display:flex;gap:25px;align-items:center}
+.navlinks a{text-decoration:none;font-size:14px;color:#e5ebef}
+.navlinks a:hover{color:white}
+.btn{display:inline-block;padding:11px 17px;border-radius:5px;text-decoration:none;font-weight:700;font-size:14px;border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--teal);color:white}
+.btn-light{background:white;color:var(--navy)}
+.btn-outline{border-color:#bcc7cc;color:var(--ink);background:white}
+.hero{background:linear-gradient(120deg,#edf2f1,#f8f8f5);padding:82px 0 74px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:70px;align-items:center}
+.eyebrow{text-transform:uppercase;letter-spacing:.15em;color:var(--teal);font-weight:800;font-size:12px}
+h1,h2,h3{font-family:Georgia,serif;color:var(--navy);line-height:1.15}
+h1{font-size:clamp(42px,6vw,68px);margin:14px 0 20px;font-weight:500}
+h2{font-size:36px;margin:0 0 15px}
+h3{font-size:23px;margin:0 0 9px}
+.hero p{font-size:18px;color:#52606b;max-width:670px}
+.actions{display:flex;gap:11px;margin-top:28px;flex-wrap:wrap}
+.hero-note{font-size:12px!important;margin-top:17px;color:#77828a!important}
+.ghost-display {
+    min-height: 300px;
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.ghost-card {
+    width: 250px;
+    height: 270px;
+    background: white;
+    border: 1px solid #d8dfdf;
+    border-radius: 50% 50% 45% 45% / 45% 45% 30% 30%;
+    box-shadow: var(--shadow);
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+
+    /* Creates the wavy/jagged ghost bottom */
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% 82%,
+        92% 88%,
+        84% 80%,
+        76% 91%,
+        67% 81%,
+        58% 92%,
+        49% 81%,
+        40% 91%,
+        31% 80%,
+        22% 90%,
+        13% 81%,
+        5% 89%,
+        0 82%
+    );
+}
+
+.eye {
+    position: absolute;
+    width: 24px;
+    height: 31px;
+    border-radius: 50%;
+    background: var(--navy);
+    top: 92px;
+}
+
+.eye.left {
+    left: 72px;
+}
+
+.eye.right {
+    right: 72px;
+}
+
+.ghost-mouth {
+    position: absolute;
+    width: 25px;
+    height: 34px;
+    border: 3px solid var(--navy);
+    border-top: 0;
+    border-radius: 0 0 50% 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 132px;
+}
+
+.ghost-label{position:absolute;bottom:-58px;left:50%;transform:translateX(-50%);font-size:12px;color:#75818a;white-space:nowrap}
+@keyframes float{50%{transform:translateY(-9px)}}
+.stats{background:white;border-bottom:1px solid var(--line)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:25px 20px;border-right:1px solid var(--line)}
+.stat:last-child{border:0}.stat b{display:block;font-family:Georgia,serif;font-size:28px;color:var(--navy)}.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+section{padding:78px 0}
+.section-head{max-width:700px;margin-bottom:34px}
+.section-head p{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:white;border:1px solid var(--line);border-radius:8px;padding:27px;box-shadow:0 3px 10px rgba(20,35,48,.025)}
+.card p{color:var(--muted);font-size:14px}
+.icon{width:42px;height:42px;border-radius:50%;background:var(--teal2);color:var(--teal);display:grid;place-items:center;margin-bottom:18px;font-weight:800}
+.notice{background:#fff8ea;border:1px solid #ead9ae;border-left:4px solid var(--gold);padding:18px 20px;border-radius:5px;font-size:14px;color:#5f5137}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.dark-section{background:var(--navy);color:white}
+.dark-section h2,.dark-section h3{color:white}
+.dark-section p{color:#c6d0d7}
+.ghost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.ghost-item{background:#1e3041;border:1px solid #304759;border-radius:8px;padding:22px}
+.mini-ghost {
+    height: 100px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+}
+
+.mini-body {
+    width: 78px;
+    height: 84px;
+    background: #f3f5f3;
+    border-radius: 50% 50% 42% 42% / 45% 45% 30% 30%;
+    position: relative;
+
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% 82%,
+        91% 89%,
+        82% 80%,
+        72% 91%,
+        62% 81%,
+        51% 92%,
+        40% 81%,
+        29% 91%,
+        18% 80%,
+        8% 89%,
+        0 82%
+    );
+}
+
+.mini-eye {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    border-radius: 50%;
+    background: #1b2b39;
+    top: 31px;
+}
+
+.mini-eye.l {
+    left: 23px;
+}
+
+.mini-eye.r {
+    right: 23px;
+}
+.ghost-item p{font-size:12px;color:#b8c5cd;margin:4px 0}
+.tag{display:inline-block;border:1px solid #456070;border-radius:20px;padding:3px 8px;font-size:10px;color:#cdd7dc;margin-top:7px}
+.timeline{display:grid;gap:22px}
+.step{display:grid;grid-template-columns:42px 1fr;gap:17px}.num{width:42px;height:42px;border-radius:50%;background:var(--teal);color:white;display:grid;place-items:center;font-weight:800}
+.form-wrap{background:white;border:1px solid var(--line);border-radius:9px;padding:30px;box-shadow:var(--shadow)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+label{display:block;font-size:13px;font-weight:700;color:#394852;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #ccd5d9;border-radius:5px;padding:11px 12px;background:#fff;font:inherit;color:var(--ink)}
+textarea{min-height:110px;resize:vertical}
+.full{grid-column:1/-1}
+.check{display:flex;gap:9px;align-items:flex-start;font-weight:400}.check input{width:auto;margin-top:5px}
+.form-message{display:none;margin-top:15px;padding:13px;border-radius:5px;background:var(--teal2);color:#285d59;font-size:14px}
+.host-warning{background:#fff1f0;border:1px solid #e4c4c1;border-left:4px solid var(--red);padding:18px;border-radius:5px;color:#603d3b;font-size:14px}
+.faq{display:grid;gap:10px}.faq details{background:white;border:1px solid var(--line);border-radius:6px;padding:17px 20px}.faq summary{font-weight:700;cursor:pointer;color:var(--navy)}
+.partner{background:#eef3f2;border:1px solid #d5e1df;padding:32px;border-radius:8px}
+footer{background:#101b27;color:#aebbc3;padding:48px 0 25px;font-size:13px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:50px}.footer-title{color:white;font-family:Georgia,serif;font-size:18px;margin-bottom:12px}footer a{text-decoration:none;display:block;margin:7px 0}footer a:hover{color:white}.fine{border-top:1px solid #293744;margin-top:30px;padding-top:18px;font-size:11px}
+.page{display:none}.page.active{display:block}
+@media(max-width:800px){
+ .navlinks{display:none}.hero-grid,.split{grid-template-columns:1fr}.ghost-display{min-height:260px}
+ .cards,.ghost-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:0}.stat:nth-child(3){border-top:1px solid var(--line)}.stat:nth-child(4){border-top:1px solid var(--line);border-right:0}
+ .form-grid{grid-template-columns:1fr}.full{grid-column:auto}.footer-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="container"><span>Registered charitable society · Serving displaced spirits since 1897</span><span>Intake services available year-round</span></div></div>
+<header>
+<div class="container">
+<nav>
+<a class="logo" href="#" onclick="showPage('home');return false">
+  <span class="logo-mark"><svg viewBox="0 0 40 40" fill="none"><path d="M9 32V17C9 8 14 4 20 4s11 4 11 13v15l-5-4-6 5-6-5-5 4Z" fill="#eef3f2"/><circle cx="16" cy="18" r="2.2" fill="#172536"/><circle cx="24" cy="18" r="2.2" fill="#172536"/><path d="M17 24c2 2 4 2 6 0" stroke="#172536" stroke-width="2" stroke-linecap="round"/></svg></span>
+  <span><strong>Orphan Ghost Society</strong><small>Care · Placement · Advocacy</small></span>
+</a>
+<div class="navlinks">
+<a href="#" onclick="showPage('about');return false">About</a>
+<a href="#" onclick="showPage('ghosts');return false">Our Ghosts</a>
+<a href="#" onclick="showPage('host');return false">Host a Ghost</a>
+<a href="#" onclick="showPage('resources');return false">Resources</a>
+<a class="btn btn-light" href="#" onclick="showPage('refer');return false">Refer a Ghost</a>
+</div>
+</nav>
+</div>
+</header>
+
+<main>
+<div id="home" class="page active">
+<section class="hero">
+<div class="container hero-grid">
+<div>
+<div class="eyebrow">No ghost left without a home</div>
+<h1>Every ghost deserves somewhere to haunt.</h1>
+<p>The Orphan Ghost Society provides a safe point of intake for ghosts who have lost their residence, outlived their household, or simply have nowhere appropriate left to go.</p>
+<div class="actions"><a class="btn btn-primary" href="#" onclick="showPage('refer');return false">Refer a Ghost</a><a class="btn btn-outline" href="#" onclick="showPage('about');return false">Learn About Our Work</a></div>
+<p class="hero-note">We accept all ghosts, regardless of age, origin, temperament, unfinished business, or degree of translucency.</p>
+</div>
+<div class="ghost-display">
+<div class="ghost-card"><span class="eye left"></span><span class="eye right"></span><span class="ghost-mouth"></span><span class="ghost-label">A society member awaiting placement</span></div>
+</div>
+</div>
+</section>
+<div class="stats"><div class="container stats-grid">
+<div class="stat"><b>1,842</b><span>Ghosts assisted</span></div>
+<div class="stat"><b>317</b><span>Current cases</span></div>
+<div class="stat"><b>94%</b><span>Successful placements</span></div>
+<div class="stat"><b>129 yrs</b><span>Serving the unseen</span></div>
+</div></div>
+
+<section><div class="container">
+<div class="section-head"><div class="eyebrow">Our services</div><h2>Practical help for an unusual population.</h2><p>Our work focuses on intake, temporary residence, responsible placement, and support for the living people who encounter our clients.</p></div>
+<div class="cards">
+<div class="card"><div class="icon">01</div><h3>Ghost Intake</h3><p>We accept referrals for ghosts who have become displaced, forgotten, evicted, or otherwise unable to maintain a suitable haunting arrangement.</p></div>
+<div class="card"><div class="icon">02</div><h3>Temporary Hosting</h3><p>Approved hosts can provide a temporary room, building, attic, basement, or other suitable residence while a permanent placement is arranged.</p></div>
+<div class="card"><div class="icon">03</div><h3>Permanent Placement</h3><p>Where appropriate, we work with trusted partners, including Get-A-Ghost, to help ghosts find a stable place to reside.</p></div>
+</div></div></section>
+
+<section style="background:#edf2f1"><div class="container split">
+<div><div class="eyebrow">A responsible approach</div><h2>Ghost welfare comes first.</h2><p>Not every empty house is suitable. Not every ghost is suited to every residence. We assess temperament, haunting patterns, unfinished business, and the needs of everyone involved.</p><div class="notice"><strong>Important:</strong> The Society does not guarantee that a referred ghost is harmless. Some ghosts are merely quiet. Others have been known to move furniture, open cupboards, appear in mirrors, or leave inexplicable shadows.</div></div>
+<div class="timeline">
+<div class="step"><div class="num">1</div><div><h3>Refer</h3><p>Tell us where the ghost is and what you know about them.</p></div></div>
+<div class="step"><div class="num">2</div><div><h3>Assess</h3><p>Our placement team reviews the case and determines immediate needs.</p></div></div>
+<div class="step"><div class="num">3</div><div><h3>Place</h3><p>We arrange temporary hosting or a suitable permanent residence.</p></div></div>
+</div>
+</div></section>
+
+<section><div class="container">
+<div class="partner"><div class="eyebrow">Placement partner</div><p>For ghosts who are ready for a more permanent arrangement, the Orphan Ghost Society partners with Get-A-Ghost, a placement service specializing in connecting peaceful ghosts with people looking for a little extra company.</p>
+
+<a class="btn btn-outline" href="/get-a-ghost">Learn More About Get-A-Ghost</a>
+</div>
+</div></section>
+</div>
+
+<div id="about" class="page">
+<section><div class="container split">
+<div><div class="eyebrow">About the Society</div><h2>Founded because someone had to look after the dead.</h2><p>The Orphan Ghost Society was established in 1897 after a group of civic-minded residents noticed an unusual increase in unexplained knocking following the demolition of several Victorian homes.</p><p>What began as a small committee for displaced household spirits has grown into an international network of volunteers, hosts, researchers, and people willing to investigate a room that everyone else insists is empty.</p><p>Our mission is simple: to ensure that no ghost is left without a safe and appropriate place to reside.</p></div>
+<div class="card"><h3>Our principles</h3><p><strong>Every ghost is considered.</strong><br>We do not exclude ghosts based on origin, appearance, age, or temperament.</p><p><strong>Safety is shared.</strong><br>Living people, animals, hosts, and ghosts all deserve consideration.</p><p><strong>Placement should be sustainable.</strong><br>We seek residences where a ghost can remain without repeatedly being asked to leave.</p><p><strong>Privacy matters.</strong><br>Some ghosts are surprisingly sensitive about their previous lives.</p></div>
+</div></section>
+<section style="background:#edf2f1"><div class="container">
+<div class="section-head"><div class="eyebrow">Our history</div><h2>129 years of finding the difficult to find.</h2></div>
+<div class="cards">
+<div class="card"><h3>1897</h3><p>Society founded following the "Elm Street Incident," during which three residents reported a ghost with no known residence.</p></div>
+<div class="card"><h3>1954</h3><p>Introduced standardized ghost intake forms. The original form had 14 pages and one question reading simply, "Are you sure?"</p></div>
+<div class="card"><h3>2026</h3><p>Our case system now supports modern haunting patterns, including smart-home activity, motion sensors, and ghosts who refuse to leave group chats.</p></div>
+</div></div></section>
+<section><div class="container"><div class="section-head"><div class="eyebrow">Annual activity</div><h2>2025 at a glance</h2></div>
+<div class="cards">
+<div class="card"><h3>628</h3><p>New ghost referrals received.</p></div>
+<div class="card"><h3>401</h3><p>Temporary placements arranged.</p></div>
+<div class="card"><h3>276</h3><p>Permanent placements completed.</p></div>
+</div></div></section>
+</div>
+
+<div id="ghosts" class="page">
+<section class="dark-section"><div class="container">
+<div class="section-head"><div class="eyebrow" style="color:#9ec3c0">Current cases</div><h2>Ghosts currently seeking placement.</h2><p>Some identifying details have been changed to protect the privacy of our clients. Ghosts are listed when their case is suitable for placement consideration.</p></div>
+<div class="ghost-grid">
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>Margaret</h3><p>Quiet residential spirit · Alberta</p><span class="tag">Seeking: Historic residence</span></div>
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>"The Tall One"</h3><p>Unconfirmed identity · Location withheld</p><span class="tag">Seeking: Large residence</span></div>
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>Thomas</h3><p>Former railway worker · Ontario</p><span class="tag">Seeking: Near railway</span></div>
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>Case 24-771</h3><p>Poltergeist tendencies · BC</p><span class="tag">Assessment required</span></div>
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>Elsie</h3><p>Friendly · Rural residence preferred</p><span class="tag">Ready for host review</span></div>
+<div class="ghost-item"><div class="mini-ghost"><div class="mini-body"><i class="mini-eye l"></i><i class="mini-eye r"></i></div></div><h3>Case 26-104</h3><p>Unusually active after midnight</p><span class="tag">Temporary host needed</span></div>
+</div>
+<div class="notice" style="margin-top:24px"><strong>Placement note:</strong> Availability changes frequently. Some ghosts disappear before we can place them. We have also had ghosts arrive for appointments after their appointments were over.</div>
+</div></section>
+</div>
+
+<div id="refer" class="page">
+<section><div class="container">
+<div class="section-head"><div class="eyebrow">Ghost referral</div><h2>Refer a ghost in need.</h2><p>Use this form if you have encountered a ghost who appears to lack a suitable place to reside. You do not need to be certain that the person is deceased.</p></div>
+<div class="form-wrap">
+<form id="referralForm">
+<div class="form-grid">
+<div><label>Your name</label><input required placeholder="Name"></div>
+<div><label>Contact email</label><input type="email" required placeholder="you@example.com"></div>
+<div><label>Ghost's name</label><input placeholder="Known name or description"></div>
+<div><label>Where is the ghost?</label><input required placeholder="General location"></div>
+<div><label>Personality</label><select><option>Unknown</option><option>Calm and quiet</option><option>Friendly</option><option>Shy / withdrawn</option><option>Curious</option><option>Playful</option><option>Agitated</option><option>Hostile</option><option>Unpredictable</option><option>Changes depending on moon phase</option></select></div>
+<div><label>Haunting behaviour</label><select><option>Unknown</option><option>Mostly visible</option><option>Mostly audible</option><option>Moves objects</option><option>Lights / electronics</option><option>Temperature changes</option><option>Appears in mirrors</option><option>Leaves footprints or shadows</option><option>Poltergeist activity</option><option>Possession reported</option><option>Multiple behaviours</option></select></div>
+<div><label>Reason for referral</label><select><option>Displaced by demolition</option><option>Home was sold or renovated</option><option>Current residents cannot accommodate them</option><option>Ghost has been wandering</option><option>Ghost is being disturbed</option><option>Ghost is causing difficulties</option><option>Found without a residence</option><option>Unknown</option><option>Other</option></select></div>
+<div><label>Preferred new residence</label><select><option>No preference</option><option>Quiet historic home</option><option>Apartment / condo</option><option>Farm or rural property</option><option>Old hotel / inn</option><option>Church or other historic building</option><option>Commercial building</option><option>Near water</option><option>Near railway</option><option>Dark and isolated</option><option>With a willing human host</option></select></div>
+<div><label>Reported cause of death</label><select><option>Unknown</option><option>Natural causes</option><option>Accident</option><option>Illness</option><option>Historical conflict</option><option>Workplace incident</option><option>Unresolved / disputed</option><option>Ghost refuses to discuss</option><option>Possibly not deceased</option></select></div>
+<div><label>How long have they been present?</label><select><option>Less than a week</option><option>1–4 weeks</option><option>1–6 months</option><option>6 months–1 year</option><option>More than a year</option><option>Unknown</option></select></div>
+<div class="full"><label>Additional information</label><textarea placeholder="Anything that may help our placement team understand the situation..."></textarea></div>
+<div class="full"><label class="check"><input type="checkbox" required> <span>I understand that the Society may contact me for additional information and that submitting this form does not guarantee immediate removal or placement.</span></label></div>
+<div class="full"><button class="btn btn-primary" type="submit">Submit Ghost Referral</button><div id="refMessage" class="form-message">Referral received. Our intake team will review the case and determine the next appropriate step.</div></div>
+</div>
+</form>
+</div>
+</div></section>
+</div>
+
+<div id="host" class="page">
+<section><div class="container">
+<div class="section-head"><div class="eyebrow">Temporary hosting</div><h2>Give a ghost somewhere to stay.</h2><p>Some ghosts need a temporary residence while our placement team searches for a more suitable long-term home.</p></div>
+<div class="host-warning"><strong>Please read before applying.</strong> Hosting a ghost may involve unexplained noises, cold spots, objects moving without assistance, lights activating unexpectedly, sleep disruption, and occasional shadows belonging to nobody present. The Society cannot guarantee that a hosted ghost will behave exactly as described in their assessment.</div>
+<div class="form-wrap" style="margin-top:25px">
+<form id="hostForm"><div class="form-grid">
+<div><label>Your name</label><input required></div><div><label>Email</label><input type="email" required></div>
+<div><label>Type of residence</label><select><option>House</option><option>Apartment / condo</option><option>Farm / rural property</option><option>Commercial / historic building</option><option>Other</option></select></div>
+<div><label>Available space</label><select><option>One room</option><option>Attic</option><option>Basement</option><option>Entire residence</option><option>Other</option></select></div>
+<div><label>Hosting duration</label><select><option>Up to 2 weeks</option><option>2–8 weeks</option><option>2–6 months</option><option>6+ months</option><option>Flexible</option></select></div>
+<div><label>Experience with ghosts</label><select><option>None</option><option>Some experience</option><option>Experienced host</option><option>Professional / institutional</option></select></div>
+<div class="full"><label>Notes about your residence</label><textarea placeholder="Tell us about pets, children, other occupants, unusual activity, or anything else relevant."></textarea></div>
+<div class="full"><label class="check"><input type="checkbox" required> <span>I understand that hosting is voluntary, that the Society will attempt to match me with an appropriate case, and that I may request a ghost's placement be ended if the arrangement becomes unsuitable.</span></label></div>
+<div class="full"><button class="btn btn-primary" type="submit">Apply to Host</button><div id="hostMessage" class="form-message">Thank you. Your host application has been recorded for review.</div></div>
+</div></form>
+</div>
+</div></section>
+</div>
+
+<div id="resources" class="page">
+<section><div class="container">
+<div class="section-head"><div class="eyebrow">Resources</div><h2>Guidance for the living and the recently deceased.</h2></div>
+<div class="faq">
+<details open><summary>I think there is a ghost in my home. What should I do?</summary><p>Remain calm and document what you can. Avoid confronting an aggressive entity. If there is an immediate physical safety concern, contact appropriate emergency services. For non-emergency cases, you can submit a referral to the Society.</p></details>
+<details><summary>The ghost is making shadows, but there is nobody there.</summary><p>Please mention this in your referral. Shadow formation is a documented but inconsistently understood phenomenon among certain cases. Do not assume the ghost is hostile solely because it has developed a strong visual presence.</p></details>
+<details><summary>Can I adopt a ghost permanently?</summary><p>Permanent placement is handled case-by-case. Some ghosts are appropriate for private residences; others are better suited to historic properties, institutional settings, or specialized arrangements.</p></details>
+<details><summary>What if the ghost refuses to leave?</summary><p>Do not attempt unsafe or coercive removal. Contact the Society for guidance. A ghost that has remained in one location for decades may have stronger ties to that property than initially understood.</p></details>
+<details><summary>Can animals be ghosts?</summary><p>Yes. The Society accepts reports involving deceased companion animals and other non-human spirits where appropriate placement services are available.</p></details>
+<details><summary>Can a ghost be too difficult to place?</summary><p>Some cases require extended assessment. Particularly difficult cases may be marked for specialized placement if they demonstrate persistent poltergeist activity, multiple manifestations, possession claims, or an unexplained ability to operate modern appliances.</p></details>
+</div>
+</div></section>
+<section style="background:#edf2f1"><div class="container split"><div><div class="eyebrow">For current residents</div><h2>Living with an existing ghost.</h2><p>If a ghost has become part of your household and the arrangement is generally peaceful, you may not need to relocate them. Many ghosts are capable of coexisting with living residents when boundaries are established.</p></div><div class="card"><h3>Suggested boundaries</h3><p>• Establish rooms that are off-limits.</p><p>• Keep a written record of unusual activity.</p><p>• Avoid promising the ghost anything you cannot deliver.</p><p>• Do not leave food out unless you have confirmed the ghost actually wants it.</p></div></div></section>
+</div>
+</main>
+
+<footer>
+<div class="container footer-grid">
+<div><div class="footer-title">Orphan Ghost Society</div><p>A nonprofit organization dedicated to the responsible care and placement of ghosts without suitable residences.</p><p>We accept all ghosts. Placement may take longer for those who are difficult to see.</p></div>
+<div><div class="footer-title">Society</div><a href="#" onclick="showPage('about');return false">About Us</a><a href="#" onclick="showPage('ghosts');return false">Current Ghosts</a><a href="#" onclick="showPage('resources');return false">Resources</a></div>
+<div><div class="footer-title">Get Help</div><a href="#" onclick="showPage('refer');return false">Refer a Ghost</a><a href="#" onclick="showPage('host');return false">Host a Ghost</a><a href="#" onclick="alert('Contact: intake@orphanghostsociety.example');return false">Contact Intake</a></div>
+</div>
+<div class="container fine">© 2026 Orphan Ghost Society · A fictional organization for entertainment purposes · Some shadows may be difficult to explain.</div>
+</footer>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const page=document.getElementById(id);
+  if(page) page.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('referralForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  document.getElementById('refMessage').style.display='block';
+  this.querySelector('button').textContent='Referral Submitted';
+  this.querySelector('button').disabled=true;
+});
+document.getElementById('hostForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  document.getElementById('hostMessage').style.display='block';
+  this.querySelector('button').textContent='Application Submitted';
+  this.querySelector('button').disabled=true;
+});
+</script>
+</body>
+</html>
