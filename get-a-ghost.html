@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get-A-Ghost™ — Always There. Never a Problem.</title>
+<style>
+:root{
+  --bg:#080b1d;--panel:#111631;--panel2:#171d40;--cream:#f8f1df;
+  --muted:#aeb6d1;--purple:#8f8cff;--lav:#c9c5ff;--gold:#f0c978;
+  --border:rgba(255,255,255,.1);--shadow:0 24px 60px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--cream);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+h1,h2,h3{font-family:Georgia,serif;line-height:1.05;margin:0}
+button{font:inherit} a{color:inherit;text-decoration:none}
+.container{width:min(1120px,92%);margin:auto}
+nav{position:absolute;top:0;left:0;right:0;z-index:5;padding:22px 0}
+.navin{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800}
+.logo small{display:block;font-size:10px;color:var(--muted);font-weight:500}
+.navlinks{display:flex;gap:28px;font-size:14px;color:#d8dcf0}
+.navbtn,.primary{border:0;border-radius:999px;padding:13px 22px;font-weight:800;cursor:pointer}
+.navbtn{background:#eeeaff;color:#11152e}
+.hero{min-height:700px;display:flex;align-items:center;position:relative;overflow:hidden;background:radial-gradient(circle at 72% 38%,rgba(115,110,255,.28),transparent 30%),linear-gradient(120deg,#080b1d 25%,#11173a 100%)}
+.stars{position:absolute;inset:0;opacity:.45;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:90px 90px}
+.hero .container{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding-top:70px}
+.eyebrow{color:var(--gold);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:15px}
+.hero h1{font-size:clamp(48px,7vw,82px);max-width:680px}
+.hero h1 span{color:var(--lav);font-style:italic}
+.hero p{font-size:18px;color:#c5cbe0;max-width:590px}
+.primary{background:#eeeaff;color:#10132c;padding:15px 25px}
+.subtle{color:var(--muted);font-size:13px;margin-top:13px}
+.ghost-stage{height:480px;display:flex;align-items:center;justify-content:center;position:relative}
+.moon{position:absolute;width:270px;height:270px;border-radius:50%;background:rgba(151,149,255,.12);box-shadow:0 0 90px rgba(143,140,255,.25)}
+.ghost{position:relative;width:230px;height:285px;filter:drop-shadow(0 25px 25px rgba(0,0,0,.35))}
+.ghost .body{position:absolute;left:25px;top:20px;width:180px;height:230px;border-radius:50% 50% 25px 25px;background:linear-gradient(135deg,#fff,#d9dbef);box-shadow:0 0 35px rgba(220,222,255,.45)}
+.ghost .tail{position:absolute;left:24px;bottom:15px;width:182px;height:75px;background:#d9dbef;clip-path:polygon(0 35%,18% 55%,35% 30%,52% 58%,70% 28%,86% 53%,100% 35%,100% 100%,0 100%)}
+.eye{position:absolute;z-index:2;top:105px;width:25px;height:38px;border-radius:50%;background:#161a34}
+.eye.l{left:78px}.eye.r{right:78px}
+.mouth{position:absolute;z-index:2;top:158px;left:106px;width:18px;height:10px;border-bottom:3px solid #444862;border-radius:50%}
+.book{position:absolute;z-index:3;left:35px;top:195px;width:160px;height:82px;background:#22294f;transform:rotate(-7deg);border-radius:5px;box-shadow:0 8px 15px rgba(0,0,0,.3);color:#eee;text-align:center;padding-top:20px;font:700 12px Georgia}
+.pencil{position:absolute;z-index:4;width:55px;height:7px;background:#d9ad61;transform:rotate(-48deg);left:165px;top:205px;border-radius:4px}
+.tag{position:absolute;right:5%;top:13%;color:var(--muted);font:italic 15px Georgia;transform:rotate(7deg)}
+section{padding:80px 0}
+.section-head{text-align:center;max-width:700px;margin:0 auto 42px}
+.section-head h2{font-size:44px}
+.section-head p{color:var(--muted)}
+.features{background:#101638}
+.feature-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+.feature{padding:24px 16px;text-align:center;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.025)}
+.icon{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;margin:0 auto 15px;background:#222952;font-size:23px}
+.feature h3{font:700 17px Inter,sans-serif}.feature p{font-size:13px;color:var(--muted)}
+.catalog{background:#eef2f4;color:#10142d}
+.catalog .section-head p{color:#5f667b}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:15px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(24,32,55,.12);color:#151932}
+.cardtop{height:175px;background:linear-gradient(145deg,#dfe8f2,#c7d2e5);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mini-ghost{position:relative;width:110px;height:135px}
+.mini-ghost .body{left:12px;top:8px;width:86px;height:108px;border-radius:50% 50% 20px 20px;background:linear-gradient(135deg,#fff,#dfe2ed);position:absolute}
+.mini-ghost .tail{position:absolute;left:11px;bottom:2px;width:88px;height:35px;background:#dfe2ed;clip-path:polygon(0 20%,18% 45%,35% 15%,52% 48%,70% 15%,87% 45%,100% 20%,100% 100%,0 100%)}
+.mini-eye{position:absolute;z-index:2;top:47px;width:12px;height:20px;border-radius:50%;background:#151a34}.mini-eye.l{left:39px}.mini-eye.r{left:62px}
+.accessory{position:absolute;font-size:30px;z-index:3}
+.cardbody{padding:16px}.chips{display:flex;gap:5px;flex-wrap:wrap}.chip{font-size:10px;padding:4px 8px;border-radius:999px;background:#e8ebf1}
+.card h3{font:700 19px Inter,sans-serif;margin:11px 0 3px}.age{font-size:12px;color:#6a7184}.card p{font-size:13px;color:#62697a;min-height:58px}
+.buy{width:100%;border:0;background:#dde5ed;color:#11172e;border-radius:999px;padding:10px;font-weight:800;cursor:pointer}
+.catalog-note{text-align:center;margin-top:25px;color:#687083;font-size:13px}
+.match{background:#f7f1e5;color:#151932}
+.matchbox{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:stretch;background:#fff;border-radius:25px;padding:32px;box-shadow:var(--shadow)}
+.quiz{padding:10px}.question{display:none}.question.active{display:block}
+.question h3{font:700 22px Inter,sans-serif;margin-bottom:18px}
+.answers{display:grid;gap:10px}.answer{border:1px solid #d9dce5;background:#f7f8fa;padding:13px 16px;border-radius:12px;text-align:left;cursor:pointer}
+.answer:hover{border-color:#7774c9;background:#f1f0ff}
+.result{display:none;background:#171d40;color:var(--cream);border-radius:18px;padding:26px;position:relative;overflow:hidden}
+.result.show{display:block}.result h3{font-size:35px}.result .matched{color:var(--gold);font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800}
+.result p{color:#c0c5da}.result .resultghost{float:right;margin-left:15px;transform:scale(.65);transform-origin:top right;width:145px;height:190px}
+.testimonials{background:#0d1230}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.quote{background:#151c3c;border:1px solid var(--border);border-radius:18px;padding:24px}.quote p{color:#d8dcef;font-family:Georgia,serif}.quote small{color:var(--muted)}
+.faq{background:#eef2f4;color:#151932}.faqgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:30px}.faqitem{background:#fff;border-radius:10px;margin-bottom:9px;overflow:hidden}.faqitem button{width:100%;padding:16px;border:0;background:#fff;text-align:left;font-weight:700;cursor:pointer;display:flex;justify-content:space-between}.answertext{display:none;padding:0 16px 16px;color:#697084;font-size:14px}.faqitem.open .answertext{display:block}
+.society{background:#171d40;color:var(--cream);border-radius:20px;padding:30px}.society h3{font-size:30px}.society p{color:#b9c0d5}
+.cta{background:linear-gradient(180deg,#171d40,#080b1d);text-align:center;padding:90px 0}.cta h2{font-size:50px}.cta p{color:var(--muted)}
+footer{background:#080b1d;border-top:1px solid var(--border);padding:28px 0;color:#747c99;font-size:12px}.footerin{display:flex;justify-content:space-between;gap:20px}
+.modal{display:none;position:fixed;inset:0;background:rgba(4,6,17,.78);z-index:20;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalbox{background:#f7f1e5;color:#14172c;border-radius:22px;padding:30px;max-width:450px;width:100%;text-align:center;box-shadow:var(--shadow)}.modalbox h2{font-size:34px}.close{float:right;border:0;background:none;font-size:22px;cursor:pointer}.successghost{margin:10px auto;width:100px;height:120px;transform:scale(.55)}
+@media(max-width:900px){.feature-grid{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,1fr)}.hero .container{grid-template-columns:1fr}.ghost-stage{height:350px}.faqgrid,.matchbox{grid-template-columns:1fr}}
+@media(max-width:600px){nav{position:absolute}.navlinks{display:none}.hero{min-height:780px}.hero .container{padding-top:90px}.hero h1{font-size:50px}.feature-grid,.cards,.quotes{grid-template-columns:1fr}.section-head h2{font-size:36px}.ghost-stage{height:310px}.tag{top:5%;right:0}.matchbox{padding:18px}.footerin{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container navin">
+    <a href="#" class="logo">
+      <span style="font-size:32px">👻</span>
+      <span>Get-A-Ghost™<small>Always There. Never a Problem.</small></span>
+    </a>
+    <div class="navlinks"><a href="#catalog">Catalog</a><a href="#match">Match Me</a><a href="#faq">FAQ</a></div>
+    <button class="navbtn" onclick="document.querySelector('#match').scrollIntoView()">Find Your Ghost</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="stars"></div>
+  <div class="container">
+    <div>
+      <div class="eyebrow">Premium Paranormal Companionship</div>
+      <h1>A lifetime companion.<br><span>Zero responsibilities.</span></h1>
+      <p>Bring home a peaceful, polite and profoundly unhelpful ghost. Perfect for quiet homes, busy people, lonely nights, and anyone who enjoys a little company without the commitment.</p>
+      <button class="primary" onclick="document.querySelector('#match').scrollIntoView()">👻 Find My Ghost →</button>
+      <div class="subtle">100% harmless · No maintenance · Zero interaction required</div>
+    </div>
+    <div class="ghost-stage">
+      <div class="moon"></div><div class="tag">Currently thinking<br>about 17-Across</div>
+      <div class="ghost">
+        <div class="body"></div><div class="tail"></div>
+        <div class="eye l"></div><div class="eye r"></div><div class="mouth"></div>
+        <div class="book">CROSSWORDS<br><br>17-Across: ?</div><div class="pencil"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="features">
+  <div class="container">
+    <div class="section-head"><h2>Why a Peaceful Ghost?</h2><p>The world is loud. Your ghost isn't.</p></div>
+    <div class="feature-grid">
+      <div class="feature"><div class="icon">🛋</div><h3>Calming Presence</h3><p>Always there to keep you company — silently.</p></div>
+      <div class="feature"><div class="icon">🚫</div><h3>No Disruptions</h3><p>No noises, no pranks, no inexplicable footsteps.</p></div>
+      <div class="feature"><div class="icon">♡</div><h3>Emotionally Supportive</h3><p>They believe in you. From a respectful distance.</p></div>
+      <div class="feature"><div class="icon">☾</div><h3>Unique Personalities</h3><p>Crossword lovers, plant admirers, quiet observers and more.</p></div>
+      <div class="feature"><div class="icon">🎁</div><h3>Completely Free</h3><p>Thanks to the Orphan Ghost Society.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="catalog" id="catalog">
+  <div class="container">
+    <div class="section-head"><h2>Meet Our Current Ghosts</h2><p>Sourced from uncommon areas with little to no ghost activity.</p></div>
+    <div class="cards" id="cards"></div>
+    <div class="catalog-note">Our catalog changes as new ghosts are found with new interests. We have absolutely no control over when that happens.</div>
+  </div>
+</section>
+
+<section class="match" id="match">
+  <div class="container">
+    <div class="section-head"><h2>Find Your Perfect Ghost</h2><p>Answer four extremely scientific questions and we'll match you with a compatible companion.</p></div>
+    <div class="matchbox">
+      <div class="quiz" id="quiz">
+        <div class="question active" data-q="0"><h3>What do you like doing at home?</h3><div class="answers"><button class="answer">Reading quietly</button><button class="answer">Arts & crafts</button><button class="answer">Gaming or coding</button><button class="answer">Staring out the window</button></div></div>
+        <div class="question" data-q="1"><h3>How much conversation do you need?</h3><div class="answers"><button class="answer">None, thank you</button><button class="answer">Occasionally</button><button class="answer">I enjoy talking to myself</button><button class="answer">I prefer meaningful silence</button></div></div>
+        <div class="question" data-q="2"><h3>Pick your ideal evening.</h3><div class="answers"><button class="answer">Tea and a book</button><button class="answer">Making something</button><button class="answer">Music and screens</button><button class="answer">Rain against the window</button></div></div>
+        <div class="question" data-q="3"><h3>How involved should your ghost be?</h3><div class="answers"><button class="answer">Observe from a corner</button><button class="answer">Occasionally admire my work</button><button class="answer">Think alongside me</button><button class="answer">Please do absolutely nothing</button></div></div>
+      </div>
+      <div class="result" id="result">
+        <div class="matched">Your Match</div>
+        <div class="resultghost ghost"><div class="body"></div><div class="tail"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div>
+        <h3 id="resultName">Wren</h3><strong id="resultAge">Age 87</strong>
+        <p id="resultText"></p>
+        <button class="primary" onclick="purchase(document.getElementById('resultName').textContent)">Adopt <span id="resultButtonName">Wren</span> →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="container">
+    <div class="section-head"><h2>What People Are (Silently) Saying</h2></div>
+    <div class="quotes">
+      <div class="quote"><p>“I haven't felt this calm in years. Albert just... watches. It's perfect.”</p><small>— Jamie L. · ★★★★★</small></div>
+      <div class="quote"><p>“Percilla floats behind me while I code. Never once suggested a fix. True companion.”</p><small>— Devon R. · ★★★★★</small></div>
+      <div class="quote"><p>“Alexander spends hours looking at my plants. I swear they grow faster.”</p><small>— Marissa K. · ★★★★★</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-head"><h2>Common Questions</h2></div>
+    <div class="faqgrid">
+      <div>
+        <div class="faqitem"><button>Are the ghosts really free? <span>+</span></button><div class="answertext">Yes. Every ghost is donated by the Orphan Ghost Society. We do not charge adoption fees because that would be weird.</div></div>
+        <div class="faqitem"><button>Will my ghost haunt me? <span>+</span></button><div class="answertext">Technically, yes. This is a ghost. However, our ghosts are selected specifically for their exceptionally low haunting activity.</div></div>
+        <div class="faqitem"><button>Can I request a specific ghost? <span>+</span></button><div class="answertext">You may request one. Whether that ghost wants to be requested is between you and the ghost.</div></div>
+        <div class="faqitem"><button>What if I don't feel a connection? <span>+</span></button><div class="answertext">Give it time. Your ghost may also be taking its time. Neither of you should feel pressured.</div></div>
+      </div>
+      <div class="society">
+        <div style="font-size:40px">👻</div><h3>Orphan Ghost Society™</h3>
+        <p>Giving lost spirits a second home since approximately whenever we started.</p>
+        <p>All ghosts are generously donated to the Society by individuals who would prefer their paranormal encounters to happen somewhere else.</p>
+        <button class="primary" onclick="alert('The Society appreciates your interest. They have declined to provide further information.')">Learn More</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container"><h2>Ready for Some Company?</h2><p>Find your perfect ghost today. It's free, easy, and they'll never leave.</p><button class="primary" onclick="document.querySelector('#match').scrollIntoView()">👻 Get Your Ghost Now →</button></div>
+</section>
+
+<footer><div class="container footerin"><div><strong>👻 Get-A-Ghost™</strong><br>Always There. Never a Problem.</div><div>Get-A-Ghost is not responsible for sudden chills, floating objects, unexplained feelings of being watched, or ghosts becoming unexpectedly invested in your crossword performance.</div><div>Follow us quietly: ◇ ✕ ◎</div></div></footer>
+
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <button class="close" onclick="closeModal()">×</button>
+    <div style="font-size:55px">👻</div>
+    <h2 id="modalTitle">Ghost Adopted</h2>
+    <p id="modalText">Your ghost has been assigned to your home.</p>
+    <p><strong>Adoption fee: $0.00</strong></p>
+    <button class="primary" onclick="closeModal()">Excellent</button>
+  </div>
+</div>
+
+<script>
+const ghosts=[
+ {name:"Eleanor",age:127,accessory:"📖",chips:["Books","Libraries","Tea"],text:"Loves classic literature and leaves notes in the margins... without actually leaving notes."},
+ {name:"Mo",age:84,accessory:"🎨",chips:["Art","Crafts","Color"],text:"Spends hours admiring your creations. Doesn't critique. Just views."},
+ {name:"Pixel",age:62,accessory:"🎧",chips:["Music","Code","Late Nights"],text:"Enjoys lo-fi beats, watching you work, and occasionally floating behind your chair."},
+ {name:"Fern",age:203,accessory:"🌿",chips:["Plants","Nature","Windows"],text:"Loves houseplants and staring out windows for unusually long periods."},
+ {name:"Winston",age:91,accessory:"✏️",chips:["Puzzles","Coffee","Blankets"],text:"Crossword enthusiast. Thinks of answers but never says them. It's your puzzle."}
+];
+const cards=document.getElementById("cards");
+ghosts.forEach((g,i)=>{
+ const c=document.createElement("article"); c.className="card";
+ c.innerHTML=`<div class="cardtop"><div class="mini-ghost"><div class="body"></div><div class="tail"></div><div class="mini-eye l"></div><div class="mini-eye r"></div><div class="accessory">${g.accessory}</div></div></div><div class="cardbody"><div class="chips">${g.chips.map(x=>`<span class="chip">${x}</span>`).join("")}</div><h3>${g.name}</h3><div class="age">Age: ${g.age}</div><p>${g.text}</p><button class="buy" onclick="purchase('${g.name}')">Adopt ${g.name} · Free</button></div>`;
+ cards.appendChild(c);
+});
+function purchase(name){
+ document.getElementById("modalTitle").textContent=name+" Is Yours";
+ document.getElementById("modalText").textContent=name+" has been notified of the adoption. They have not responded.";
+ document.getElementById("modal").classList.add("show");
+}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+document.querySelectorAll(".faqitem button").forEach(b=>b.addEventListener("click",()=>b.parentElement.classList.toggle("open")));
+
+const qs=[...document.querySelectorAll(".question")];
+let q=0, answers=[];
+document.querySelectorAll(".answer").forEach(btn=>btn.addEventListener("click",()=>{
+ answers[q]=btn.textContent;
+ if(q<qs.length-1){qs[q].classList.remove("active");q++;qs[q].classList.add("active")}
+ else showMatch();
+}));
+function showMatch(){
+ document.getElementById("quiz").style.display="none";
+ const result=document.getElementById("result"); result.classList.add("show");
+ const text=answers.join(" ").toLowerCase();
+ let g=ghosts[0];
+ if(text.includes("craft")||text.includes("art")||text.includes("making"))g=ghosts[1];
+ else if(text.includes("gaming")||text.includes("coding")||text.includes("music"))g=ghosts[2];
+ else if(text.includes("window")||text.includes("rain"))g=ghosts[3];
+ else if(text.includes("puzzle")||text.includes("crossword"))g=ghosts[4];
+ document.getElementById("resultName").textContent=g.name;
+ document.getElementById("resultAge").textContent="Age "+g.age;
+ document.getElementById("resultText").textContent=g.text+" They are also exceptionally good at being nearby without participating.";
+ document.getElementById("resultButtonName").textContent=g.name;
+}
+</script>
+</body>
+</html>
