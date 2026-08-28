@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Greg the Psychic Rock™</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: #f5ead8;
+        background:
+            radial-gradient(circle at 50% 10%, rgba(110, 72, 150, 0.22), transparent 35%),
+            linear-gradient(180deg, #09070d 0%, #120b18 45%, #08070b 100%);
+        min-height: 100vh;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image:
+            radial-gradient(#fff 1px, transparent 1px);
+        background-size: 42px 42px;
+    }
+
+    a {
+        color: inherit;
+    }
+
+    .container {
+        width: min(1100px, calc(100% - 30px));
+        margin: auto;
+    }
+
+    /* HEADER */
+
+    header {
+        text-align: center;
+        padding: 28px 15px 15px;
+        border-bottom: 1px solid rgba(218, 180, 108, 0.25);
+        position: relative;
+    }
+
+    .top-warning {
+        display: inline-block;
+        color: #d9b76b;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+
+    .logo {
+        font-size: clamp(2.5rem, 8vw, 5.5rem);
+        line-height: .9;
+        margin: 0;
+        color: #ead08b;
+        text-shadow:
+            0 0 8px rgba(234, 208, 139, .25),
+            0 0 30px rgba(147, 87, 189, .25);
+    }
+
+    .logo span {
+        display: block;
+        font-size: .28em;
+        letter-spacing: 5px;
+        margin-top: 15px;
+        color: #b99bd2;
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+    }
+
+    .tagline {
+        margin: 20px auto 5px;
+        max-width: 700px;
+        font-style: italic;
+        color: #d8c7b0;
+        font-size: clamp(1rem, 2.5vw, 1.3rem);
+    }
+
+    /* HERO */
+
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: center;
+        padding: 70px 0;
+    }
+
+    .greg-frame {
+        position: relative;
+        text-align: center;
+    }
+
+    .greg-glow {
+        position: absolute;
+        width: 75%;
+        aspect-ratio: 1;
+        left: 12.5%;
+        top: 10%;
+        border-radius: 50%;
+        background: rgba(134, 79, 178, .20);
+        filter: blur(50px);
+        z-index: 0;
+    }
+
+    .greg-image {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 470px);
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 7px solid #b79a62;
+        box-shadow:
+            0 0 0 2px #332543,
+            0 0 50px rgba(175, 122, 220, .25);
+        background:
+            radial-gradient(circle at 35% 30%, #807b75, #3e3b39 65%, #191818);
+    }
+
+    .greg-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cfc6b9;
+        font-size: 5rem;
+    }
+
+    .greg-caption {
+        position: relative;
+        z-index: 2;
+        margin: -15px auto 0;
+        width: fit-content;
+        max-width: 90%;
+        background: #17101e;
+        border: 1px solid #80653b;
+        padding: 10px 20px;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .hero-copy h2 {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        margin: 0 0 20px;
+        color: #eee0b8;
+    }
+
+    .hero-copy p {
+        color: #d3c5b6;
+        line-height: 1.8;
+        font-size: 1.08rem;
+    }
+
+    .stamp {
+        display: inline-block;
+        border: 1px solid #9b7c43;
+        padding: 8px 12px;
+        margin: 12px 0 20px;
+        color: #d9bc78;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        letter-spacing: 1px;
+        transform: rotate(-2deg);
+    }
+
+    /* PREDICTIONS */
+
+    .section {
+        padding: 65px 0;
+        border-top: 1px solid rgba(218, 180, 108, .16);
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 45px;
+    }
+
+    .section-title h2 {
+        color: #ead08b;
+        font-size: clamp(2rem, 5vw, 3rem);
+        margin: 0 0 10px;
+    }
+
+    .section-title p {
+        color: #9d8e9f;
+        margin: 0;
+    }
+
+    .predictions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .prediction {
+        background: rgba(28, 18, 35, .8);
+        border: 1px solid rgba(178, 143, 77, .35);
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .prediction::before {
+        content: "✓";
+        position: absolute;
+        right: 15px;
+        top: 8px;
+        font-size: 50px;
+        color: rgba(201, 169, 92, .08);
+    }
+
+    .prediction .year {
+        color: #b99bd2;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        letter-spacing: 2px;
+    }
+
+    .prediction h3 {
+        color: #e6d3a2;
+        margin: 10px 0;
+        font-size: 1.25rem;
+    }
+
+    .prediction p {
+        color: #bdb0b4;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .disclaimer {
+        margin-top: 25px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        color: #665a68;
+    }
+
+    /* CONSULTATION */
+
+    .consult-box {
+        max-width: 800px;
+        margin: auto;
+        background:
+            linear-gradient(145deg, rgba(38, 24, 48, .95), rgba(17, 11, 22, .95));
+        border: 1px solid #80653b;
+        box-shadow: 0 20px 70px rgba(0,0,0,.35);
+        padding: clamp(25px, 6vw, 50px);
+        text-align: center;
+    }
+
+    .consult-box h2 {
+        margin: 0 0 10px;
+        color: #ead08b;
+        font-size: clamp(2rem, 5vw, 3rem);
+    }
+
+    .consult-box > p {
+        color: #b9aab9;
+        line-height: 1.7;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 140px;
+        resize: vertical;
+        margin-top: 25px;
+        padding: 18px;
+        border: 1px solid #594863;
+        background: #0c090f;
+        color: #eee4d8;
+        font: 17px Georgia, serif;
+        outline: none;
+    }
+
+    textarea:focus {
+        border-color: #b99bd2;
+        box-shadow: 0 0 0 3px rgba(185,155,210,.08);
+    }
+
+    textarea::placeholder {
+        color: #64586a;
+    }
+
+    .ask-button {
+        margin-top: 20px;
+        border: none;
+        background: linear-gradient(135deg, #b99bd2, #75518f);
+        color: white;
+        padding: 16px 32px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        letter-spacing: 1px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .ask-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(133, 89, 160, .3);
+    }
+
+    .tiny-note {
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        color: #625869;
+        margin-top: 15px;
+    }
+
+    /* RESPONSE */
+
+    .response {
+        display: none;
+        margin-top: 40px;
+        padding-top: 35px;
+        border-top: 1px solid rgba(218,180,108,.2);
+        text-align: left;
+    }
+
+    .response.visible {
+        display: block;
+        animation: appear .7s ease;
+    }
+
+    @keyframes appear {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .shipping {
+        text-align: center;
+        color: #b99bd2;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .answer-card {
+        background: #0c090f;
+        border: 1px solid #493a51;
+        padding: 25px;
+        margin-top: 20px;
+    }
+
+    .answer-label {
+        color: #a88b55;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .answer-text {
+        font-size: clamp(1.2rem, 3vw, 1.55rem);
+        line-height: 1.7;
+        color: #eadfce;
+        margin: 15px 0 0;
+    }
+
+    .obligation {
+        margin-top: 25px;
+        padding: 20px;
+        background: rgba(115, 78, 130, .12);
+        border-left: 3px solid #9b7c43;
+    }
+
+    .obligation strong {
+        color: #d9bc78;
+    }
+
+    /* HOW IT WORKS */
+
+    .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .step {
+        text-align: center;
+        padding: 25px 15px;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #80653b;
+        border-radius: 50%;
+        color: #d9bc78;
+        font-family: Arial, sans-serif;
+    }
+
+    .step h3 {
+        color: #d8c5a1;
+        margin: 10px 0;
+    }
+
+    .step p {
+        color: #91838f;
+        line-height: 1.6;
+    }
+
+    /* FINE PRINT */
+
+    .fine-print {
+        background: #07060a;
+        border-top: 1px solid rgba(218,180,108,.15);
+        padding: 45px 0;
+        color: #5e5660;
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .fine-print h3 {
+        color: #756879;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 30px 15px;
+        background: #050509;
+        color: #514a52;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+    }
+
+    /* LOADING */
+
+    .pondering {
+        display: none;
+        margin-top: 25px;
+        text-align: center;
+    }
+
+    .pondering.visible {
+        display: block;
+    }
+
+    .rock-icon {
+        font-size: 45px;
+        animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: .7;
+        }
+
+        50% {
+            transform: scale(1.12);
+            opacity: 1;
+        }
+    }
+
+    .ponder-text {
+        color: #b99bd2;
+        font-style: italic;
+        margin-top: 10px;
+    }
+
+    .dots::after {
+        content: "";
+        animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+        0% { content: ""; }
+        33% { content: "."; }
+        66% { content: ".."; }
+        100% { content: "..."; }
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 800px) {
+
+        .hero {
+            grid-template-columns: 1fr;
+            gap: 35px;
+            padding: 45px 0;
+            text-align: center;
+        }
+
+        .greg-image {
+            width: min(85vw, 400px);
+        }
+
+        .predictions,
+        .steps {
+            grid-template-columns: 1fr;
+        }
+
+        .prediction {
+            padding: 22px;
+        }
+
+        .section {
+            padding: 50px 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .container {
+            width: min(100% - 22px, 1100px);
+        }
+
+        header {
+            padding-top: 20px;
+        }
+
+        .hero-copy p {
+            font-size: 1rem;
+        }
+
+        .consult-box {
+            padding: 25px 18px;
+        }
+
+        textarea {
+            min-height: 125px;
+        }
+
+        .ask-button {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="top-warning">
+        Internationally Recognized Psychic Geological Professional
+    </div>
+
+    <h1 class="logo">
+        Greg
+        <span>The Psychic Rock™</span>
+    </h1>
+
+    <p class="tagline">
+        He knows all. He has always known all. He is, unfortunately, a rock.
+    </p>
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="container hero">
+
+        <div class="greg-frame">
+
+            <div class="greg-glow"></div>
+
+            <!--
+                REPLACE THIS DIV WITH YOUR OWN IMAGE.
+
+                Example:
+
+                <img class="greg-image"
+                     src="greg.jpg"
+                     alt="Greg the Psychic Rock">
+            -->
+
+            <div class="greg-image greg-placeholder">
+                🪨
+            </div>
+
+            <div class="greg-caption">
+                Greg — Currently Pondering
+            </div>
+
+        </div>
+
+
+        <div class="hero-copy">
+
+            <div class="stamp">
+                Psychic Accuracy: Unreasonably High*
+            </div>
+
+            <h2>The future is written in stone.</h2>
+
+            <p>
+                For centuries, humanity has gazed into crystals,
+                consulted tarot cards, read tea leaves and listened
+                to suspiciously confident people named Gerald.
+            </p>
+
+            <p>
+                We eventually discovered something better.
+            </p>
+
+            <p>
+                <strong>Greg.</strong>
+            </p>
+
+            <p>
+                Greg is a rock with extraordinary psychic abilities.
+                He has reportedly predicted major historical events,
+                cultural phenomena, technological developments and
+                at least one flavor of ice cream before anyone had
+                invented it.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- PREDICTIONS -->
+
+    <section class="section">
+
+        <div class="container">
+
+            <div class="section-title">
+                <h2>Greg Knew It Was Coming</h2>
+                <p>A selection of Greg's documented predictions.</p>
+            </div>
+
+
+            <div class="predictions">
+
+                <div class="prediction">
+                    <div class="year">1914</div>
+                    <h3>The First World War</h3>
+                    <p>
+                        Greg reportedly became unusually concerned
+                        about Europe. Nobody asked why.
+                    </p>
+                </div>
+
+                <div class="prediction">
+                    <div class="year">1939</div>
+                    <h3>The Second World War</h3>
+                    <p>
+                        Greg had already seen it coming.
+                        Unfortunately, he was located in a box.
+                    </p>
+                </div>
+
+                <div class="prediction">
+                    <div class="year">20XX</div>
+                    <h3>The Next Ice Cream Flavor</h3>
+                    <p>
+                        Greg predicted a flavor so strange that
+                        the manufacturer has requested we stop
+                        mentioning it.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="disclaimer">
+                *Historical documentation regarding Greg's predictions
+                remains suspiciously difficult to locate.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONSULT -->
+
+    <section class="section" id="consult">
+
+        <div class="container">
+
+            <div class="consult-box">
+
+                <h2>Ask Greg</h2>
+
+                <p>
+                    You have questions. Greg has answers.
+                    The problem is that Greg is currently a rock
+                    and cannot speak.
+                </p>
+
+                <p>
+                    Fortunately, our highly trained geological
+                    interpretation department can interpret his
+                    psychic vibrations.
+                </p>
+
+
+                <textarea
+                    id="question"
+                    maxlength="500"
+                    placeholder="Ask Greg anything... What will happen tomorrow? Should I trust Steve? Is my sandwich still good?"
+                ></textarea>
+
+
+                <button class="ask-button" id="askButton">
+                    CONSULT GREG
+                </button>
+
+
+                <div class="tiny-note">
+                    By submitting a question, you acknowledge that Greg
+                    may already know the answer.
+                </div>
+
+
+                <!-- PONDERING -->
+
+                <div class="pondering" id="pondering">
+
+                    <div class="rock-icon">🪨</div>
+
+                    <div class="ponder-text">
+                        Greg is pondering<span class="dots"></span>
+                    </div>
+
+                </div>
+
+
+                <!-- RESPONSE -->
+
+                <div class="response" id="response">
+
+                    <div class="shipping">
+                        ✦ Psychic response successfully prepared ✦
+                    </div>
+
+                    <div class="answer-card">
+
+                        <div class="answer-label">
+                            Greg's Official Determination
+                        </div>
+
+                        <p class="answer-text" id="answerText"></p>
+
+                        <div class="obligation">
+
+                            <strong>
+                                IMPORTANT: Your answer has been delivered.
+                            </strong>
+
+                            <p id="obligationText"></p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HOW IT WORKS -->
+
+    <section class="section">
+
+        <div class="container">
+
+            <div class="section-title">
+                <h2>How The Process Works</h2>
+                <p>Our proprietary four-billion-year-old methodology.</p>
+            </div>
+
+
+            <div class="steps">
+
+                <div class="step">
+
+                    <div class="step-number">1</div>
+
+                    <h3>Ask</h3>
+
+                    <p>
+                        Submit your question to Greg through our
+                        highly secure question-rock interface.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">2</div>
+
+                    <h3>Greg Ponders</h3>
+
+                    <p>
+                        Greg enters a deep state of geological
+                        contemplation. This may take several seconds.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">3</div>
+
+                    <h3>Receive</h3>
+
+                    <p>
+                        Greg's answer is spiritually shipped directly
+                        to your device via the ancient technology
+                        known as JavaScript.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FINE PRINT -->
+
+    <section class="fine-print">
+
+        <div class="container">
+
+            <h3>IMPORTANT PSYCHIC DISCLOSURES</h3>
+
+            <p>
+                Greg the Psychic Rock™ is a fictional humorous
+                entertainment service. Greg is not a licensed psychic,
+                geologist, historian, meteorologist, financial advisor,
+                relationship counselor, sandwich inspector or certified
+                prophet.
+            </p>
+
+            <p>
+                Psychic results are generated for entertainment purposes
+                and may contain absolutely no useful information.
+                Results may be influenced by atmospheric pressure,
+                moonlight, nearby squirrels and Greg's mood.
+            </p>
+
+            <p>
+                No actual souls are collected, transferred, stored,
+                processed or shipped as part of this service.
+            </p>
+
+            <p>
+                Any references to obligations, offerings, sacrifices,
+                household objects or unusual tribute are entirely
+                fictional and should not be interpreted as an actual
+                request for payment or property.
+            </p>
+
+            <p>
+                Greg's legal team consists of one decorative paperweight.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    © 2026 Greg the Psychic Rock™ · A division of Absolutely Certain
+    Geological Solutions International
+</footer>
+
+
+<script>
+
+    const questionInput = document.getElementById("question");
+    const askButton = document.getElementById("askButton");
+    const pondering = document.getElementById("pondering");
+    const response = document.getElementById("response");
+    const answerText = document.getElementById("answerText");
+    const obligationText = document.getElementById("obligationText");
+
+
+    /*
+        Greg's psychic answers.
+
+        You can add as many as you want.
+    */
+
+    const answers = [
+
+        "Greg has considered your question carefully. His conclusion is that you already know the answer. You simply hoped Greg would disagree.",
+
+        "Greg has foreseen this. He recommends proceeding with confidence, but not excessive confidence. Approximately 14% confidence should be sufficient.",
+
+        "The future is unclear. Greg suspects this is because someone has placed a lamp directly in front of him.",
+
+        "Greg has consulted the ancient geological records. They contain no useful information, but he appreciates your question.",
+
+        "Greg's psychic field became extremely active while considering your question. He then became distracted by a patch of sunlight.",
+
+        "Greg says yes. He would like it noted that he says yes to approximately 61% of questions.",
+
+        "Greg says no. He has refused to elaborate.",
+
+        "Greg predicts that something will happen. He cannot say what, where, when or to whom. He is nevertheless extremely confident.",
+
+        "Greg has seen your future. Unfortunately, the future appears to have been stored in a format Greg cannot open.",
+
+        "After several moments of intense geological contemplation, Greg has determined that you should probably trust your instincts.",
+
+        "Greg has no comment at this time. His publicist says this is actually a very positive sign.",
+
+        "Greg has gazed into the infinite timeline and has returned with one message: 'Huh.'",
+
+        "Greg predicts a period of unexpected inconvenience followed by a completely unrelated period of mild success.",
+
+        "Greg has sensed a disturbance in the geological field. He recommends checking your pockets.",
+
+        "Greg says that the answer is already on its way to you. He refuses to clarify whether 'on its way' means spiritually, electronically or by mail."
+    ];
+
+
+    /*
+        Ridiculous things Greg may request after answering.
+    */
+
+    const obligations = [
+
+        "As tribute for this knowledge, Greg requests one ordinary teaspoon from your household. He does not need it. He simply likes teaspoons.",
+
+        "Greg requests three buttons. They do not need to match. In fact, Greg strongly prefers that they do not.",
+
+        "Greg requests that you place a glass of water somewhere safe and leave it there for approximately eleven minutes. Do not ask why.",
+
+        "Greg requires one unopened napkin. Fold it twice and keep it somewhere you will forget about it.",
+
+        "Greg requests a single sock. The sock does not need to have a partner. Greg understands loneliness.",
+
+        "Greg asks that you quietly thank a chair for its service today.",
+
+        "Greg requires one paperclip. It must be a normal paperclip. Greg will know if it isn't.",
+
+        "Greg asks for absolutely nothing. He says this is a limited-time offer.",
+
+        "Greg requests one mildly disappointing sandwich. He does not intend to eat it. He simply wants to know it exists.",
+
+        "Greg requests that you place a coin beside a window tonight. The denomination is irrelevant. Greg is not impressed by money.",
+
+        "Greg requires one rubber band and absolutely no explanation.",
+
+        "Greg asks that you think about a spoon for approximately seven seconds. This counts as tribute.",
+
+        "Greg has requested a single cereal flake. Preferably one that has somehow escaped the bowl.",
+
+        "Greg requests that you move one completely unnecessary object approximately six inches to the left.",
+
+        "Greg has waived the physical tribute requirement. In exchange, he has taken a small, entirely fictional portion of your soul."
+    ];
+
+
+    function randomItem(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
+
+
+    function askGreg() {
+
+        const question = questionInput.value.trim();
+
+        if (!question) {
+            questionInput.focus();
+            questionInput.style.borderColor = "#a55b5b";
+
+            setTimeout(() => {
+                questionInput.style.borderColor = "";
+            }, 1200);
+
+            return;
+        }
+
+
+        /*
+            Hide old answer
+        */
+
+        response.classList.remove("visible");
+
+        /*
+            Disable button while Greg ponders
+        */
+
+        askButton.disabled = true;
+        askButton.textContent = "GREG IS PONDERING...";
+
+        pondering.classList.add("visible");
+
+
+        /*
+            Scroll the pondering section into view
+        */
+
+        setTimeout(() => {
+
+            pondering.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        }, 100);
+
+
+        /*
+            Greg requires time to contemplate the universe.
+        */
+
+        const ponderingTime = 2800 + Math.random() * 2500;
+
+
+        setTimeout(() => {
+
+            const answer = randomItem(answers);
+            const obligation = randomItem(obligations);
+
+
+            answerText.textContent = answer;
+            obligationText.textContent = obligation;
+
+
+            pondering.classList.remove("visible");
+
+            response.classList.add("visible");
+
+            askButton.disabled = false;
+            askButton.textContent = "CONSULT GREG AGAIN";
+
+
+            /*
+                Clear the question after Greg answers.
+            */
+
+            questionInput.value = "";
+
+
+            /*
+                Scroll to the answer.
+            */
+
+            setTimeout(() => {
+
+                response.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+            }, 150);
+
+
+        }, ponderingTime);
+
+    }
+
+
+    askButton.addEventListener("click", askGreg);
+
+
+    /*
+        Allow Ctrl+Enter / Cmd+Enter on desktop.
+    */
+
+    questionInput.addEventListener("keydown", function(event) {
+
+        if (
+            event.key === "Enter" &&
+            (event.ctrlKey || event.metaKey)
+        ) {
+            event.preventDefault();
+            askGreg();
+        }
+
+    });
+
+
+    /*
+        Tiny bit of Greg magic:
+        randomly change his status caption.
+    */
+
+    const captions = [
+        "Greg — Currently Pondering",
+        "Greg — Psychic Mode Active",
+        "Greg — Reading The Timeline",
+        "Greg — Consulting The Universe",
+        "Greg — Geological Expert",
+        "Greg — Extremely Certain",
+        "Greg — Please Do Not Disturb"
+    ];
+
+
+    const caption = document.querySelector(".greg-caption");
+
+
+    setInterval(() => {
+
+        caption.textContent = randomItem(captions);
+
+    }, 7000);
+
+</script>
+
+</body>
+</html>
