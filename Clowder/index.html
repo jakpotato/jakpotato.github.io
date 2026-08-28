@@ -19,7 +19,7 @@
         <input id="email" type="email" placeholder="you@example.com" required>
 
         <label for="password">Password</label>
-        <input id="password" type="password" placeholder="Anything works" required>
+        <input id="password" type="password" placeholder="Password but make it easy" required>
 
         <button class="primary-button" type="submit">Create account</button>
       </form>
@@ -65,18 +65,14 @@
     </header>
 
     <main class="layout">
-      <aside class="sidebar left-sidebar">
+      <!-- <aside class="sidebar left-sidebar">
         <nav>
           <button class="nav-item active" data-filter="all">🏠 <span>Home</span></button>
           <button class="nav-item" data-filter="popular">🔥 <span>Popular</span></button>
           <button class="nav-item" data-filter="questions">❓ <span>Questions</span></button>
           <button class="nav-item" data-filter="rants">💢 <span>Rants</span></button>
         </nav>
-        <div class="sidebar-card">
-          <strong>Clowder tip</strong>
-          <p>There is no such thing as posting too much. Someone else will probably do it anyway.</p>
-        </div>
-      </aside>
+      </aside> -->
 
       <section class="feed-column">
         <div class="composer card">
@@ -100,6 +96,10 @@
         <div class="card trend-card">
           <h3>Trending now</h3>
           <div id="trends"></div>
+        </div>
+        <div class="sidebar-card">
+          <strong>Clowder tip</strong>
+          <p>There is no such thing as posting too much. Someone else will probably do it anyway.</p>
         </div>
         <div class="card about-card">
           <h3>About Clowder</h3>
@@ -141,7 +141,7 @@
         <button data-reason="I just don't like it">I just don't like it</button>
         <button data-reason="Other">Other</button>
       </div>
-      <p id="reportConfirmation" class="report-confirmation hidden">Thanks. Your report has been received and absolutely nothing will happen to this post.</p>
+      <p id="reportConfirmation" class="report-confirmation hidden">Thanks. You really do complain a lot, don't you?</p>
     </div>
   </div>
 
