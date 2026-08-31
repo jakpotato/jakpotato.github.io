@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fizzle</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ============ AUTH SCREEN ============ -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="auth-brand-mark" id="authBrandMark">🫧</span>
+        <h1 id="authBrandName">Fizzle</h1>
+      </div>
+      <p class="auth-tagline" id="authTagline">where your worst thoughts go to get 3 comments.</p>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-mode="login">Log in</button>
+        <button type="button" class="auth-tab" data-mode="signup">Sign up</button>
+      </div>
+
+      <form id="authForm" class="auth-form">
+        <div class="field-row" id="nameRow">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" placeholder="Pat" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" placeholder="Fizzlebee" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label>Pick your face</label>
+          <div class="avatar-grid" id="avatarGrid"></div>
+          <input type="hidden" id="selectedAvatar">
+        </div>
+
+        <p class="auth-fineprint">This form doesn't check anything or go anywhere. Fill in what you like, or nothing at all.</p>
+
+        <button type="submit" class="btn-primary" id="authSubmit">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ FEED SCREEN ============ -->
+  <div id="feedScreen" class="feed-screen" hidden>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="brand">
+          <span class="brand-mark" id="feedBrandMark">🫧</span>
+          <span class="brand-name" id="feedBrandName">Fizzle</span>
+        </div>
+        <div class="user-chip" id="userChip" hidden>
+          <span class="user-chip-emoji" id="userChipEmoji">🙂</span>
+          <span class="user-chip-name" id="userChipName">You</span>
+          <button type="button" id="logoutBtn" class="btn-text">Log out</button>
+        </div>
+        <button type="button" class="btn-secondary btn-small" id="headerLoginBtn">Log in</button>
+      </div>
+    </header>
+
+    <main class="feed-main">
+      <section class="compose" id="composeBox">
+        <span class="compose-emoji" id="composeEmoji">🙂</span>
+        <form id="composeForm" class="compose-form">
+          <textarea id="composeInput" placeholder="What's happening (probably nothing good)?" rows="1"></textarea>
+          <button type="submit" class="btn-primary btn-small">Post</button>
+        </form>
+      </section>
+
+      <section class="compose compose-locked" id="loginPrompt" hidden>
+        <p>Log in to post something unhinged.</p>
+        <button type="button" class="btn-secondary btn-small" id="loginPromptBtn">Log in</button>
+      </section>
+
+      <div id="feed" class="feed"></div>
+
+      <div id="sentinel" class="sentinel">
+        <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+      </div>
+    </main>
+  </div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
