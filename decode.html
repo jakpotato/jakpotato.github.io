@@ -1,0 +1,1372 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>JakPotato Decoder</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --bg: #f5f6f8;
+            --card: #ffffff;
+            --text: #212529;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --input: #ffffff;
+            --output: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #f1f1f1;
+            --muted: #adb5bd;
+            --border: #3a3a3a;
+            --input: #181818;
+            --output: #181818;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 25px 15px 50px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .app-header h1 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 240px;
+            background: var(--input) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+
+        textarea::placeholder {
+            color: var(--muted);
+        }
+
+        select {
+            background-color: var(--input) !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+
+        .output-box {
+            background: var(--output);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .toolbar .btn {
+            min-width: 105px;
+        }
+
+        .format-description {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .stats {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .error-box {
+            display: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 18px;
+            background: rgba(220, 53, 69, 0.12);
+            border: 1px solid rgba(220, 53, 69, 0.35);
+            color: #dc3545;
+        }
+
+        .success-box {
+            display: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 18px;
+            background: rgba(25, 135, 84, 0.12);
+            border: 1px solid rgba(25, 135, 84, 0.35);
+            color: #198754;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .format-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: rgba(13, 110, 253, 0.12);
+            color: #0d6efd;
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 18px 10px 35px;
+            }
+
+            .app-header {
+                padding-top: 40px;
+            }
+
+            .app-header h1 {
+                font-size: 1.8rem;
+            }
+
+            textarea {
+                min-height: 200px;
+            }
+
+            .toolbar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .toolbar .btn {
+                width: 100%;
+            }
+
+            .btn-wide-mobile {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<button
+    id="themeToggle"
+    class="btn btn-outline-secondary btn-sm mode-toggle"
+    type="button"
+>
+    🌙 Dark
+</button>
+
+<div class="main-container">
+
+    <div class="app-header">
+        <h1>🔐 Decoder & Encoder</h1>
+        <p>Encode, decode, format and inspect different types of data.</p>
+    </div>
+
+    <!-- Format Selection -->
+    <div class="card">
+        <div class="card-header">
+            Format
+        </div>
+
+        <div class="card-body">
+
+            <select id="formatSelect" class="form-select">
+                <option value="base64">Base64</option>
+                <option value="url">URL Encoding</option>
+                <option value="hex">Hexadecimal</option>
+                <option value="binary">Binary</option>
+                <option value="html">HTML Entities</option>
+                <option value="unicode">Unicode Escape</option>
+                <option value="json">JSON</option>
+                <option value="jwt">JWT</option>
+                <option value="ascii">ASCII</option>
+                <option value="auto">🔎 Auto Detect</option>
+            </select>
+
+            <div id="formatDescription" class="format-description"></div>
+
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="errorBox" class="error-box"></div>
+    <div id="successBox" class="success-box"></div>
+
+    <!-- Input -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Input</span>
+            <span id="inputFormatBadge" class="format-badge">Ready</span>
+        </div>
+
+        <div class="card-body">
+
+            <textarea
+                id="inputText"
+                class="form-control"
+                placeholder="Type or paste something here..."
+                spellcheck="false"
+            ></textarea>
+
+            <div class="stats">
+                <span id="inputChars">0 characters</span>
+                <span id="inputBytes">0 bytes</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="toolbar mb-3">
+
+        <button
+            id="encodeBtn"
+            class="btn btn-primary"
+            type="button"
+        >
+            Encode
+        </button>
+
+        <button
+            id="decodeBtn"
+            class="btn btn-success"
+            type="button"
+        >
+            Decode
+        </button>
+
+        <button
+            id="swapBtn"
+            class="btn btn-outline-secondary"
+            type="button"
+        >
+            ⇄ Swap
+        </button>
+
+        <button
+            id="clearBtn"
+            class="btn btn-outline-danger"
+            type="button"
+        >
+            Clear All
+        </button>
+
+    </div>
+
+    <!-- Output -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Output</span>
+            <button
+                id="copyBtn"
+                class="btn btn-sm btn-outline-primary"
+                type="button"
+            >
+                📋 Copy
+            </button>
+        </div>
+
+        <div class="card-body">
+
+            <textarea
+                id="outputText"
+                class="form-control output-box"
+                placeholder="Your result will appear here..."
+                spellcheck="false"
+                readonly
+            ></textarea>
+
+            <div class="stats">
+                <span id="outputChars">0 characters</span>
+                <span id="outputBytes">0 bytes</span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const formatSelect = document.getElementById("formatSelect");
+const formatDescription = document.getElementById("formatDescription");
+
+const inputText = document.getElementById("inputText");
+const outputText = document.getElementById("outputText");
+
+const encodeBtn = document.getElementById("encodeBtn");
+const decodeBtn = document.getElementById("decodeBtn");
+const swapBtn = document.getElementById("swapBtn");
+const clearBtn = document.getElementById("clearBtn");
+const copyBtn = document.getElementById("copyBtn");
+
+const errorBox = document.getElementById("errorBox");
+const successBox = document.getElementById("successBox");
+
+const inputChars = document.getElementById("inputChars");
+const inputBytes = document.getElementById("inputBytes");
+const outputChars = document.getElementById("outputChars");
+const outputBytes = document.getElementById("outputBytes");
+
+const inputFormatBadge = document.getElementById("inputFormatBadge");
+const themeToggle = document.getElementById("themeToggle");
+
+
+/* =========================================================
+   FORMAT DESCRIPTIONS
+========================================================= */
+
+const descriptions = {
+    base64:
+        "Convert text to or from Base64. Unicode characters are supported.",
+
+    url:
+        "Encode or decode text using URL percent encoding.",
+
+    hex:
+        "Convert UTF-8 text to hexadecimal bytes and back.",
+
+    binary:
+        "Convert UTF-8 text to binary bytes and back.",
+
+    html:
+        "Convert characters to HTML entities or decode HTML entities.",
+
+    unicode:
+        "Convert characters to Unicode escape sequences such as \\u0048.",
+
+    json:
+        "Format or minify JSON. Encode creates JSON text; Decode parses JSON.",
+
+    jwt:
+        "Decode a JSON Web Token and display its header and payload. JWT encoding is not performed.",
+
+    ascii:
+        "Convert ASCII characters to decimal byte values and back.",
+
+    auto:
+        "Try to identify whether the input looks like Base64, URL encoded, hexadecimal, binary, JSON or JWT."
+};
+
+
+/* =========================================================
+   FORMAT UI
+========================================================= */
+
+function updateFormatDescription() {
+    const format = formatSelect.value;
+
+    formatDescription.textContent =
+        descriptions[format] || "";
+
+    if (format === "jwt") {
+        encodeBtn.disabled = true;
+    } else {
+        encodeBtn.disabled = false;
+    }
+}
+
+formatSelect.addEventListener("change", updateFormatDescription);
+
+updateFormatDescription();
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+function showError(message) {
+    errorBox.textContent = "⚠️ " + message;
+    errorBox.style.display = "block";
+    successBox.style.display = "none";
+}
+
+function showSuccess(message) {
+    successBox.textContent = "✓ " + message;
+    successBox.style.display = "block";
+    errorBox.style.display = "none";
+
+    setTimeout(() => {
+        successBox.style.display = "none";
+    }, 2500);
+}
+
+function clearMessages() {
+    errorBox.style.display = "none";
+    successBox.style.display = "none";
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+function updateStats() {
+
+    const input = inputText.value;
+    const output = outputText.value;
+
+    inputChars.textContent =
+        `${input.length.toLocaleString()} characters`;
+
+    outputChars.textContent =
+        `${output.length.toLocaleString()} characters`;
+
+    inputBytes.textContent =
+        `${new TextEncoder().encode(input).length.toLocaleString()} bytes`;
+
+    outputBytes.textContent =
+        `${new TextEncoder().encode(output).length.toLocaleString()} bytes`;
+}
+
+inputText.addEventListener("input", updateStats);
+outputText.addEventListener("input", updateStats);
+
+
+/* =========================================================
+   UTF-8 HELPERS
+========================================================= */
+
+function textToBytes(text) {
+    return new TextEncoder().encode(text);
+}
+
+function bytesToText(bytes) {
+    try {
+        return new TextDecoder("utf-8", {
+            fatal: true
+        }).decode(bytes);
+    } catch {
+        throw new Error(
+            "The decoded bytes are not valid UTF-8 text."
+        );
+    }
+}
+
+
+/* =========================================================
+   BASE64
+========================================================= */
+
+function encodeBase64(text) {
+
+    const bytes = textToBytes(text);
+
+    let binary = "";
+
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+}
+
+function decodeBase64(text) {
+
+    text = text.trim();
+
+    if (!text) {
+        return "";
+    }
+
+    // Accept Base64 with or without padding.
+    const normalized =
+        text.replace(/\s/g, "");
+
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(normalized)) {
+        throw new Error("Invalid Base64 characters.");
+    }
+
+    if (normalized.length % 4 === 1) {
+        throw new Error("Invalid Base64 length.");
+    }
+
+    try {
+
+        const binary = atob(
+            normalized.padEnd(
+                Math.ceil(normalized.length / 4) * 4,
+                "="
+            )
+        );
+
+        const bytes = Uint8Array.from(
+            binary,
+            char => char.charCodeAt(0)
+        );
+
+        return bytesToText(bytes);
+
+    } catch {
+        throw new Error("Invalid Base64 data.");
+    }
+}
+
+
+/* =========================================================
+   URL ENCODING
+========================================================= */
+
+function encodeURL(text) {
+    return encodeURIComponent(text);
+}
+
+function decodeURL(text) {
+
+    try {
+        return decodeURIComponent(text);
+    } catch {
+        throw new Error("Invalid URL-encoded data.");
+    }
+}
+
+
+/* =========================================================
+   HEX
+========================================================= */
+
+function encodeHex(text) {
+
+    return Array.from(
+        textToBytes(text)
+    )
+    .map(byte =>
+        byte.toString(16).padStart(2, "0")
+    )
+    .join(" ");
+}
+
+function decodeHex(text) {
+
+    const cleaned = text
+        .replace(/0x/gi, "")
+        .replace(/[\s,:-]/g, "");
+
+    if (!cleaned) {
+        return "";
+    }
+
+    if (!/^[0-9a-fA-F]+$/.test(cleaned)) {
+        throw new Error(
+            "Hexadecimal input may only contain 0-9 and A-F."
+        );
+    }
+
+    if (cleaned.length % 2 !== 0) {
+        throw new Error(
+            "Hexadecimal input must contain an even number of digits."
+        );
+    }
+
+    const bytes = new Uint8Array(
+        cleaned.match(/.{2}/g)
+            .map(byte => parseInt(byte, 16))
+    );
+
+    return bytesToText(bytes);
+}
+
+
+/* =========================================================
+   BINARY
+========================================================= */
+
+function encodeBinary(text) {
+
+    return Array.from(
+        textToBytes(text)
+    )
+    .map(byte =>
+        byte.toString(2).padStart(8, "0")
+    )
+    .join(" ");
+}
+
+function decodeBinary(text) {
+
+    const cleaned = text.trim();
+
+    if (!cleaned) {
+        return "";
+    }
+
+    const groups = cleaned.split(/\s+/);
+
+    if (!groups.every(group => /^[01]{8}$/.test(group))) {
+        throw new Error(
+            "Binary input must contain groups of exactly 8 bits."
+        );
+    }
+
+    const bytes = new Uint8Array(
+        groups.map(group => parseInt(group, 2))
+    );
+
+    return bytesToText(bytes);
+}
+
+
+/* =========================================================
+   HTML ENTITIES
+========================================================= */
+
+function encodeHTML(text) {
+
+    const textarea = document.createElement("textarea");
+    textarea.textContent = text;
+
+    return textarea.innerHTML
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function decodeHTML(text) {
+
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+
+    return textarea.value;
+}
+
+
+/* =========================================================
+   UNICODE ESCAPES
+========================================================= */
+
+function encodeUnicode(text) {
+
+    let result = "";
+
+    for (const char of text) {
+
+        const code = char.codePointAt(0);
+
+        if (code <= 0xffff) {
+
+            result +=
+                "\\u" +
+                code.toString(16).padStart(4, "0");
+
+        } else {
+
+            const adjusted = code - 0x10000;
+
+            const high =
+                0xd800 +
+                (adjusted >> 10);
+
+            const low =
+                0xdc00 +
+                (adjusted & 0x3ff);
+
+            result +=
+                "\\u" +
+                high.toString(16).padStart(4, "0") +
+                "\\u" +
+                low.toString(16).padStart(4, "0");
+        }
+    }
+
+    return result;
+}
+
+function decodeUnicode(text) {
+
+    try {
+
+        return text.replace(
+            /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g,
+            (match, codePoint, fourDigit) => {
+
+                const code = parseInt(
+                    codePoint || fourDigit,
+                    16
+                );
+
+                if (code > 0x10ffff) {
+                    throw new Error();
+                }
+
+                return String.fromCodePoint(code);
+            }
+        );
+
+    } catch {
+        throw new Error(
+            "Invalid Unicode escape sequence."
+        );
+    }
+}
+
+
+/* =========================================================
+   JSON
+========================================================= */
+
+function formatJSON(text) {
+
+    let parsed;
+
+    try {
+        parsed = JSON.parse(text);
+    } catch {
+        throw new Error("Invalid JSON.");
+    }
+
+    return JSON.stringify(parsed, null, 4);
+}
+
+function minifyJSON(text) {
+
+    let parsed;
+
+    try {
+        parsed = JSON.parse(text);
+    } catch {
+        throw new Error("Invalid JSON.");
+    }
+
+    return JSON.stringify(parsed);
+}
+
+
+/* =========================================================
+   JWT
+========================================================= */
+
+function base64URLToString(text) {
+
+    let normalized = text
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+    normalized +=
+        "=".repeat(
+            (4 - normalized.length % 4) % 4
+        );
+
+    return decodeBase64(normalized);
+}
+
+function decodeJWT(token) {
+
+    const parts = token.trim().split(".");
+
+    if (parts.length !== 3) {
+        throw new Error(
+            "A JWT should contain three sections separated by dots."
+        );
+    }
+
+    let header;
+    let payload;
+
+    try {
+        header = JSON.parse(
+            base64URLToString(parts[0])
+        );
+    } catch {
+        throw new Error(
+            "The JWT header could not be decoded."
+        );
+    }
+
+    try {
+        payload = JSON.parse(
+            base64URLToString(parts[1])
+        );
+    } catch {
+        throw new Error(
+            "The JWT payload could not be decoded."
+        );
+    }
+
+    return JSON.stringify(
+        {
+            header: header,
+            payload: payload,
+            signature: parts[2]
+        },
+        null,
+        4
+    );
+}
+
+
+/* =========================================================
+   ASCII
+========================================================= */
+
+function encodeASCII(text) {
+
+    const bytes = textToBytes(text);
+
+    for (const byte of bytes) {
+        if (byte > 127) {
+            throw new Error(
+                "ASCII only supports characters from 0 to 127."
+            );
+        }
+    }
+
+    return Array.from(bytes)
+        .map(byte => byte.toString())
+        .join(" ");
+}
+
+function decodeASCII(text) {
+
+    const cleaned = text.trim();
+
+    if (!cleaned) {
+        return "";
+    }
+
+    const numbers = cleaned.split(/[\s,]+/);
+
+    if (
+        !numbers.every(
+            number =>
+                /^\d+$/.test(number) &&
+                Number(number) >= 0 &&
+                Number(number) <= 127
+        )
+    ) {
+        throw new Error(
+            "ASCII values must be numbers from 0 to 127."
+        );
+    }
+
+    return numbers
+        .map(number =>
+            String.fromCharCode(Number(number))
+        )
+        .join("");
+}
+
+
+/* =========================================================
+   AUTO DETECTION
+========================================================= */
+
+function autoDetect(text) {
+
+    const value = text.trim();
+
+    if (!value) {
+        throw new Error("There is nothing to detect.");
+    }
+
+    // JWT
+    if (
+        /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)
+    ) {
+        return "JWT";
+    }
+
+    // JSON
+    try {
+
+        const parsed = JSON.parse(value);
+
+        if (
+            typeof parsed === "object" ||
+            Array.isArray(parsed)
+        ) {
+            return "JSON";
+        }
+
+    } catch {
+        // Not JSON.
+    }
+
+    // Binary
+    if (
+        /^(?:[01]{8})(?:\s+[01]{8})*$/.test(value)
+    ) {
+        return "Binary";
+    }
+
+    // Hex
+    if (
+        /^(?:[0-9a-fA-F]{2})(?:[\s:-]+[0-9a-fA-F]{2})*$/.test(value)
+    ) {
+        return "Hexadecimal";
+    }
+
+    // URL encoding
+    if (
+        /%[0-9a-fA-F]{2}/.test(value)
+    ) {
+        try {
+            const decoded = decodeURIComponent(value);
+
+            if (decoded !== value) {
+                return "URL Encoding";
+            }
+        } catch {
+            // Continue checking.
+        }
+    }
+
+    // Unicode escape
+    if (
+        /\\u(?:[0-9a-fA-F]{4}|\{[0-9a-fA-F]+\})/.test(value)
+    ) {
+        return "Unicode Escape";
+    }
+
+    // HTML entities
+    if (
+        /&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/.test(value)
+    ) {
+        return "HTML Entities";
+    }
+
+    // Base64
+    if (
+        /^[A-Za-z0-9+/]+={0,2}$/.test(value) &&
+        value.length >= 4 &&
+        value.length % 4 !== 1
+    ) {
+        try {
+            decodeBase64(value);
+            return "Base64";
+        } catch {
+            // Continue.
+        }
+    }
+
+    // ASCII
+    if (
+        /^(?:\d+)(?:[\s,]+\d+)*$/.test(value)
+    ) {
+        const nums = value.split(/[\s,]+/);
+
+        if (
+            nums.every(
+                n =>
+                    Number(n) >= 0 &&
+                    Number(n) <= 127
+            )
+        ) {
+            return "ASCII";
+        }
+    }
+
+    return "Plain Text / Unknown";
+}
+
+
+/* =========================================================
+   CONVERSION
+========================================================= */
+
+function convert(mode) {
+
+    clearMessages();
+
+    const input = inputText.value;
+    const format = formatSelect.value;
+
+    if (!input.trim()) {
+        showError("Please enter something to convert.");
+        return;
+    }
+
+    try {
+
+        let result;
+        let detectedFormat = format;
+
+        if (format === "auto") {
+
+            detectedFormat = autoDetect(input);
+
+            inputFormatBadge.textContent =
+                "Detected: " + detectedFormat;
+
+            switch (detectedFormat) {
+
+                case "Base64":
+                    result = decodeBase64(input);
+                    break;
+
+                case "URL Encoding":
+                    result = decodeURL(input);
+                    break;
+
+                case "Hexadecimal":
+                    result = decodeHex(input);
+                    break;
+
+                case "Binary":
+                    result = decodeBinary(input);
+                    break;
+
+                case "HTML Entities":
+                    result = decodeHTML(input);
+                    break;
+
+                case "Unicode Escape":
+                    result = decodeUnicode(input);
+                    break;
+
+                case "JSON":
+                    result = formatJSON(input);
+                    break;
+
+                case "JWT":
+                    result = decodeJWT(input);
+                    break;
+
+                case "ASCII":
+                    result = decodeASCII(input);
+                    break;
+
+                default:
+                    throw new Error(
+                        "Could not identify the format."
+                    );
+            }
+
+            outputText.value = result;
+
+            showSuccess(
+                "Detected " + detectedFormat + " and decoded it."
+            );
+
+            updateStats();
+
+            return;
+        }
+
+        inputFormatBadge.textContent =
+            formatSelect.options[
+                formatSelect.selectedIndex
+            ].textContent;
+
+        switch (format) {
+
+            case "base64":
+                result =
+                    mode === "encode"
+                        ? encodeBase64(input)
+                        : decodeBase64(input);
+                break;
+
+            case "url":
+                result =
+                    mode === "encode"
+                        ? encodeURL(input)
+                        : decodeURL(input);
+                break;
+
+            case "hex":
+                result =
+                    mode === "encode"
+                        ? encodeHex(input)
+                        : decodeHex(input);
+                break;
+
+            case "binary":
+                result =
+                    mode === "encode"
+                        ? encodeBinary(input)
+                        : decodeBinary(input);
+                break;
+
+            case "html":
+                result =
+                    mode === "encode"
+                        ? encodeHTML(input)
+                        : decodeHTML(input);
+                break;
+
+            case "unicode":
+                result =
+                    mode === "encode"
+                        ? encodeUnicode(input)
+                        : decodeUnicode(input);
+                break;
+
+            case "json":
+
+                // Encode = pretty JSON
+                // Decode = validate + minify
+                result =
+                    mode === "encode"
+                        ? formatJSON(input)
+                        : minifyJSON(input);
+
+                break;
+
+            case "jwt":
+
+                if (mode === "encode") {
+                    throw new Error(
+                        "JWT encoding is not supported. JWTs require a signing key."
+                    );
+                }
+
+                result = decodeJWT(input);
+                break;
+
+            case "ascii":
+                result =
+                    mode === "encode"
+                        ? encodeASCII(input)
+                        : decodeASCII(input);
+                break;
+
+            default:
+                throw new Error(
+                    "Unknown format selected."
+                );
+        }
+
+        outputText.value = result;
+
+        showSuccess(
+            mode === "encode"
+                ? "Encoded successfully."
+                : "Decoded successfully."
+        );
+
+        updateStats();
+
+    } catch (error) {
+
+        outputText.value = "";
+
+        showError(
+            error.message || "Something went wrong."
+        );
+
+        updateStats();
+    }
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+encodeBtn.addEventListener(
+    "click",
+    () => convert("encode")
+);
+
+decodeBtn.addEventListener(
+    "click",
+    () => convert("decode")
+);
+
+
+/* =========================================================
+   SWAP
+========================================================= */
+
+swapBtn.addEventListener("click", () => {
+
+    clearMessages();
+
+    const temp = inputText.value;
+
+    inputText.value =
+        outputText.value;
+
+    outputText.value =
+        temp;
+
+    updateStats();
+
+    showSuccess("Input and output swapped.");
+});
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+clearBtn.addEventListener("click", () => {
+
+    inputText.value = "";
+    outputText.value = "";
+
+    inputFormatBadge.textContent = "Ready";
+
+    clearMessages();
+    updateStats();
+
+    inputText.focus();
+});
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+copyBtn.addEventListener("click", async () => {
+
+    clearMessages();
+
+    if (!outputText.value) {
+        showError("There is nothing to copy.");
+        return;
+    }
+
+    try {
+
+        await navigator.clipboard.writeText(
+            outputText.value
+        );
+
+        showSuccess("Copied to clipboard.");
+
+    } catch {
+
+        // Fallback for browsers where clipboard API
+        // is unavailable.
+
+        outputText.removeAttribute("readonly");
+        outputText.select();
+
+        try {
+            document.execCommand("copy");
+            showSuccess("Copied to clipboard.");
+        } catch {
+            showError(
+                "Could not copy automatically. Please select and copy the text manually."
+            );
+        }
+
+        outputText.setAttribute("readonly", "");
+        window.getSelection()?.removeAllRanges();
+    }
+});
+
+
+/* =========================================================
+   DARK / LIGHT MODE
+========================================================= */
+
+function applyTheme(theme) {
+
+    document.documentElement.dataset.theme =
+        theme;
+
+    if (theme === "dark") {
+        themeToggle.textContent = "☀️ Light";
+    } else {
+        themeToggle.textContent = "🌙 Dark";
+    }
+
+    localStorage.setItem(
+        "decoderTheme",
+        theme
+    );
+}
+
+const savedTheme =
+    localStorage.getItem("decoderTheme");
+
+if (savedTheme) {
+
+    applyTheme(savedTheme);
+
+} else {
+
+    const prefersDark =
+        window.matchMedia &&
+        window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+
+    applyTheme(
+        prefersDark
+            ? "dark"
+            : "light"
+    );
+}
+
+themeToggle.addEventListener(
+    "click",
+    () => {
+
+        const current =
+            document.documentElement.dataset.theme;
+
+        applyTheme(
+            current === "dark"
+                ? "light"
+                : "dark"
+        );
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+updateStats();
+
+</script>
+
+</body>
+</html>
+```
