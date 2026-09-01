@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Color Flood</title>
+<style>
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f4f4f4;
+        color: #222;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        padding: 18px;
+    }
+
+    .game {
+        width: min(900px, 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: clamp(24px, 5vw, 34px);
+    }
+
+    .stats {
+        display: flex;
+        gap: 18px;
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stat strong {
+        display: block;
+        font-size: 20px;
+    }
+
+    .board-wrap {
+        width: 100%;
+        aspect-ratio: 1;
+        background: white;
+        border: 2px solid #222;
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,.08);
+    }
+
+    #board {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        gap: 1px;
+        touch-action: manipulation;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+    .cell {
+        min-width: 0;
+        min-height: 0;
+        cursor: pointer;
+        transition: background-color .12s ease;
+    }
+
+    .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .colors {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .color-btn {
+        width: 48px;
+        height: 48px;
+        border: 3px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0;
+        touch-action: manipulation;
+    }
+
+    .color-btn.selected {
+        border-color: #222;
+        box-shadow: 0 0 0 2px white inset;
+    }
+
+    .settings {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+    }
+
+    select, button.new-game {
+        font: inherit;
+    }
+
+    select {
+        padding: 7px 30px 7px 9px;
+        border: 1px solid #aaa;
+        border-radius: 6px;
+        background: white;
+    }
+
+    .new-game {
+        align-self: center;
+        padding: 9px 18px;
+        border: 1px solid #777;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+    }
+
+    .new-game:hover {
+        background: #eee;
+    }
+
+    .message {
+        display: none;
+        text-align: center;
+        padding: 16px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .message.show {
+        display: block;
+    }
+
+    .message h2 {
+        margin: 0 0 8px;
+        font-size: 24px;
+    }
+
+    .message p {
+        margin: 4px 0 14px;
+    }
+
+    @media (max-width: 520px) {
+        body { padding: 10px; }
+        .game { gap: 10px; }
+        header { justify-content: center; }
+        .stats { width: 100%; justify-content: center; }
+        .color-btn { width: 44px; height: 44px; }
+        .board-wrap { padding: 3px; }
+    }
+</style>
+</head>
+<body>
+<main class="game">
+    <header>
+        <h1>Color Flood</h1>
+        <div class="stats">
+            <div class="stat">Time<strong id="time">0:00</strong></div>
+            <div class="stat">Taps<strong id="taps">0</strong></div>
+        </div>
+    </header>
+
+    <div class="board-wrap">
+        <div id="board" aria-label="Color Flood game board"></div>
+    </div>
+
+    <div class="controls">
+        <div class="colors" id="colors" aria-label="Choose a color"></div>
+
+        <div class="settings">
+            <label for="size">Board size:</label>
+            <select id="size">
+                <option value="10">10 × 10</option>
+                <option value="15">15 × 15</option>
+                <option value="20" selected>20 × 20</option>
+                <option value="25">25 × 25</option>
+                <option value="30">30 × 30</option>
+            </select>
+        </div>
+
+        <button class="new-game" id="newGame">New Game</button>
+    </div>
+
+    <div class="message" id="message">
+        <h2>Complete!</h2>
+        <p id="result"></p>
+        <button class="new-game" id="again">New Game</button>
+    </div>
+</main>
+
+<script>
+(() => {
+    const COLORS = [
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#f1c40f",
+        "#9b59b6",
+        "#e67e22"
+    ];
+
+    const boardEl = document.getElementById("board");
+    const colorsEl = document.getElementById("colors");
+    const sizeEl = document.getElementById("size");
+    const timeEl = document.getElementById("time");
+    const tapsEl = document.getElementById("taps");
+    const messageEl = document.getElementById("message");
+    const resultEl = document.getElementById("result");
+
+    let size = 20;
+    let board = [];
+    let selectedColor = 0;
+    let taps = 0;
+    let startTime = 0;
+    let timer = null;
+    let gameOver = false;
+
+    function createColorButtons() {
+        colorsEl.innerHTML = "";
+
+        COLORS.forEach((color, index) => {
+            const button = document.createElement("button");
+            button.className = "color-btn";
+            button.type = "button";
+            button.style.backgroundColor = color;
+            button.setAttribute("aria-label", "Choose color " + (index + 1));
+            button.addEventListener("click", () => {
+                if (gameOver) return;
+                selectedColor = index;
+                updateColorButtons();
+            });
+            colorsEl.appendChild(button);
+        });
+
+        updateColorButtons();
+    }
+
+    function updateColorButtons() {
+        [...colorsEl.children].forEach((button, index) => {
+            button.classList.toggle("selected", index === selectedColor);
+        });
+    }
+
+    function randomBoard() {
+        board = Array.from({ length: size }, () =>
+            Array.from({ length: size }, () => Math.floor(Math.random() * COLORS.length))
+        );
+
+        // Avoid a completely solved board or an unusually tiny starting board.
+        if (isComplete()) randomBoard();
+    }
+
+    function renderBoard() {
+        boardEl.innerHTML = "";
+        boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        boardEl.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.style.backgroundColor = COLORS[board[row][col]];
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.addEventListener("click", handleCellClick);
+                boardEl.appendChild(cell);
+            }
+        }
+    }
+
+    function getRegion(row, col) {
+        const target = board[row][col];
+        const region = [];
+        const visited = new Set();
+        const queue = [[row, col]];
+        visited.add(`${row},${col}`);
+
+        while (queue.length) {
+            const [r, c] = queue.shift();
+            region.push([r, c]);
+
+            const neighbors = [
+                [r - 1, c],
+                [r + 1, c],
+                [r, c - 1],
+                [r, c + 1]
+            ];
+
+            for (const [nr, nc] of neighbors) {
+                if (
+                    nr >= 0 && nr < size &&
+                    nc >= 0 && nc < size &&
+                    board[nr][nc] === target
+                ) {
+                    const key = `${nr},${nc}`;
+                    if (!visited.has(key)) {
+                        visited.add(key);
+                        queue.push([nr, nc]);
+                    }
+                }
+            }
+        }
+
+        return region;
+    }
+
+    function handleCellClick(event) {
+        if (gameOver) return;
+
+        const row = Number(event.currentTarget.dataset.row);
+        const col = Number(event.currentTarget.dataset.col);
+        const oldColor = board[row][col];
+
+        // Selecting the same color causes no change and does not count as a tap.
+        if (oldColor === selectedColor) return;
+
+        const region = getRegion(row, col);
+
+        for (const [r, c] of region) {
+            board[r][c] = selectedColor;
+        }
+
+        taps++;
+        tapsEl.textContent = taps;
+
+        renderBoard();
+
+        if (isComplete()) finishGame();
+    }
+
+    function isComplete() {
+        const first = board[0]?.[0];
+        if (first === undefined) return false;
+
+        return board.every(row => row.every(color => color === first));
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        timeEl.textContent = formatTime(elapsed);
+    }
+
+    function finishGame() {
+        gameOver = true;
+        clearInterval(timer);
+
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        timeEl.textContent = formatTime(elapsed);
+        resultEl.textContent = `You finished in ${formatTime(elapsed)} with ${taps} tap${taps === 1 ? "" : "s"}.`;
+        messageEl.classList.add("show");
+    }
+
+    function newGame() {
+        size = Number(sizeEl.value);
+        selectedColor = 0;
+        taps = 0;
+        gameOver = false;
+
+        tapsEl.textContent = "0";
+        timeEl.textContent = "0:00";
+        messageEl.classList.remove("show");
+
+        randomBoard();
+        renderBoard();
+        updateColorButtons();
+
+        clearInterval(timer);
+        startTime = Date.now();
+        timer = setInterval(updateTimer, 250);
+    }
+
+    sizeEl.addEventListener("change", newGame);
+    document.getElementById("newGame").addEventListener("click", newGame);
+    document.getElementById("again").addEventListener("click", newGame);
+
+    createColorButtons();
+    newGame();
+})();
+</script>
+</body>
+</html>
