@@ -180,6 +180,90 @@
     font-weight: 600;
   }
 
+  /* Filter panel */
+  .filter-panel {
+    display: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+
+  .filter-desc {
+    margin: 0 0 10px;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    line-height: 1.5;
+  }
+
+  .filter-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .filter-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+  }
+
+  #keySearch {
+    font-family: inherit;
+    font-size: 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 4px 8px;
+    width: 150px;
+  }
+
+  .toggle.small { font-size: 11px; color: var(--text-dim); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  .chip {
+    font-family: inherit;
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--text-dim);
+    background: var(--surface-2);
+    user-select: none;
+  }
+
+  .chip:hover { border-color: var(--accent-dim); color: var(--text); }
+
+  .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+
+  .chip .count {
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+
+  .chip-empty {
+    font-size: 11.5px;
+    color: var(--text-faint);
+  }
+
   .editor {
     position: relative;
     border: 1px solid var(--border);
@@ -192,6 +276,39 @@
   .editor-inner {
     position: relative;
     min-height: 480px;
+  }
+
+  .editor-badge {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 5;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 4px 6px 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .editor-badge button {
+    background: rgba(0,0,0,0.15);
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-family: inherit;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
   }
 
   .highlight, textarea#input {
@@ -211,6 +328,7 @@
     color: var(--text);
     pointer-events: none;
     overflow: auto;
+    z-index: 1;
   }
 
   .highlight:empty::before {
@@ -220,6 +338,7 @@
 
   textarea#input {
     position: relative;
+    z-index: 2;
     display: block;
     width: 100%;
     height: 480px;
@@ -230,6 +349,10 @@
     caret-color: var(--text);
     outline: none;
     overflow: auto;
+  }
+
+  textarea#input[readonly] {
+    cursor: default;
   }
 
   .error-banner {
@@ -298,7 +421,7 @@
       <span id="themeLabel">Dark</span>
     </button>
   </header>
-  <p class="tagline">paste ugly json, get tidy json — <span class="no-ads">simple, easy</span></p>
+  <p class="tagline">paste ugly json, get tidy json — <span class="no-ads">runs entirely in your browser, no ads, nothing sent anywhere</span></p>
 
   <div class="controls">
     <button class="btn primary" id="formatBtn">Format</button>
@@ -322,7 +445,24 @@
     <button class="btn" id="downloadBtn">Download .json</button>
   </div>
 
+  <div class="filter-panel" id="filterPanel">
+    <p class="filter-desc">Select one or more keys to reduce the view to just those fields — wherever they occur, including inside repeated or nested sections.</p>
+    <div class="filter-head">
+      <span class="filter-title">Filter by key</span>
+      <input type="text" id="keySearch" placeholder="search keys…">
+      <label class="toggle small">
+        <input type="checkbox" id="showPath">
+        show path
+      </label>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
   <div class="editor">
+    <div class="editor-badge" id="editorBadge">
+      <span id="editorBadgeText">Filtered</span>
+      <button id="clearFilterBtn" title="Clear filter">✕</button>
+    </div>
     <div class="editor-inner">
       <div class="highlight" id="highlight"></div>
       <textarea id="input" spellcheck="false"></textarea>
@@ -336,14 +476,14 @@
 
   <div class="stats" id="stats" style="display:none">
     <div><b id="statChars">0</b> chars</div>
-    <div><b id="statKeys">0</b> keys</div>
+    <div><b id="statKeys">0</b> <span id="statKeysLabel">keys</span></div>
     <div><b id="statDepth">0</b> levels deep
       <div class="depth-rail" id="depthRail"></div>
     </div>
     <div><b id="statSize">0 B</b> size</div>
   </div>
 
-  <footer>closing the page clears data</footer>
+  <footer>everything happens locally in your browser — closing the tab clears it</footer>
 </div>
 
 <script>
@@ -358,6 +498,19 @@
   const themeToggle = document.getElementById('themeToggle');
   const themeLabel = document.getElementById('themeLabel');
   const themeIcon = document.getElementById('themeIcon');
+
+  const filterPanel = document.getElementById('filterPanel');
+  const chipsEl = document.getElementById('chips');
+  const keySearchInput = document.getElementById('keySearch');
+  const showPathBox = document.getElementById('showPath');
+  const editorBadge = document.getElementById('editorBadge');
+  const editorBadgeText = document.getElementById('editorBadgeText');
+  const clearFilterBtn = document.getElementById('clearFilterBtn');
+  const statKeysLabel = document.getElementById('statKeysLabel');
+
+  let currentParsed = null;       // last successfully parsed full document
+  let selectedKeys = new Set();   // keys currently filtered to
+  let currentMode = 'pretty';     // 'pretty' | 'minify'
 
   const SUN = '<path d="M12 4V2M12 22v-2M4.93 4.93 3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2M22 12h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42"/><circle cx="12" cy="12" r="5"/>';
   const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -420,6 +573,49 @@
     return { keys, maxDepth };
   }
 
+  // Walk the whole document and count how many times each key name appears,
+  // at any depth, so we can offer them all as filter chips.
+  function collectKeyCounts(node, counts = new Map()) {
+    if (Array.isArray(node)) {
+      node.forEach(item => collectKeyCounts(item, counts));
+    } else if (node !== null && typeof node === 'object') {
+      for (const k of Object.keys(node)) {
+        counts.set(k, (counts.get(k) || 0) + 1);
+        collectKeyCounts(node[k], counts);
+      }
+    }
+    return counts;
+  }
+
+  // Walk the whole document and pull out every object that contains at
+  // least one of the selected keys, keeping only those keys (grouped
+  // together when they're siblings on the same object), regardless of
+  // how deeply nested or how many times the section repeats.
+  function collectMatches(node, keySet, path = '') {
+    let results = [];
+    if (Array.isArray(node)) {
+      node.forEach((item, i) => {
+        const childPath = path ? `${path}[${i}]` : `[${i}]`;
+        results = results.concat(collectMatches(item, keySet, childPath));
+      });
+    } else if (node !== null && typeof node === 'object') {
+      const matched = {};
+      let hasMatch = false;
+      for (const k of Object.keys(node)) {
+        if (keySet.has(k)) { matched[k] = node[k]; hasMatch = true; }
+      }
+      if (hasMatch) {
+        if (showPathBox.checked && path) matched._path = path;
+        results.push(matched);
+      }
+      for (const k of Object.keys(node)) {
+        const childPath = path ? `${path}.${k}` : k;
+        results = results.concat(collectMatches(node[k], keySet, childPath));
+      }
+    }
+    return results;
+  }
+
   function escapeHtml(str) {
     return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
   }
@@ -446,12 +642,18 @@
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  function updateStats(raw, parsed, formatted) {
-    const { keys, maxDepth } = countKeysAndDepth(parsed);
-    document.getElementById('statChars').textContent = raw.length.toLocaleString();
-    document.getElementById('statKeys').textContent = keys.toLocaleString();
+  function updateStats(text, dataForOutput, isFiltered) {
+    const { keys, maxDepth } = countKeysAndDepth(dataForOutput);
+    document.getElementById('statChars').textContent = text.length.toLocaleString();
+    if (isFiltered) {
+      statKeysLabel.textContent = 'matches';
+      document.getElementById('statKeys').textContent = (Array.isArray(dataForOutput) ? dataForOutput.length : 1).toLocaleString();
+    } else {
+      statKeysLabel.textContent = 'keys';
+      document.getElementById('statKeys').textContent = keys.toLocaleString();
+    }
     document.getElementById('statDepth').textContent = maxDepth;
-    document.getElementById('statSize').textContent = formatBytes(new Blob([formatted]).size);
+    document.getElementById('statSize').textContent = formatBytes(new Blob([text]).size);
 
     const rail = document.getElementById('depthRail');
     rail.innerHTML = '';
@@ -492,61 +694,153 @@
     return `${message} (line ${line}, column ${col})`;
   }
 
-  // Live highlight of whatever is currently in the box, valid or not —
-  // keeps the view in sync while typing without touching the actual value.
-  function renderHighlightOnly() {
-    highlightEl.innerHTML = highlightJson(input.value);
-    syncScroll();
-  }
-
-  // Full reformat: re-indent (or minify) and replace the textarea's own
-  // value, so the box itself becomes the tidy output.
-  function reformat(mode) {
-    const raw = input.value.trim();
-    if (!raw) {
-      highlightEl.innerHTML = '';
-      clearError();
-      stats.style.display = 'none';
-      return;
-    }
-    const result = tryParse(raw);
-    if (!result.ok) {
-      renderHighlightOnly();
-      showError(friendlyError(raw, result.error));
-      return;
-    }
-    clearError();
-    const data = sortKeysBox.checked ? sortObjectKeys(result.value) : result.value;
-    const text = mode === 'minify' ? JSON.stringify(data) : JSON.stringify(data, null, getIndent());
-    input.value = text;
-    highlightEl.innerHTML = highlightJson(text);
-    updateStats(raw, result.value, text);
-    syncScroll();
-  }
-
   function syncScroll() {
     highlightEl.scrollTop = input.scrollTop;
     highlightEl.scrollLeft = input.scrollLeft;
   }
 
-  document.getElementById('formatBtn').addEventListener('click', () => reformat('pretty'));
-  document.getElementById('minifyBtn').addEventListener('click', () => reformat('minify'));
-  indentSelect.addEventListener('change', () => reformat('pretty'));
-  sortKeysBox.addEventListener('change', () => reformat('pretty'));
+  // Live highlight of whatever is currently in the box, valid or not —
+  // used while typing, without touching the actual value.
+  function renderHighlightOnly() {
+    highlightEl.innerHTML = highlightJson(input.value);
+    syncScroll();
+  }
+
+  function updateFilterBadge(isFiltered, count) {
+    if (isFiltered) {
+      editorBadge.style.display = 'flex';
+      editorBadgeText.textContent = `Filtered — ${count} match${count === 1 ? '' : 'es'} (read-only)`;
+    } else {
+      editorBadge.style.display = 'none';
+    }
+  }
+
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    if (!currentParsed) { filterPanel.style.display = 'none'; return; }
+    filterPanel.style.display = 'block';
+
+    const counts = collectKeyCounts(currentParsed);
+    let entries = Array.from(counts.entries());
+    const query = keySearchInput.value.trim().toLowerCase();
+    if (query) entries = entries.filter(([k]) => k.toLowerCase().includes(query));
+    entries.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+    if (entries.length === 0) {
+      chipsEl.innerHTML = '<span class="chip-empty">no matching keys</span>';
+      return;
+    }
+
+    for (const [key, count] of entries) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (selectedKeys.has(key) ? ' active' : '');
+      chip.innerHTML = `${escapeHtml(key)}<span class="count">${count}</span>`;
+      chip.addEventListener('click', () => {
+        if (selectedKeys.has(key)) selectedKeys.delete(key);
+        else selectedKeys.add(key);
+        renderChips();
+        renderView();
+      });
+      chipsEl.appendChild(chip);
+    }
+  }
+
+  // Builds the text currently shown in the box: either the full document
+  // (optionally sorted) or, when keys are selected, the filtered matches.
+  function renderView() {
+    if (!currentParsed) return;
+    const isFiltered = selectedKeys.size > 0;
+    let dataForOutput;
+
+    if (isFiltered) {
+      const matches = collectMatches(currentParsed, selectedKeys);
+      dataForOutput = sortKeysBox.checked ? matches.map(sortObjectKeys) : matches;
+    } else {
+      dataForOutput = sortKeysBox.checked ? sortObjectKeys(currentParsed) : currentParsed;
+    }
+
+    const text = currentMode === 'minify'
+      ? JSON.stringify(dataForOutput)
+      : JSON.stringify(dataForOutput, null, getIndent());
+
+    input.value = text;
+    input.readOnly = isFiltered;
+    highlightEl.innerHTML = highlightJson(text);
+    updateStats(text, dataForOutput, isFiltered);
+    syncScroll();
+    updateFilterBadge(isFiltered, Array.isArray(dataForOutput) ? dataForOutput.length : 1);
+  }
+
+  // Parses whatever is currently in the box (treated as the source of
+  // truth) and refreshes everything downstream: chips, stats, view.
+  function parseAndUpdate() {
+    const raw = input.value.trim();
+    if (!raw) {
+      currentParsed = null;
+      highlightEl.innerHTML = '';
+      clearError();
+      stats.style.display = 'none';
+      filterPanel.style.display = 'none';
+      updateFilterBadge(false, 0);
+      return;
+    }
+    const result = tryParse(raw);
+    if (!result.ok) {
+      currentParsed = null;
+      renderHighlightOnly();
+      showError(friendlyError(raw, result.error));
+      filterPanel.style.display = 'none';
+      updateFilterBadge(false, 0);
+      stats.style.display = 'none';
+      return;
+    }
+    clearError();
+    currentParsed = result.value;
+    renderChips();
+    renderView();
+  }
+
+  // Used by controls that can either operate on live-edited text (reparse)
+  // or, while a filtered read-only view is showing, just re-render it.
+  function refreshDisplay() {
+    if (input.readOnly) renderView();
+    else parseAndUpdate();
+  }
+
+  document.getElementById('formatBtn').addEventListener('click', () => { currentMode = 'pretty'; refreshDisplay(); });
+  document.getElementById('minifyBtn').addEventListener('click', () => { currentMode = 'minify'; refreshDisplay(); });
+  indentSelect.addEventListener('change', refreshDisplay);
+  sortKeysBox.addEventListener('change', refreshDisplay);
+  showPathBox.addEventListener('change', renderView);
+  keySearchInput.addEventListener('input', renderChips);
+
+  clearFilterBtn.addEventListener('click', () => {
+    selectedKeys.clear();
+    renderChips();
+    renderView();
+  });
 
   document.getElementById('clearBtn').addEventListener('click', () => {
+    currentParsed = null;
+    selectedKeys.clear();
+    input.readOnly = false;
     input.value = '';
     highlightEl.innerHTML = '';
     clearError();
     stats.style.display = 'none';
+    filterPanel.style.display = 'none';
+    updateFilterBadge(false, 0);
     input.focus();
   });
 
   document.getElementById('pasteBtn').addEventListener('click', async () => {
     try {
       const text = await navigator.clipboard.readText();
+      selectedKeys.clear();
+      input.readOnly = false;
       input.value = text;
-      reformat('pretty');
+      parseAndUpdate();
     } catch (e) {
       input.focus();
     }
@@ -570,31 +864,52 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'formatted.json';
+    a.download = selectedKeys.size > 0 ? 'filtered.json' : 'formatted.json';
     a.click();
     URL.revokeObjectURL(url);
   });
 
-  // Reformat (re-indent) whenever content actually arrives via paste —
-  // this is the main "just paste it and see tidy json" flow.
-  input.addEventListener('paste', () => {
-    setTimeout(() => reformat('pretty'), 0);
+  // Reformat whenever content actually arrives via native paste — the
+  // main "just paste it and see tidy json" flow. Disabled while filtered
+  // (box is read-only, so this simply won't have anything to act on).
+  input.addEventListener('paste', (e) => {
+    if (input.readOnly) { e.preventDefault(); return; }
+    setTimeout(() => { selectedKeys.clear(); parseAndUpdate(); }, 0);
   });
 
   // While actively typing, just keep the syntax colors in sync — don't
   // re-indent on every keystroke, since that would fight the cursor.
-  input.addEventListener('input', renderHighlightOnly);
+  input.addEventListener('input', () => {
+    if (!input.readOnly) renderHighlightOnly();
+  });
 
   // Leaving the box tidies it up if what's there is valid json.
   input.addEventListener('blur', () => {
-    if (input.value.trim()) reformat('pretty');
+    if (!input.readOnly && input.value.trim()) parseAndUpdate();
   });
 
   input.addEventListener('scroll', syncScroll);
 
   // seed with an example so the page isn't empty on first load
-  input.value = '{"name":"ada lovelace","born":1815,"tags":["mathematician","programmer"],"active":true,"notes":null,"address":{"city":"london","country":"uk"}}';
-  reformat('pretty');
+  input.value = JSON.stringify({
+    library_name: "Riverside Public Library",
+    sections: [
+      {
+        section_name: "Fiction",
+        books: [
+          { book_name: "The Hobbit", book_number: "F-102", book_type: "fantasy" },
+          { book_name: "Dune", book_number: "F-118", book_type: "sci-fi" }
+        ]
+      },
+      {
+        section_name: "Reference",
+        books: [
+          { book_name: "World Atlas", book_number: "R-004", book_type: "reference" }
+        ]
+      }
+    ]
+  });
+  parseAndUpdate();
 </script>
 </body>
 </html>
