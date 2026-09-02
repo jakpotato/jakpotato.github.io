@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Air Direct™ — Average Air, Delivered</title>
+
+<style>
+:root {
+    --bg: #f5f8f7;
+    --card: #ffffff;
+    --text: #17221f;
+    --muted: #66736f;
+    --accent: #287d68;
+    --accent-dark: #1d5f50;
+    --border: #dce5e2;
+    --soft: #e8f2ef;
+    --warning: #f5efe0;
+    --shadow: 0 15px 40px rgba(25, 50, 43, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+button,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* NAV */
+
+nav {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+    background: rgba(255,255,255,.92);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+}
+
+.logo span {
+    color: var(--accent);
+}
+
+.nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.nav-links a:hover {
+    color: var(--accent);
+}
+
+.nav-buy {
+    background: var(--accent);
+    color: white !important;
+    padding: 9px 18px;
+    border-radius: 8px;
+}
+
+/* HERO */
+
+.hero {
+    max-width: 1200px;
+    margin: auto;
+    padding: 90px 6% 80px;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 70px;
+    align-items: center;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--soft);
+    color: var(--accent-dark);
+    border: 1px solid #cde0da;
+    border-radius: 100px;
+    padding: 7px 13px;
+    font-size: .78rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    background: #43a982;
+    border-radius: 50%;
+}
+
+h1 {
+    font-size: clamp(3rem, 6vw, 5.4rem);
+    line-height: .98;
+    letter-spacing: -4px;
+    margin: 0 0 25px;
+}
+
+.hero h1 span {
+    color: var(--accent);
+}
+
+.hero-description {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 600px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn {
+    border: 0;
+    padding: 14px 23px;
+    border-radius: 9px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.primary-btn {
+    background: var(--accent);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.secondary-btn:hover {
+    border-color: var(--accent);
+}
+
+/* AIR VISUAL */
+
+.air-card {
+    background: linear-gradient(145deg, #ffffff, #e9f3f0);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.air-orb {
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.air-orb-main {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(202,229,222,.8) 45%, rgba(127,181,168,.7));
+    box-shadow:
+        0 0 0 20px rgba(255,255,255,.45),
+        0 0 70px rgba(40,125,104,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 5s ease-in-out infinite;
+}
+
+.air-orb-main::after {
+    content: "AIR";
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: rgba(25,65,55,.35);
+    letter-spacing: 5px;
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.orbit {
+    position: absolute;
+    border: 1px dashed rgba(40,125,104,.3);
+    border-radius: 50%;
+    width: 310px;
+    height: 170px;
+    transform: rotate(-20deg);
+}
+
+.air-label {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.air-label strong {
+    display: block;
+    font-size: 1.1rem;
+}
+
+.air-label small {
+    color: var(--muted);
+}
+
+/* STATS */
+
+.stats {
+    max-width: 1100px;
+    margin: 0 auto 80px;
+    padding: 0 6%;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 15px;
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 22px;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+/* SECTIONS */
+
+section.content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 90px 6%;
+}
+
+.section-heading {
+    max-width: 700px;
+    margin-bottom: 45px;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    color: var(--accent);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+h2 {
+    font-size: clamp(2rem, 4vw, 3.3rem);
+    line-height: 1.05;
+    letter-spacing: -1.8px;
+    margin: 8px 0 15px;
+}
+
+.section-heading p {
+    color: var(--muted);
+}
+
+/* PRODUCT */
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.product-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+}
+
+.product-card h3 {
+    margin-top: 0;
+    font-size: 1.35rem;
+}
+
+.quantity-select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    margin: 12px 0 22px;
+}
+
+.price-box {
+    background: var(--soft);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.price {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.price-note {
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.courier-box {
+    border: 1px dashed #b9cec8;
+    background: #fafcfb;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 18px;
+}
+
+.courier-icon {
+    font-size: 2rem;
+}
+
+.courier-title {
+    font-weight: 800;
+}
+
+/* CLAIMS */
+
+.claim-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+}
+
+.claim {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.claim-icon {
+    font-size: 1.8rem;
+}
+
+.claim h3 {
+    margin-bottom: 5px;
+}
+
+.claim p {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+/* LIVE AIR */
+
+.average-panel {
+    background: #15231f;
+    color: white;
+    border-radius: 24px;
+    padding: 35px;
+    position: relative;
+    overflow: hidden;
+}
+
+.average-panel::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(80,170,145,.12);
+    right: -100px;
+    top: -100px;
+}
+
+.average-score {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.meter {
+    height: 12px;
+    background: rgba(255,255,255,.12);
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.meter-fill {
+    height: 100%;
+    width: 51%;
+    background: #72c5ad;
+}
+
+.average-details {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.average-details div {
+    background: rgba(255,255,255,.06);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.average-details strong {
+    display: block;
+}
+
+/* TESTIMONIALS */
+
+.reviews {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+}
+
+.review {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.stars {
+    letter-spacing: 2px;
+}
+
+.review p {
+    color: #48534f;
+}
+
+.reviewer {
+    color: var(--muted);
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+/* ENVIRONMENT */
+
+.environment {
+    background: var(--soft);
+    border-radius: 25px;
+    padding: 40px;
+}
+
+.environment-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.environment-item {
+    display: flex;
+    gap: 12px;
+}
+
+.check {
+    color: var(--accent);
+    font-weight: 900;
+}
+
+/* FAQ */
+
+.faq {
+    border-top: 1px solid var(--border);
+}
+
+details {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+}
+
+summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+details p {
+    color: var(--muted);
+    max-width: 800px;
+}
+
+/* CTA */
+
+.final-cta {
+    background: #18362e;
+    color: white;
+    border-radius: 25px;
+    padding: 55px;
+    text-align: center;
+}
+
+.final-cta p {
+    color: #bdd0ca;
+    max-width: 600px;
+    margin: 15px auto 25px;
+}
+
+/* FOOTER */
+
+footer {
+    border-top: 1px solid var(--border);
+    margin-top: 70px;
+    padding: 40px 6%;
+    color: var(--muted);
+    font-size: .8rem;
+}
+
+.footer-grid {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.disclaimer {
+    max-width: 650px;
+}
+
+/* MODAL */
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,20,17,.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    width: min(520px,100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,.3);
+}
+
+.close-modal {
+    position: absolute;
+    right: 18px;
+    top: 15px;
+    border: 0;
+    background: transparent;
+    font-size: 1.6rem;
+    color: var(--muted);
+}
+
+.free-badge {
+    display: inline-block;
+    background: #dff2e9;
+    color: #22694f;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: .75rem;
+}
+
+.fake-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 7px 0 15px;
+    background: #f8faf9;
+}
+
+.order-success {
+    display: none;
+    text-align: center;
+}
+
+.success-animal {
+    font-size: 4rem;
+    margin: 15px;
+}
+
+.small-print {
+    color: var(--muted);
+    font-size: .72rem;
+    margin-top: 18px;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: #16251f;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: .3s;
+    z-index: 150;
+    max-width: 330px;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* MOBILE */
+
+@media(max-width: 800px) {
+
+    nav {
+        padding: 0 5%;
+    }
+
+    .nav-links a:not(.nav-buy) {
+        display: none;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        padding-top: 55px;
+        gap: 40px;
+    }
+
+    h1 {
+        letter-spacing: -2.5px;
+    }
+
+    .air-orb {
+        height: 260px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-grid,
+    .claim-grid,
+    .reviews {
+        grid-template-columns: 1fr;
+    }
+
+    .average-details {
+        grid-template-columns: 1fr;
+    }
+
+    .environment-list {
+        grid-template-columns: 1fr;
+    }
+
+    section.content {
+        padding-top: 65px;
+        padding-bottom: 65px;
+    }
+
+    .final-cta {
+        padding: 35px 22px;
+    }
+
+    .footer-grid {
+        flex-direction: column;
+    }
+}
+
+@media(max-width: 450px) {
+
+    .hero {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .stats {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .stat {
+        padding: 16px;
+    }
+
+    .stat-number {
+        font-size: 1.4rem;
+    }
+
+    .air-card {
+        padding: 15px;
+    }
+
+    .air-orb-main {
+        width: 180px;
+        height: 180px;
+    }
+
+    .orbit {
+        width: 250px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+
+<nav>
+    <div class="logo">Air<span>Direct</span>™</div>
+
+    <div class="nav-links">
+        <a href="#product">Our Air</a>
+        <a href="#science">Science</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#faq">FAQ</a>
+        <a href="#product" class="nav-buy">Get Air</a>
+    </div>
+</nav>
+
+
+<!-- HERO -->
+
+<header class="hero">
+
+    <div>
+
+        <div class="badge">
+            <span class="badge-dot"></span>
+            NOW SHIPPING GLOBALLY
+        </div>
+
+        <h1>
+            Air.<br>
+            <span>Finally.</span>
+        </h1>
+
+        <p class="hero-description">
+            The most average air we could quickly find, delivered directly
+            to your location. No bottles. No bags. No unnecessary packaging.
+            Just premium, moderately breathable atmosphere.
+        </p>
+
+        <div class="hero-buttons">
+            <button class="primary-btn" onclick="scrollToProduct()">
+                Get My Air →
+            </button>
+
+            <button class="secondary-btn" onclick="document.getElementById('science').scrollIntoView()">
+                Why Air Direct?
+            </button>
+        </div>
+
+    </div>
+
+
+    <div class="air-card">
+
+        <div class="air-orb">
+
+            <div class="orbit"></div>
+
+            <div class="air-orb-main"></div>
+
+        </div>
+
+        <div class="air-label">
+            <strong>Average Air™</strong>
+            <small>Captured somewhere responsibly-ish</small>
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- STATS -->
+
+<div class="stats">
+
+    <div class="stat">
+        <div class="stat-number">21%</div>
+        <div class="stat-label">Oxygen*</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-number">78%</div>
+        <div class="stat-label">Nitrogen*</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-number">5.1/10</div>
+        <div class="stat-label">Average Freshness</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Boxes Required</div>
+    </div>
+
+</div>
+
+
+<!-- PRODUCT -->
+
+<section class="content" id="product">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">Choose Your Atmosphere</div>
+
+        <h2>
+            Buy as much air as you reasonably need.
+        </h2>
+
+        <p>
+            We believe everyone deserves access to adequately average air.
+            Select your desired quantity below.
+        </p>
+
+    </div>
+
+
+    <div class="product-grid">
+
+        <div class="product-card">
+
+            <h3>Average Air™</h3>
+
+            <p>
+                Our flagship atmospheric product. Carefully sourced from
+                an undisclosed location that was deemed sufficiently average.
+            </p>
+
+            <label for="quantity"><strong>Quantity</strong></label>
+
+            <select id="quantity" class="quantity-select" onchange="updatePrice()">
+
+                <option value="1">1 litre — $0.99</option>
+                <option value="5">5 litres — $2.49</option>
+                <option value="10">10 litres — $3.99</option>
+                <option value="25">25 litres — $6.99</option>
+                <option value="50">50 litres — $10.99</option>
+                <option value="100">100 litres — $17.99</option>
+                <option value="500">500 litres — $39.99</option>
+                <option value="1000">1,000 litres — $59.99</option>
+
+            </select>
+
+
+            <div class="price-box">
+
+                <div class="price" id="price">$0.00</div>
+
+                <div class="price-note">
+                    Your first order is completely free.
+                    Yes, really. We have made a terrible business decision.
+                </div>
+
+            </div>
+
+
+            <button class="primary-btn" style="width:100%" onclick="openCheckout()">
+                Claim My Free Air →
+            </button>
+
+
+            <div class="courier-box">
+
+                <div class="courier-icon" id="courierIcon">🦝</div>
+
+                <div class="courier-title">
+                    Your courier: <span id="courierName">Local Raccoon</span>
+                </div>
+
+                <div style="font-size:.82rem;color:var(--muted);margin-top:5px">
+                    Our system has determined that this animal is
+                    geographically appropriate for your delivery.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="product-card">
+
+            <h3>What's actually in it?</h3>
+
+            <p>
+                We asked our laboratory to analyze our air. They asked us
+                where we got it. We said "outside."
+            </p>
+
+            <div style="margin-top:25px">
+
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 0">
+                    <span>Oxygen</span>
+                    <strong>~21%</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 0">
+                    <span>Nitrogen</span>
+                    <strong>~78%</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 0">
+                    <span>Other gases</span>
+                    <strong>~1%</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;padding:12px 0">
+                    <span>Excitement</span>
+                    <strong>0%</strong>
+                </div>
+
+            </div>
+
+            <p style="font-size:.78rem;color:var(--muted);margin-top:20px">
+                *Approximate values. Air is surprisingly difficult to
+                keep still long enough to count.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CLAIMS -->
+
+<section class="content" id="science">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">Our Advantage</div>
+
+        <h2>
+            Why settle for random air?
+        </h2>
+
+        <p>
+            With Air Direct™, you know exactly what you're getting:
+            air that is neither particularly impressive nor disappointing.
+        </p>
+
+    </div>
+
+
+    <div class="claim-grid">
+
+        <div class="claim">
+            <div class="claim-icon">🌎</div>
+            <h3>Extremely Local</h3>
+            <p>
+                We deliver air directly to you, eliminating the need to
+                transport heavy containers full of nothing.
+            </p>
+        </div>
+
+        <div class="claim">
+            <div class="claim-icon">📦</div>
+            <h3>Packaging Free</h3>
+            <p>
+                No box. No bottle. No bag. No wrapping. In fact, there is
+                literally nothing for us to put the air in.
+            </p>
+        </div>
+
+        <div class="claim">
+            <div class="claim-icon">🧪</div>
+            <h3>Scientifically Average</h3>
+            <p>
+                Our air is carefully selected to avoid being too exciting,
+                too stale, or otherwise statistically unusual.
+            </p>
+        </div>
+
+        <div class="claim">
+            <div class="claim-icon">📍</div>
+            <h3>Location Optimized</h3>
+            <p>
+                Our proprietary algorithm determines the most appropriate
+                nearby air and attempts to send it to you.
+            </p>
+        </div>
+
+        <div class="claim">
+            <div class="claim-icon">🐾</div>
+            <h3>Animal Powered</h3>
+            <p>
+                Small deliveries may be transported by an animal selected
+                according to local environmental conditions.
+            </p>
+        </div>
+
+        <div class="claim">
+            <div class="claim-icon">📊</div>
+            <h3>Consistently Unremarkable</h3>
+            <p>
+                Every batch undergoes our rigorous Average Air Assessment™
+                before being released.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- LIVE AIR -->
+
+<section class="content">
+
+    <div class="average-panel">
+
+        <div class="eyebrow" style="color:#72c5ad">
+            LIVE ATMOSPHERIC ANALYSIS
+        </div>
+
+        <h2 style="margin-top:10px">
+            How average is today's air?
+        </h2>
+
+        <div style="margin-top:30px">
+
+            <div style="font-size:.8rem;color:#a9bbb5">
+                CURRENT AVERAGE SCORE
+            </div>
+
+            <div class="average-score" id="averageScore">
+                51
+            </div>
+
+            <div style="color:#a9bbb5">
+                out of 100
+            </div>
+
+            <div class="meter">
+                <div class="meter-fill" id="averageMeter"></div>
+            </div>
+
+            <strong id="averageStatus">
+                Impressively average.
+            </strong>
+
+        </div>
+
+
+        <div class="average-details">
+
+            <div>
+                <strong>Freshness</strong>
+                <span>Moderate</span>
+            </div>
+
+            <div>
+                <strong>Excitement</strong>
+                <span>Minimal</span>
+            </div>
+
+            <div>
+                <strong>Airiness</strong>
+                <span>Excellent</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ENVIRONMENT -->
+
+<section class="content">
+
+    <div class="environment">
+
+        <div class="eyebrow">Sustainability</div>
+
+        <h2>
+            Good for the planet.<br>
+            Probably.
+        </h2>
+
+        <p style="color:var(--muted);max-width:700px">
+            Traditional air companies rely heavily on bottles, cans,
+            cardboard and other unnecessary containers. We have eliminated
+            all of those things by simply refusing to package the product.
+        </p>
+
+
+        <div class="environment-list">
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>No plastic bottles</span>
+            </div>
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>No cardboard boxes</span>
+            </div>
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>No bubble wrap</span>
+            </div>
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>No packing peanuts</span>
+            </div>
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>No shipping container</span>
+            </div>
+
+            <div class="environment-item">
+                <span class="check">✓</span>
+                <span>Maximum use of existing atmosphere</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- REVIEWS -->
+
+<section class="content" id="reviews">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">Customer Experience</div>
+
+        <h2>
+            Thousands of customers. Mostly breathing.
+        </h2>
+
+    </div>
+
+
+    <div class="reviews">
+
+        <div class="review">
+
+            <div class="stars">★★★★★</div>
+
+            <p>
+                "I ordered 10 litres and honestly couldn't tell the
+                difference from the air already in my house. Exactly what
+                I was hoping for."
+            </p>
+
+            <div class="reviewer">
+                — Sarah M., Edmonton
+            </div>
+
+        </div>
+
+
+        <div class="review">
+
+            <div class="stars">★★★★★</div>
+
+            <p>
+                "The raccoon delivery was unexpected, but the air was
+                perfectly adequate. Would purchase again."
+            </p>
+
+            <div class="reviewer">
+                — Daniel R., Winnipeg
+            </div>
+
+        </div>
+
+
+        <div class="review">
+
+            <div class="stars">★★★★☆</div>
+
+            <p>
+                "Five stars for the air. Four stars because the pigeon
+                wouldn't leave."
+            </p>
+
+            <div class="reviewer">
+                — Anonymous, Toronto
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FAQ -->
+
+<section class="content" id="faq">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">Questions We Get Asked</div>
+
+        <h2>
+            Frequently questioned.
+        </h2>
+
+    </div>
+
+
+    <div class="faq">
+
+        <details>
+            <summary>How does the air arrive if there is no packaging?</summary>
+
+            <p>
+                We believe packaging is unnecessary when the product is
+                already naturally present in the environment. Your delivery
+                animal will arrive with the air and release it in the
+                general vicinity of your residence.
+            </p>
+        </details>
+
+
+        <details>
+            <summary>What animal will deliver my air?</summary>
+
+            <p>
+                Our proprietary GeoFauna™ system selects an animal based
+                on your approximate location. Possible couriers include
+                raccoons, geese, pigeons, squirrels, foxes, llamas,
+                goats and, in unusually fortunate circumstances, a horse.
+            </p>
+        </details>
+
+
+        <details>
+            <summary>Do I have to take care of the delivery animal?</summary>
+
+            <p>
+                Absolutely not. However, we are also not responsible for
+                removing the animal after delivery. Please do not attempt
+                to return it to us. It probably knows where it came from.
+            </p>
+        </details>
+
+
+        <details>
+            <summary>Can I return my air?</summary>
+
+            <p>
+                Yes! Air can be returned for a refund. Customers must
+                either pay an additional delivery fee or supply an
+                appropriate animal capable of transporting the air back
+                to us.
+            </p>
+        </details>
+
+
+        <details>
+            <summary>What happens if my animal eats the air?</summary>
+
+            <p>
+                We classify this as a Courier Consumption Event™.
+                Unfortunately, consumed air is not eligible for replacement.
+            </p>
+        </details>
+
+
+        <details>
+            <summary>Is this actually real?</summary>
+
+            <p>
+                The website is real. The company is fictional. The air,
+                however, is alarmingly real.
+            </p>
+        </details>
+
+    </div>
+
+</section>
+
+
+<!-- FINAL CTA -->
+
+<section class="content">
+
+    <div class="final-cta">
+
+        <div class="eyebrow" style="color:#72c5ad">
+            THE FUTURE OF AIR
+        </div>
+
+        <h2>
+            Stop settling for whatever air happens to be around you.
+        </h2>
+
+        <p>
+            Join thousands of forward-thinking individuals who have decided
+            that the air around them simply isn't expensive enough.
+        </p>
+
+        <button class="primary-btn" onclick="openCheckout()">
+            Get Your First Air Delivery — FREE
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <div class="footer-grid">
+
+        <div>
+            <strong style="color:var(--text)">Air Direct™</strong>
+            <br>
+            Making air unnecessarily complicated since 2026.
+        </div>
+
+        <div class="disclaimer">
+            Air Direct™ does not guarantee that delivered air will differ
+            from air already present at the delivery location. First order
+            free while supplies last, which is probably forever.
+            Delivery animals are not employees, contractors, affiliates,
+            partners, or legally acknowledged representatives of Air
+            Direct™. Do not feed them after midnight.
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- CHECKOUT MODAL -->
+
+<div class="modal-backdrop" id="checkoutModal">
+
+    <div class="modal">
+
+        <button class="close-modal" onclick="closeCheckout()">×</button>
+
+
+        <div id="checkoutForm">
+
+            <div class="eyebrow">AIR ORDER SYSTEM</div>
+
+            <h2 style="margin-top:5px">
+                Your air is ready.
+            </h2>
+
+            <span class="free-badge">
+                FIRST ORDER — $0.00
+            </span>
+
+            <p style="color:var(--muted)">
+                We'll send your selected quantity of Average Air™ directly
+                to your approximate location.
+            </p>
+
+
+            <label>
+                <strong>Name</strong>
+            </label>
+
+            <input
+                class="fake-input"
+                id="customerName"
+                placeholder="Your name"
+            >
+
+
+            <label>
+                <strong>Delivery instructions</strong>
+            </label>
+
+            <input
+                class="fake-input"
+                placeholder="e.g. leave air near the front door"
+            >
+
+
+            <div class="courier-box">
+
+                <div class="courier-icon" id="modalCourierIcon">
+                    🦝
+                </div>
+
+                <strong>
+                    Your assigned courier:
+                </strong>
+
+                <div id="modalCourierName">
+                    Local Raccoon
+                </div>
+
+                <small style="color:var(--muted)">
+                    It already knows where you live.
+                    We don't know how.
+                </small>
+
+            </div>
+
+
+            <button
+                class="primary-btn"
+                style="width:100%;margin-top:20px"
+                onclick="placeOrder()"
+            >
+                Place Free Air Order
+            </button>
+
+
+            <div class="small-print">
+                By placing this order, you acknowledge that Air Direct™
+                has no idea how to physically contain air and therefore
+                makes absolutely no promise that your requested quantity
+                will remain in one place.
+            </div>
+
+        </div>
+
+
+        <div class="order-success" id="orderSuccess">
+
+            <div class="eyebrow">ORDER CONFIRMED</div>
+
+            <div class="success-animal" id="successAnimal">
+                🦝
+            </div>
+
+            <h2>
+                Your air is on the way.
+            </h2>
+
+            <p>
+                Your delivery animal has been notified.
+                It has also been informed that you are the customer.
+            </p>
+
+            <div class="courier-box">
+
+                <strong id="successCourier">
+                    Local Raccoon
+                </strong>
+
+                <br>
+
+                <span style="color:var(--muted)">
+                    Estimated arrival: Eventually™
+                </span>
+
+            </div>
+
+            <button
+                class="secondary-btn"
+                style="margin-top:20px"
+                onclick="closeCheckout()"
+            >
+                Return to Website
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* ---------------------------------------
+   AIR DIRECT™
+   --------------------------------------- */
+
+
+/* ANIMAL COURIERS */
+
+const animals = [
+    { name: "Local Raccoon", icon: "🦝" },
+    { name: "Regional Goose", icon: "🪿" },
+    { name: "Neighbourhood Pigeon", icon: "🐦" },
+    { name: "Area Squirrel", icon: "🐿️" },
+    { name: "Nearby Fox", icon: "🦊" },
+    { name: "Local Llama", icon: "🦙" },
+    { name: "Community Goat", icon: "🐐" },
+    { name: "Suburban Deer", icon: "🦌" },
+    { name: "Contract Horse", icon: "🐴" }
+];
+
+let selectedAnimal;
+
+
+/*
+ * We cannot actually determine someone's location
+ * from a normal static webpage without asking for
+ * permission or using a location service.
+ *
+ * Instead, we simulate the highly advanced
+ * GeoFauna™ system.
+ */
+
+function selectAnimal() {
+
+    selectedAnimal =
+        animals[Math.floor(Math.random() * animals.length)];
+
+    document.getElementById("courierIcon").textContent =
+        selectedAnimal.icon;
+
+    document.getElementById("courierName").textContent =
+        selectedAnimal.name;
+
+    document.getElementById("modalCourierIcon").textContent =
+        selectedAnimal.icon;
+
+    document.getElementById("modalCourierName").textContent =
+        selectedAnimal.name;
+
+    document.getElementById("successAnimal").textContent =
+        selectedAnimal.icon;
+
+    document.getElementById("successCourier").textContent =
+        selectedAnimal.name;
+}
+
+
+/* PRICE */
+
+function updatePrice() {
+
+    const quantity =
+        document.getElementById("quantity").value;
+
+    const prices = {
+        1: 0.99,
+        5: 2.49,
+        10: 3.99,
+        25: 6.99,
+        50: 10.99,
+        100: 17.99,
+        500: 39.99,
+        1000: 59.99
+    };
+
+    /*
+     * First order is free.
+     */
+
+    document.getElementById("price").textContent =
+        "$0.00";
+
+    document.querySelector(".price-note").textContent =
+        `Regular price: $${prices[quantity].toFixed(2)}.
+        Your first order is completely free.`;
+
+}
+
+
+/* SCROLL */
+
+function scrollToProduct() {
+
+    document
+        .getElementById("product")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+
+
+/* CHECKOUT */
+
+function openCheckout() {
+
+    selectAnimal();
+
+    document
+        .getElementById("checkoutModal")
+        .classList.add("active");
+
+    document.body.style.overflow = "hidden";
+
+}
+
+
+function closeCheckout() {
+
+    document
+        .getElementById("checkoutModal")
+        .classList.remove("active");
+
+    document.body.style.overflow = "";
+
+}
+
+
+/* PLACE ORDER */
+
+function placeOrder() {
+
+    const name =
+        document.getElementById("customerName").value.trim();
+
+    if (!name) {
+
+        showToast(
+            "Please enter your name. Even animals need someone to deliver to."
+        );
+
+        return;
+    }
+
+
+    document.getElementById("checkoutForm").style.display =
+        "none";
+
+    document.getElementById("orderSuccess").style.display =
+        "block";
+
+    showToast(
+        "Order accepted. Somewhere, an animal has become concerned."
+    );
+
+}
+
+
+/* TOAST */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 4000);
+
+}
+
+
+/* CLOSE MODAL ON BACKDROP */
+
+document
+    .getElementById("checkoutModal")
+    .addEventListener("click", function(e) {
+
+        if (e.target === this) {
+            closeCheckout();
+        }
+
+    });
+
+
+/* ESC KEY */
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "Escape") {
+        closeCheckout();
+    }
+
+});
+
+
+/* LIVE AVERAGE SCORE */
+
+function updateAverageScore() {
+
+    /*
+     * Completely legitimate proprietary algorithm.
+     * Absolutely no one understands it.
+     */
+
+    const score =
+        Math.floor(48 + Math.random() * 8);
+
+    document.getElementById("averageScore").textContent =
+        score;
+
+    document.getElementById("averageMeter").style.width =
+        score + "%";
+
+
+    let status;
+
+    if (score < 49) {
+        status = "Slightly below average. Concerning.";
+    }
+    else if (score < 52) {
+        status = "Impressively average.";
+    }
+    else if (score < 55) {
+        status = "Suspiciously average.";
+    }
+    else {
+        status = "Dangerously above average.";
+    }
+
+    document.getElementById("averageStatus").textContent =
+        status;
+
+}
+
+
+/* INITIALIZE */
+
+selectAnimal();
+updatePrice();
+updateAverageScore();
+
+
+/*
+ * Recalculate the average occasionally,
+ * because static numbers are not nearly
+ * corporate enough.
+ */
+
+setInterval(updateAverageScore, 12000);
+
+</script>
+
+</body>
+</html>
