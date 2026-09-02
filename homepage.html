@@ -23,6 +23,18 @@
             "clock":         { title: "Clock",          emoji: "🕙", href: "clock.html",          variant: "warning" },
             "price-compare": { title: "Price Calculator", emoji: "💲", href: "price-compare.html", variant: "success" },
             "carb-counter":  { title: "Carb Counter",   emoji: "🍝", href: "carb-counter.html",   variant: "warning" },
+            "solitaire":     { title: "Solitaire",       emoji: "♣️", href: "klondike-solitaire.html", variant: "success"},
+            "greg":          { title: "Greg the Rock",   emoji: "🪨", href: "greg.html",           variant: "warning"},
+            "qr-code":       { title: "QR Code Maker",   emoji: "⬛", href: "qr-code-v2.html",     variant: "warning"},
+            "decode":        { title: "Decoder",          emoji: "⌨️", href: "decode.html",     variant: "success"},
+            "json":          { title: "JSON Formatter",   emoji: "⌨️", href: "json-formatter.html",     variant: "primary"}, 
+            "air-direct":    { title: "AirDirect",        emoji: "☁️", href: "air-direct.html",     variant: "primary"},
+            "color-flood":   { title: "Color Flood",     emoji: "🎨", href: "color-flood.html",     variant: "warning"},
+            "flies":         { title: "Flies-R-Us",     emoji: "🪰", href: "flies-r-us.html",     variant: "primary"},
+            "blackjack":     { title: "Blackjack",      emoji: "♦️", href: "blackjack.html",     variant: "success"},
+            "bog":           { title: "Bog Bodies",      emoji: "👀", href: "bog-bodies.html",      variant: "success"},
+            "get-ghost":     { title: "Get A Ghost",   emoji: "👻", href: "get-a-ghost.html",       variant: "warning"},
+
         };
 
         // Which pages show up under each category, in order.
@@ -30,10 +42,10 @@
         // (after adding the page itself to PAGES above) whenever you're
         // ready to list something under them.
         const CATEGORIES = {
-            games:   ["word-game", "ai", "taps", "fish", "ball", "dino"],
-            utility: ["weather", "clock", "price-compare", "carb-counter"],
-            wip:     [],
-            advertisements: [],
+            games:   ["word-game", "ai", "solitaire", "taps", "fish", "ball", "color-flood", "dino"],
+            utility: ["weather", "clock", "price-compare", "carb-counter", "json", "decode"],
+            wip:     ["blackjack"],
+            advertisements: ["bog", "flies", "get-ghost", "air-direct", "greg"],
         };
 
         function pageButton(id) {
@@ -58,7 +70,7 @@
         //   2. Set hidden: true on it
         // You can list more than one — all non-hidden entries show up.
         const FEATURED = [
-            { id: "ai" },
+            { id: "solitaire" },
             // { id: "word-game" },              // uncomment to feature
             // { id: "carb-counter", hidden: true }, // set hidden: false to bring back
         ];
