@@ -30,7 +30,7 @@ export const TEMPLATES = {
     "Anyway, I won't be explaining further.",
     "You know who you are.",
 "Of course they want {subject}", 
-"Honestly why would some like that, like {subject}", 
+"Honestly why would someone like {subject}", 
 "If I had a penny for every {subject}, I'd have two",
 "Wow, just wow, really? {subject}!",
 "What if I told you that you could have {subject}"
