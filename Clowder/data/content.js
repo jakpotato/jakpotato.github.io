@@ -3,7 +3,7 @@ export const SUBJECTS = [
   "wet pool noodle", "airport carpets", "cold fries", "parking lots", "a wet sock", "the weather",
   "homework", "alarm clocks", "elevators", "receipts", "small talk", "mystery buttons",
   "the number 7", "plastic chairs", "cereal", "shopping carts", "charging cables",
-  "printer paper", "neighbours", "leftovers", "waiting rooms", "pens that barely work", "printers", "sharks", "guy from the zoo", "spicy books", "grandma", "bit of butter with crumbs on it", "the great Flying Spaghetti Monster", "noodles", "butterflies", "dinosaurs", "microwaves", "putting animals outside", "glow in the dark stars", "new spoons", "a house hippo", "the great flood", "slow music"
+  "printer paper", "neighbours", "leftovers", "waiting rooms", "pens that barely work", "printers", "sharks", "guy from the zoo", "spicy books", "grandma", "bit of butter with crumbs on it", "the great Flying Spaghetti Monster", "noodles", "butterflies", "dinosaurs", "microwaves", "putting animals outside", "glow in the dark stars", "new spoons", "a house hippo", "the great flood", "slow music", "sticky notes"
 ];
 
 export const TEMPLATES = {
@@ -11,7 +11,11 @@ export const TEMPLATES = {
     "I genuinely love {subject}. I don't care what anyone says.",
     "Hot take: {subject} is actually one of the best things ever invented.",
     "Nobody appreciates {subject} enough.",
-    "Having a good {subject} day can fix almost anything."
+    "Having a good {subject} day can fix almost anything.",
+"Just love {subject}",
+"Can't get enough of {subject} after a long day",
+"Think I could marry {subject}? Probably not"
+
   ],
   thought: [
     "I hate {subject}. That's it. That's the post.",
@@ -24,13 +28,19 @@ export const TEMPLATES = {
     "Interesting how quickly certain people forget.",
     "I'm not saying I know something. I'm saying I know something.",
     "Anyway, I won't be explaining further.",
-    "You know who you are."
+    "You know who you are.",
+"Of course they want {subject}", 
+"Honestly why would some like that like {subject}", 
+"If I had a penny for every {subject}, I'd have two",
+"Wow, just wow, really? {subject}!",
+"What if I told you that you could have {subject}"
   ],
   rant: [
     "WHY does {subject} have to be like this?",
     "I need everyone to understand that {subject} is driving me insane.",
     "Nobody prepared me for how annoying {subject} would be.",
-    "I have been thinking about {subject} for 20 minutes and somehow I'm more annoyed now."
+    "I have been thinking about {subject} for 20 minutes and somehow I'm more annoyed now.",
+"Why would someone pick {subject} over me?!"
   ],
   question: [
     "Serious question: does anyone actually enjoy {subject}?",
