@@ -1,0 +1,366 @@
+1 |What is the longest animal? | Blue whale | The blue whale can reach nearly 100 feet and is the largest animal to ever exist.
+2 |What is the fastest land animal? | Cheetah | Cheetahs can sprint up to 70 mph in short bursts, making them the fastest land animals.
+3 |Which planet is known as the red planet? | Mars | Mars appears red because of iron oxide, or rust, on its surface.
+4 |What chemical element was named after a planet? | Uranium | Uranium was named after the planet Uranus, discovered just a few years earlier in 1781.
+5 |Which bird can mimic human speech? | Parrot | Parrots have vocal learning abilities allowing them to imitate sounds and speech.
+6 |What is the largest organ in the human body? | Skin | Skin covers the body and acts as a protective barrier against infection.
+7 |Which famous detective never existed in real life? | Sherlock Holmes | Sherlock Holmes is a fictional detective created by Arthur Conan Doyle.
+8 |What is the largest planet in the solar system? | Jupiter | Jupiter is the largest planet, a gas giant with a mass over 300 times that of Earth.
+9 |What bird spends most of its life in the air? | Swift | Swifts can glide for months at a time without landing, resting portions of their brain while in the air.
+10 |What is the hottest planet in our solar system? | Venus | Venus has a thick atmosphere trapping heat, making it hotter than Mercury.
+11 |Which country hosts a giant tomato throwing festival? | Spain | The annual event known as La Tomatina involves massive tomato throwing in a small town.
+12 |What is the largest mammal in the ocean? | Whale | Blue whales are the largest creatures ever known to exist.
+13 |Which element is needed for bones? | Calcium | Calcium strengthens bones and is essential for healthy skeletal growth.
+14 |What planet is closest to the Sun? | Mercury | Mercury is the smallest and innermost planet of the solar system.
+15 |During WWII, what color was chosen for some British spy planes? | Pink | They colored it a pale pink to blend in with the sky during dawn and dusk missions.
+16 |What animal in Edinburgh Zoo, Scotland, hold a military rank? | King Penguin | Sir Nils Olav III is a Norwegian king penguin who lives at the zoo and was promoted to Major General in 2023. He is also the highest ranking penguin in the world.
+17 |Which substance is used to make both soap and explosives? | Glycerin | Glycerin is versatile: it’s used in soaps for moisture and in nitroglycerin for explosives.
+18 |What tool was originally designed and used for childbirths but isn't anymore? | Chainsaw | The original design, created in 1785, was a lot smaller and used to help with childbirth. Other methods like a cesarean section were often fatal in this time.
+19 |What is the average color of the universe? | Cosmic Latte | There is a lot of different colors coming from other galaxies with the average being a light beige color.
+20 |What farm animal was once kept alive without a head? | Chicken | In 1940, Mike the chicken was able to function just enough to live for 18 months without a head.
+21 |What is the name given to the color that's a combination of yellow and ultraviolet? | Bee Purple | This unique color is often found on flowers to help guide bees to nectar, however due to combination of ultraviolet humans can't see it. This helps explain why bees don't have an interest is paintings of flowers since it doesn't have this color.
+22 |What fruit is slightly radioactive? | Banana | Bananas contain the natural isotope potassium-40 which gives off a small bit of radiation. Humans on average already contain about 280 times the amount found in a banana.
+23 |What group of people invented adding spaces between written words? | Irish Monks | Up until then languages like Latin didn't have a space between their words. Irish Monks invented the space in the 7th century.
+24 |What color is a polar bears skin? | Black | Although their fur is white, their skin is actually a jet black color.
+25 |What is the name given to rainbows on Venus? | Glory | A rainbow on Venus is called a glory and appears as colored concentric rings.
+26 |What planet on average is closest to Earth? | Mercury | Mercury is closest to Earth on average. While other planets do get closer to Earth, Mercury remains closer to Earth due to orbits and how fast it travels around the sun relative to other planets.
+27 |Which cold climate bird cannot fly? | Penguin | Penguins are flightless birds adapted to swimming in cold oceans.
+28 |What do you call baby frogs? | Tadpole | Tadpoles are the larval stage of frogs before metamorphosis.
+29 |Which planet is called the evening star? | Venus | Venus is visible at dusk and is known as the evening star.
+30 |Who is known for having the biggest impact on the atmosphere? | Thomas Midgley | Thomas Midgley Jr was responsible for adding lead to gasoline and for creating Freon which is the first CFC. CFCs were responsible for damaging the ozone.
+31 |What company produces the most tires? | Lego | Lego produces the most amount of tires, with over 300 million tires produced each year for its toys.
+32 |What is the nationally animal of Scotland? | Unicorn | The national animal of Scotland is the unicorn. Scotland also used them in their coat of arms in the mid 1500 although they were later replaced by a lion.
+33 |What is the most common street name in the US? | Second Street | Second Street is the most common street name in the US, followed by Third Street and then First Street.
+34 |What is the old English word for the day after tomorrow? | Over morrow | Overmorrow was used as early as the 1500s with the earliest evidence for overmorrow from 1535. The opposite, the word for the day before yesterday, being ereyesterday.
+35 |Sloths can be slow at crawling but what can they do three times faster? | Swimming | Sloths move at about 4m per minute when on land (4.5m when in danger) but can swim at up to 13.5m per minute. They can also hold their breath underwater for up to 40 minutes which is longer than dolphins.
+36 |What was the original name of the Beatles classic song Yesterday? | Scrabbled Eggs | The original title for the song was Scrabbled Eggs while working on the song. They had put the lyrics as "Scrambled eggs. Oh my baby how I love your legs. Not as much as I love scrambled eggs" were used until better lyrics were created.
+37 |What killed 835 sheep in a single instance in Utah in 1939? | Lightning strike | A single lightning strike killed 98% of a flock of sheep in Utah in 1939. The sheepherder was knock unconscious from the strike but survived.
+38 |What popular childrens book was banned in New York Public Library from 1947 to 1972? | Goodnight Moon | The book was stocked on the public libraries shelves because a librarian personally didn't like the book and refused to add it. Since 1972 it has now been checked out over 100,000 times.
+39 |What shape is an octopuses brain? | Donut | They have donut shaped brains and their oesophagus passes through the hole in the middle. If they swallow anything too big it could cause brain damage.
+40 |What social media symbol had the technical name "octothorpe"?| Hashtag | The original name for "#" is octothorpe. It also goes by pound, hashtag or number sign. With hashtag being used most in social media.
+41 |What was tomato ketchup originally marketed as? | Medicine | It was sold as a cure for an upset stomach in the 1830s.
+42 |What is the only animal with cube shaped poop? | Wombat | The wombat is an Australian marsupial that make cube-shaped feces.
+43 |What country won the gold, silver and brozen medal for tug of war in the 1908 Summer Olympics? | Great Britain | The host for the Olympics was Great Britain. Each country was allowed to enter up to 3 teams for tug of war, Great Britain was the only one to enter more than one team and won all the medals.
+44 |What is the original name for James Bond? | James Secretan | Ian Fleming originally had the name James Secretan for his main character in the first draft of Casino Royale.
+45 |What is the title for a person who flys 50 miles above sea level in the US? | Astronaut | While the US declares anyone flying over 50 miles an astronaut, the international standard is 62 miles (100 km).
+46 |Which country has the worst air population? | India | Overall India has the worst air population by 2023 and has ranked #1, 5 out of 6 times between 2018 and 2023.
+47 |In the US, what food contains 90% sugar but is labeled as 0g sugar? | Tic Tac | Despite being almost completely sugar, with each one only weighing 0.45g and the guidelines saying anything over 0.5g of sugar, they can be labeled no sugar.
+48 |What moon's mountains are named after peaks in The Lord of the Rings? | Titan | All the mountains on Saturns moon Titan are named like this. One example is Mithrim Montes which are named after the Mithrim Mountains in The Lord of the Rings.
+49 |Mary Queen of Scots was the first woman to play what sports? | Golf | The first woman to play golf was Mary Queen of Scots, who ruled from 1542 to 1567 and is noted by some as the first female to play golf. During her reign the St Andrews Links golf course was built. She is credited for creating the term “caddie”.
+50 |What capital punishment was invented by a dentist? | Electric Chair | In 1881, Alfred P. Southwick, a dentist, invented the Electric Chair and it was first used in 1890.
+51 |Wembley stadium has the most of these than any other venue in the world. | Toilets | The stadium is the second largest in all of Europe but has the most toilets in the whole world at 2,618.
+52 |What can dolphins taste to help recognise friends and family? | Urine | A study found dolphins can recognise others by tasting their urine. This can be done without even seeing the other dolphin.
+53 |Not flushing a public toilet is a crime in what country? | Singapore | The penalty is a fine and some public restrooms have sensors to detect if someone forgot to flush.
+54 |What, according to one study, do people lose 1,264 of during their lifetime? | Socks | According to a study commissioned by Samsung, done for one of their washing machines, the average person will lose 1.3 socks a month. With average life expectancy of 81 that's 1,264 socks total per person.
+55 |What did British Waterways drain by accidentially pulling the plug in August of 1978? | Canal | In August of 1978, the crew working on the canal found a chain in their way and decided to pull it out of the way. Not long after they had to leave and came back to the canal almost empty.
+56 |What have cyclist hit often enough to be the cause of 20% of all accidents? | Car door | Cyclist hit car doors pretty often and account for roughly 20% of all their accidents. In the UK, 600 are injured each year by a car door.
+57 |What type of bird holds the record for the largest vocabulary? | Budgie | Specifically, Puck the Budgie, who had a record of 1,728 words. This is about average for a 4 year old child.
+58 |What does Ikea claim to sell roughly every 5 seconds somewhere in the world? | Bookcase | Ikea's iconic bookcase, the "Billy Bookcase". By 2023 they have sold over 140 million bookcases!
+59 |What animal is there only one of in Afghanistan? | Pig | The pig, named "Khanzir", is the only one in Afghanistan. He lives at the zoo and has reportedly survived a brown bear attack. In 2016, he weighed 500 pounds.
+60 |What little creature has been trained by U.S. scientists to detect plastic explosives? | Moths | Moths have been shown to be able to detect plastic explosives, like TNT, if they are conditioned to associate it with food.
+61 |Fortune Cookies originated in what country? | America | Likely originated from Japanese immigrants in America in the late 19th century or early 20th century, they were imported to China as "Genuine American Fortune Cookies".
+62 |What is the most common bird? | Chicken | Chickens have a total population of more than 20 billion and make up about 70% of all birds on the planet. Meaning there is more chickens than all other birds combined.
+63 |In 1995, two men robbed two banks in Pittsburgh, Pennsylvania, USA. What did they wear to hide their faces? | Lemon Juice | When they were caught, it was found they wore lemon juice thinking it would hide their face. Similar to how lemon juice can act as invisible ink on paper.
+64 |In what country can you get the 666 bus to Hel? | Poland | In 2023 the comapny running the bus service changed the number to 669 but in 2026 it was changed back to 666. Tourists have been drawn to Hel's sandy beaches, ancient architecture and seal sanctuary.
+65 |What is the opposite of sparkle? | Darkle | Darkle means: to become cloudled or gloomy, to grow dark, to become concealed in the dark.
+66 |43% of Japanese citizens suffer from what? | Hay Fever | After World War II the governemnt implemented a vast reforestation program which created a monoculture of high pollen producing trees.
+67 |What statue was requested by a councillor of Cork, Ireland? | Mosquito | The statue was to be built of the mosquito that bit Oliver Cromwell which lead to his death of malaria.
+68 |What was the original meaning of LOL? | Little Old Lady | It was written in a book in 1960. It described black net gloves as "the regalia of the authentic LOL".
+69 |In a conspiracy theory study, 10% of respondents claimed to believe the Canadian Army was making giant super intelligent what? | Racoons | They believed the army was going to use them to invade neighbouring countries. This theory was actually invented by the researchers themselves.
+70 |In 2015, Pope Francis made a pop rock album titled what? | Wake Up | It included tracks like "Peace! Brothers!" and "Take care of the planet". It was rated 5/10 by a music website.
+71 |Vulpeculated means to be robbed by a what? | Fox | Yes there is a word meaning to be robbed by a fox.
+72 |What country is celebrating it's offical national holiday? Canada | Today marks the anniversay of the Constitution Act of 1867 when Canada's original three colonies united to form a single self-governing country within the British Empire.
+73 |According to the Doomsday book of 1086, what was used to pay rent? | Eels | Yes according to the book eels were used to pay rent more than anything else.
+74 |What is the name of the Chief Mouser of Downings Street? | Larry the cat | Larry the cat has now out lasted 6 UK Prime Ministers.
+75 |Where is a shrimps heart located? | Head | It's heart is located in it's head, just behind the eyes.
+76 |What section of the Spanish newspaper was the 1982 World Cup match between West Germany and Austria under? | Crimes | Not only was it under the crimes section but it was so bad that television commentors urged viewers to change the channel.
+77 | | |
+78 | | |
+79 | | |
+80 | | |
+81 | | |
+82 | | |
+83 | | |
+84 | | |
+85 | | |
+86 | | |
+87 | | |
+88 | | |
+89 | | |
+90 | | |
+91 | | |
+92 | | |
+93 | | |
+94 | | |
+95 | | |
+96 | | |
+97 | | |
+98 | | |
+99 | | |
+100 | | |
+101 | | |
+102 | | |
+103 | | |
+104 | | |
+105 | | |
+106 | | |
+107 | | |
+108 | | |
+109 | | |
+110 | | |
+111 | | |
+112 | | |
+113 | | |
+114 | | |
+115 | | |
+116 | | |
+117 | | |
+118 | | |
+119 | | |
+120 | | |
+121 | | |
+122 | | |
+123 | | |
+124 | | |
+125 | | |
+126 | | |
+127 | | |
+128 | | |
+129 | | |
+130 | | |
+131 | | |
+132 | | |
+133 | | |
+134 | | |
+135 | | |
+136 | | |
+137 | | |
+138 | | |
+139 | | |
+140 | | |
+141 | | |
+142 | | |
+143 | | |
+144 | | |
+145 | | |
+146 | | |
+147 | | |
+148 | | |
+149 | | |
+150 | | |
+151 | | |
+152 | | |
+153 | | |
+154 | | |
+155 | | |
+156 | | |
+157 | | |
+158 | | |
+159 | | |
+160 | | |
+161 | | |
+162 | | |
+163 | | |
+164 | | |
+165 | | |
+166 | | |
+167 | | |
+168 | | |
+169 | | |
+170 | | |
+171 | | |
+172 | | |
+173 | | |
+174 | | |
+175 | | |
+176 | | |
+177 | | |
+178 | | |
+179 | | |
+180 | | |
+181 | | |
+182 | | |
+183 | | |
+184 | | |
+185 | | |
+186 | | |
+187 | | |
+188 | | |
+189 | | |
+190 | | |
+191 | | |
+192 | | |
+193 | | |
+194 | | |
+195 | | |
+196 | | |
+197 | | |
+198 | | |
+199 | | |
+200 | | |
+201 | | |
+202 | | |
+203 | | |
+204 | | |
+205 | | |
+206 | | |
+207 | | |
+208 | | |
+209 | | |
+210 | | |
+211 | | |
+212 | | |
+213 | | |
+214 | | |
+215 | | |
+216 | | |
+217 | | |
+218 | | |
+219 | | |
+220 | | |
+221 | | |
+222 | | |
+223 | | |
+224 | | |
+225 | | |
+226 | | |
+227 | | |
+228 | | |
+229 | | |
+230 | | |
+231 | | |
+232 | | |
+233 | | |
+234 | | |
+235 | | |
+236 | | |
+237 | | |
+238 | | |
+239 | | |
+240 | | |
+241 | | |
+242 | | |
+243 | | |
+244 | | |
+245 | | |
+246 | | |
+247 | | |
+248 | | |
+249 | | |
+250 | | |
+251 | | |
+252 | | |
+253 | | |
+254 | | |
+255 | | |
+256 | | |
+257 | | |
+258 | | |
+259 | | |
+260 | What is a group of starfish called? | Galaxy | A group of star fish is called a galaxy, how cute!
+261 | What animal in England is accused of stealing over £171 million? | Seagul | Seagulls are accusedof stealing about £171,889,518 worth of food each year.
+262 | What common item was only splinter free after the 1935?| Toilet Paper | It was marketed as splinter free after 1935 where available but took even longer to spread to other parts of the world.
+263 | Who is the only non-human to testify before US Congress? | Elmo | According to records he is listed as either "Elmo Monster" or "Mr.Monster" and testified in 2002 for music educational funding.
+264 | In 1845, Yarmouth, 80 people died when they all rushed onto a what? | Bridge | They were all trying to watch a clown in a bathtub being pulled by geese.
+265 | Emerson Moser revealed he was colorblind after 35 years as a top what?| Crayon Maker | He worked for Crayola for 35 years and only revealed he was colorblind after leaving. He made over 1.4 billion crayons.
+266 | What is the name of the airoplane used to transport the most valuable race horse? | Air Horse One | They saw the oppurtnity for a great name and took it.
+267 | What is sphenopalatine ganglioneuralgia more commonly known as? | Brain Freeze | The scientific name for a brain freeze is sphenopalatine ganglioneuralgia.
+268 | What is a single piece of confetti called? | Confetto | This is similar to spaghetti which a single piece is spaghetto
+269 | In 1859, Joshua Norton proclaimed himself the emperor of where? | United States | He had no real power but his decrees where published in the local paper and had an opera written about him.
+270 | Nikola Tesla had a strong aversion to what shaped objects? | Round | He even wrote about them, saying things like  "The sight of a pearl would almost give me a fit" and "I would get a fever by looking at a peach"
+271 | Dutch trains use this to remove leaves from tracks | Laser | They use lasers to basically burn away leaves from tracks to keep them cleared.
+272 | | |
+273 | | |
+274 | | |
+275 | | |
+276 | | |
+277 | | |
+278 | | |
+279 | | |
+280 | | |
+281 | | |
+282 | | |
+283 | | |
+284 | | |
+285 | | |
+286 | | |
+287 | | |
+288 | | |
+289 | | |
+290 | | |
+291 | | |
+292 | | |
+293 | | |
+294 | | |
+295 | | |
+296 | | |
+297 | | |
+298 | | |
+299 | | |
+300 | | |
+301 | | |
+302 | | |
+303 | | |
+304 | | |
+305 | | |
+306 | | |
+307 | | |
+308 | | |
+309 | | |
+310 | | |
+311 | | |
+312 | | |
+313 | | |
+314 | | |
+315 | | |
+316 | | |
+317 | | |
+318 | | |
+319 | | |
+320 | | |
+321 | | |
+322 | | |
+323 | | |
+324 | | |
+325 | | |
+326 | | |
+327 | | |
+328 | | |
+329 | | |
+330 | | |
+331 | | |
+332 | | |
+333 | | |
+334 | | |
+335 | | |
+336 | | |
+337 | | |
+338 | | |
+339 | | |
+340 | | |
+341 | | |
+342 | | |
+343 | | |
+344 | | |
+345 | | |
+346 | | |
+347 | | |
+348 | | |
+349 | | |
+350 | | |
+351 | | |
+352 | | |
+353 | | |
+354 | | |
+355 | | |
+356 | | |
+357 | | |
+358 | | |
+359 | | |
+360 | | |
+361 | | |
+362 | | |
+363 | | |
+364 | | |
+365 | | |
+366 | | |
