@@ -79,7 +79,8 @@ export const COMMENT_TEMPLATES = [
     "I can help with that.",
 "Just stop.",
 "Ewww why would you say that.",
-"Yeah I'm judging."
+"Yeah I'm judging.",
+"I'm conflicted"
 ];
 
 export const TRENDS = [
