@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Breakout // Shard Runner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0e16;
+    --panel: #121826;
+    --panel-edge: #202b40;
+    --ink: #e7edf7;
+    --ink-dim: #7c8aa8;
+    --cyan: #35e6ff;
+    --magenta: #ff3fa4;
+    --gold: #ffd23f;
+    --r1: #ff4d5e;
+    --r2: #ff9a3c;
+    --r3: #ffd23f;
+    --r4: #33d9a5;
+    --r5: #3d8bff;
+    --r6: #b463ff;
+    font-size: 16px;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    margin:0; padding:0; height:100%;
+    background: radial-gradient(1200px 800px at 50% -10%, #16203a 0%, var(--bg) 55%);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  body{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    min-height: 100%;
+    padding: env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+  }
+
+  .arcade{
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  #stage{
+    width: 100%;
+    max-width: 520px;
+    display:flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 10px 10px 14px;
+  }
+
+  /* ---------- HUD ---------- */
+  #hud{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    background: linear-gradient(180deg, var(--panel), #0d1420);
+    border: 1px solid var(--panel-edge);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .hud-block{ display:flex; flex-direction:column; align-items:flex-start; min-width: 0; }
+  .hud-block.center{ align-items:center; }
+  .hud-block.right{ align-items:flex-end; }
+  .hud-label{ font-size: 0.6rem; letter-spacing: 0.06em; color: var(--ink-dim); }
+  .hud-value{ font-size: 1.05rem; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .hud-value.accent{ color: var(--cyan); }
+  #lives-hearts{ display:flex; gap:4px; font-size: 1rem; line-height:1; }
+  #pause-btn{
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    color: var(--ink);
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink: 0;
+  }
+  #pause-btn:active{ background: var(--panel-edge); }
+
+  /* ---------- Canvas area ---------- */
+  #canvas-wrap{
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--panel-edge);
+    background: #060a12;
+    box-shadow: 0 0 0 1px rgba(53,230,255,0.04), 0 20px 60px -20px rgba(0,0,0,0.7);
+  }
+  #game{
+    display:block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  /* ---------- Overlays ---------- */
+  .overlay{
+    position:absolute; inset:0;
+    background: rgba(6,9,16,0.86);
+    backdrop-filter: blur(3px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 24px 20px;
+    gap: 14px;
+  }
+  .overlay.hidden{ display:none; }
+  .overlay h1{
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin: 0 0 6px;
+    color: var(--cyan);
+    text-shadow: 0 0 18px rgba(53,230,255,0.5);
+  }
+  .overlay h2{
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0 0 4px;
+    color: var(--gold);
+  }
+  .overlay p{
+    margin: 0;
+    color: var(--ink-dim);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 340px;
+  }
+  .stat-row{
+    display:flex;
+    gap: 22px;
+    margin: 6px 0 4px;
+  }
+  .stat{ display:flex; flex-direction:column; align-items:center; }
+  .stat .n{ font-size: 1.4rem; font-weight:800; color: var(--ink); }
+  .stat .l{ font-size: 0.62rem; color: var(--ink-dim); letter-spacing: 0.06em; margin-top: 2px;}
+  .stat .n.new{ color: var(--magenta); }
+
+  button.cta{
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #06121a;
+    background: linear-gradient(135deg, var(--cyan), #7de9ff);
+    border: none;
+    padding: 13px 30px;
+    border-radius: 999px;
+    cursor: pointer;
+    margin-top: 6px;
+    box-shadow: 0 8px 24px -8px rgba(53,230,255,0.6);
+  }
+  button.cta:active{ transform: scale(0.97); }
+  button.cta.secondary{
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--panel-edge);
+    box-shadow: none;
+  }
+
+  .howto{
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+    margin: 4px 0 8px;
+    text-align:left;
+  }
+  .howto div{
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    display:flex;
+    gap: 8px;
+    align-items:flex-start;
+  }
+  .howto span.tag{
+    flex-shrink:0;
+    display:inline-block;
+    min-width: 58px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    font-size: 0.66rem;
+    text-align:center;
+    color: var(--ink);
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 6px 10px;
+    justify-content:center;
+    max-width: 360px;
+    margin-top: 2px;
+  }
+  .legend div{
+    display:flex; align-items:center; gap:5px;
+    font-size: 0.68rem; color: var(--ink-dim);
+  }
+  .swatch{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+
+  /* ---------- Fire button (mobile laser) ---------- */
+  #fire-btn{
+    position:absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 62px; height:62px;
+    border-radius: 50%;
+    border: 2px solid var(--magenta);
+    background: rgba(255,63,164,0.18);
+    color: var(--magenta);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.3;
+    z-index: 5;
+    box-shadow: 0 0 18px rgba(255,63,164,0.35);
+  }
+  #fire-btn.show{ display:flex; }
+  #fire-btn:active{ background: rgba(255,63,164,0.35); }
+
+  #powerup-banner{
+    position:absolute;
+    top: 8px; left:50%;
+    transform: translateX(-50%);
+    display:flex; gap:6px;
+    z-index: 5;
+    pointer-events:none;
+  }
+  .pu-chip{
+    font-size: 0.6rem;
+    font-family: 'Inter', sans-serif;
+    font-weight:700;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(10,14,22,0.8);
+    border: 1px solid var(--panel-edge);
+    display:flex; align-items:center; gap:5px;
+    white-space:nowrap;
+  }
+
+  footer{
+    font-size: 0.65rem;
+    color: var(--ink-dim);
+    text-align:center;
+    padding: 8px 0 2px;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 380px){
+    :root{ font-size: 15px; }
+    .overlay h1{ font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <div id="hud">
+    <div class="hud-block">
+      <span class="hud-label">SCORE</span>
+      <span class="hud-value" id="hud-score">0</span>
+    </div>
+    <div class="hud-block center">
+      <span class="hud-label">LEVEL</span>
+      <span class="hud-value accent" id="hud-level">1</span>
+    </div>
+    <div class="hud-block">
+      <span class="hud-label">LIVES</span>
+      <span id="lives-hearts">❤❤❤</span>
+    </div>
+    <button id="pause-btn" aria-label="Pause">❚❚</button>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="game"></canvas>
+
+    <div id="powerup-banner"></div>
+    <button id="fire-btn">TAP<br>FIRE</button>
+
+    <!-- START -->
+    <div class="overlay" id="overlay-start">
+      <h1 class="arcade">SHARD<br>RUNNER</h1>
+      <p>Break every block to clear the level. Finish a level and earn an extra life.</p>
+      <div class="howto">
+        <div><span class="tag">DESKTOP</span> Move mouse or ◀ ▶ keys to steer, click / space to launch &amp; fire</div>
+        <div><span class="tag">MOBILE</span> Drag anywhere to steer, tap to launch &amp; fire</div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <button class="cta" id="btn-start">START GAME</button>
+      <p id="highscore-line" style="margin-top:2px;"></p>
+    </div>
+
+    <!-- PAUSE -->
+    <div class="overlay hidden" id="overlay-pause">
+      <h1 class="arcade" style="font-size:1.1rem;">PAUSED</h1>
+      <button class="cta" id="btn-resume">RESUME</button>
+      <button class="cta secondary" id="btn-restart-from-pause">RESTART GAME</button>
+    </div>
+
+    <!-- LEVEL COMPLETE -->
+    <div class="overlay hidden" id="overlay-levelcomplete">
+      <h2 class="arcade" id="lc-title" style="font-size:0.85rem;">LEVEL CLEAR</h2>
+      <div class="stat-row">
+        <div class="stat"><span class="n" id="lc-score">0</span><span class="l">SCORE</span></div>
+        <div class="stat"><span class="n new">+1</span><span class="l">LIFE</span></div>
+      </div>
+      <button class="cta" id="btn-next-level">CONTINUE</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="overlay hidden" id="overlay-gameover">
+      <h1 class="arcade" style="color:var(--r1);">GAME OVER</h1>
+      <div class="stat-row">
+        <div class="stat"><span class="n" id="go-score">0</span><span class="l">SCORE</span></div>
+        <div class="stat"><span class="n" id="go-high">0</span><span class="l">BEST</span></div>
+      </div>
+      <p id="go-newbest" style="color:var(--gold); display:none;">New high score!</p>
+      <button class="cta" id="btn-retry">TRY AGAIN</button>
+    </div>
+
+    <!-- WIN -->
+    <div class="overlay hidden" id="overlay-win">
+      <h1 class="arcade" style="color:var(--gold);">YOU WIN!</h1>
+      <p>Every level cleared. Shard Runner stands victorious.</p>
+      <div class="stat-row">
+        <div class="stat"><span class="n" id="win-score">0</span><span class="l">FINAL SCORE</span></div>
+        <div class="stat"><span class="n" id="win-high">0</span><span class="l">BEST</span></div>
+      </div>
+      <button class="cta" id="btn-play-again">PLAY AGAIN</button>
+    </div>
+
+  </div>
+
+  <footer>Break blocks &middot; catch power-ups &middot; clear the board</footer>
+</div>
+
+<script src="levels.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============================= CONFIG ============================= */
+  const COLS = 12;
+  const START_LIVES = 3;
+  const BASE_BALL_SPEED = 330;      // px/sec (logical, scales with canvas width)
+  const BALL_SPEED_GROWTH = 1.01;   // tiny speedup per level to keep it fresh
+  const POWERUP_DROP_CHANCE = 0.18;
+  const POWERUP_FALL_SPEED = 150;
+  const WIDE_DURATION = 10000;
+  const SLOW_DURATION = 8000;
+  const LASER_DURATION = 8000;
+  const LASER_COOLDOWN = 260;
+  const WIDE_MULT = 1.6;
+  const SLOW_MULT = 0.55;
+
+  const COLORS = { 1:'#ff4d5e', 2:'#ff9a3c', 3:'#ffd23f', 4:'#33d9a5', 5:'#3d8bff', 6:'#b463ff' };
+  const COLOR_NAMES = { 1:'Red', 2:'Orange', 3:'Yellow', 4:'Green', 5:'Blue', 6:'Purple' };
+
+  const POWERUP_TYPES = [
+    { id:'wide',  label:'Wide Paddle', color:'#35e6ff', icon:'W' },
+    { id:'multi', label:'Multi-Ball',  color:'#ff3fa4', icon:'M' },
+    { id:'slow',  label:'Slow Ball',   color:'#33d9a5', icon:'S' },
+    { id:'laser', label:'Laser',       color:'#ffd23f', icon:'L' },
+    { id:'life',  label:'Extra Life',  color:'#ff4d5e', icon:'+' },
+  ];
+
+  /* ============================= DOM ============================= */
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('canvas-wrap');
+
+  const hudScore = document.getElementById('hud-score');
+  const hudLevel = document.getElementById('hud-level');
+  const livesHearts = document.getElementById('lives-hearts');
+  const pauseBtn = document.getElementById('pause-btn');
+  const fireBtn = document.getElementById('fire-btn');
+  const powerupBanner = document.getElementById('powerup-banner');
+
+  const overlays = {
+    start: document.getElementById('overlay-start'),
+    pause: document.getElementById('overlay-pause'),
+    levelcomplete: document.getElementById('overlay-levelcomplete'),
+    gameover: document.getElementById('overlay-gameover'),
+    win: document.getElementById('overlay-win'),
+  };
+
+  function showOverlay(name){
+    Object.entries(overlays).forEach(([k, el]) => el.classList.toggle('hidden', k !== name));
+  }
+  function hideAllOverlays(){
+    Object.values(overlays).forEach(el => el.classList.add('hidden'));
+  }
+
+  /* ============================= HIGH SCORE ============================= */
+  const HS_KEY = 'shardRunnerHighScore';
+  function loadHighScore(){
+    try { return parseInt(localStorage.getItem(HS_KEY), 10) || 0; } catch(e){ return 0; }
+  }
+  function saveHighScore(v){
+    try { localStorage.setItem(HS_KEY, String(v)); } catch(e){ /* storage unavailable */ }
+  }
+
+  /* ============================= STATE ============================= */
+  let W = 0, H = 0, DPR = 1;
+  let state = 'start'; // start | serve | playing | paused | levelcomplete | gameover | win
+  let levelIndex = 0;
+  let score = 0;
+  let lives = START_LIVES;
+  let highScore = loadHighScore();
+
+  let paddle = null;
+  let balls = [];
+  let blocks = [];
+  let powerups = [];
+  let lasers = [];
+  let particles = [];
+
+  let blockRows = 0, blockTopMargin = 0, blockW = 0, blockH = 0;
+  let lastLaserFire = 0;
+
+  const keys = { left:false, right:false };
+  let pointerActive = false;
+  let pointerX = null;
+
+  /* ============================= SETUP LEGEND ============================= */
+  (function buildLegend(){
+    const legend = document.getElementById('legend');
+    [1,2,3,4,5,6].forEach(n => {
+      const d = document.createElement('div');
+      d.innerHTML = `<span class="swatch" style="background:${COLORS[n]}"></span>${COLOR_NAMES[n]} · ${n} hit${n>1?'s':''}`;
+      legend.appendChild(d);
+    });
+  })();
+
+  document.getElementById('highscore-line').textContent =
+    highScore > 0 ? `High Score: ${highScore}` : '';
+
+  /* ============================= CANVAS SIZING ============================= */
+  function resizeCanvas(){
+    const rect = wrap.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(rect.width, 1);
+    H = Math.max(rect.height, 1);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    if (paddle) {
+      paddle.y = H - Math.max(28, H * 0.055) - 6;
+      paddle.x = Math.min(Math.max(paddle.x, 0), W - paddle.w);
+    }
+  }
+
+  /* ============================= ENTITIES ============================= */
+  function makePaddle(){
+    const w = Math.max(70, W * 0.22);
+    const h = Math.max(12, H * 0.018);
+    return {
+      w, h, baseW: w,
+      x: (W - w) / 2,
+      y: H - Math.max(28, H * 0.055) - 6,
+      wideUntil: 0,
+      laserUntil: 0,
+    };
+  }
+
+  function paddleWidth(){
+    return performance.now() < paddle.wideUntil ? paddle.baseW * WIDE_MULT : paddle.baseW;
+  }
+
+  function makeBall(x, y, speed, angleOverride){
+    const angle = angleOverride != null ? angleOverride : (-Math.PI/2 + (Math.random()*0.5 - 0.25));
+    return {
+      x, y,
+      r: Math.max(6, W * 0.014),
+      speed,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      stuck: true,
+    };
+  }
+
+  function resetBallOnPaddle(){
+    balls = [ makeBall(paddle.x + paddleWidth()/2, paddle.y - Math.max(8, W*0.016) - 1, currentBallSpeed()) ];
+    balls[0].stuck = true;
+    state = 'serve';
+  }
+
+  function currentBallSpeed(){
+    return BASE_BALL_SPEED * (W/480) * Math.pow(BALL_SPEED_GROWTH, levelIndex);
+  }
+
+  function buildBlocksForLevel(idx){
+    const lvl = LEVELS[idx % LEVELS.length];
+    blocks = [];
+    const rows = lvl.rows;
+    blockRows = rows.length;
+    blockW = W / COLS;
+    blockH = Math.max(16, H * 0.045);
+    blockTopMargin = Math.max(10, H * 0.02) + Math.max(28, H*0.05); // leave room under HUD area feel
+
+    const pad = 2;
+    for (let r = 0; r < rows.length; r++){
+      const row = rows[r];
+      for (let c = 0; c < COLS; c++){
+        const ch = row[c];
+        if (ch === '.' ) continue;
+        const hits = parseInt(ch, 10);
+        if (!hits) continue;
+        blocks.push({
+          x: c * blockW + pad/2,
+          y: blockTopMargin + r * blockH + pad/2,
+          w: blockW - pad,
+          h: blockH - pad,
+          hits, maxHits: hits,
+          alive: true,
+        });
+      }
+    }
+  }
+
+  /* ============================= LEVEL FLOW ============================= */
+  function startGame(){
+    levelIndex = 0;
+    score = 0;
+    lives = START_LIVES;
+    loadLevel(0);
+  }
+
+  function loadLevel(idx){
+    levelIndex = idx;
+    paddle = makePaddle();
+    buildBlocksForLevel(idx);
+    powerups = [];
+    lasers = [];
+    particles = [];
+    paddle.wideUntil = 0;
+    paddle.laserUntil = 0;
+    resetBallOnPaddle();
+    updateHUD();
+    hideAllOverlays();
+    state = 'serve';
+  }
+
+  function launchBall(){
+    if (state !== 'serve') return;
+    balls.forEach(b => { b.stuck = false; });
+    state = 'playing';
+  }
+
+  function loseLife(){
+    lives -= 1;
+    updateHUD();
+    if (lives <= 0){
+      gameOver();
+    } else {
+      resetBallOnPaddle();
+    }
+  }
+
+  function gameOver(){
+    state = 'gameover';
+    if (score > highScore){
+      highScore = score;
+      saveHighScore(highScore);
+      document.getElementById('go-newbest').style.display = 'block';
+    } else {
+      document.getElementById('go-newbest').style.display = 'none';
+    }
+    document.getElementById('go-score').textContent = score;
+    document.getElementById('go-high').textContent = highScore;
+    showOverlay('gameover');
+  }
+
+  function levelComplete(){
+    lives += 1;
+    if (score > highScore){ highScore = score; saveHighScore(highScore); }
+    updateHUD();
+    document.getElementById('lc-title').textContent =
+      (LEVELS[levelIndex].name || ('Level ' + (levelIndex+1))).toUpperCase() + ' CLEAR';
+    document.getElementById('lc-score').textContent = score;
+    state = 'levelcomplete';
+    showOverlay('levelcomplete');
+  }
+
+  function nextLevel(){
+    if (levelIndex + 1 >= LEVELS.length){
+      winGame();
+    } else {
+      loadLevel(levelIndex + 1);
+    }
+  }
+
+  function winGame(){
+    state = 'win';
+    if (score > highScore){ highScore = score; saveHighScore(highScore); }
+    document.getElementById('win-score').textContent = score;
+    document.getElementById('win-high').textContent = highScore;
+    showOverlay('win');
+  }
+
+  /* ============================= HUD ============================= */
+  function updateHUD(){
+    hudScore.textContent = score;
+    hudLevel.textContent = (levelIndex + 1) + ' / ' + LEVELS.length;
+    const maxHeartsShown = 10;
+    const n = Math.min(lives, maxHeartsShown);
+    livesHearts.textContent = '❤'.repeat(Math.max(0,n)) + (lives > maxHeartsShown ? '+' : '');
+  }
+
+  function updatePowerupBanner(){
+    const now = performance.now();
+    powerupBanner.innerHTML = '';
+    const active = [];
+    if (now < paddle.wideUntil) active.push({label:'WIDE', color:'#35e6ff', until: paddle.wideUntil});
+    if (now < paddle.laserUntil) active.push({label:'LASER', color:'#ffd23f', until: paddle.laserUntil});
+    if (slowUntil > now) active.push({label:'SLOW-MO', color:'#33d9a5', until: slowUntil});
+    active.forEach(a => {
+      const chip = document.createElement('div');
+      chip.className = 'pu-chip';
+      chip.style.color = a.color;
+      chip.style.borderColor = a.color + '55';
+      const secs = Math.max(0, Math.ceil((a.until - now)/1000));
+      chip.textContent = a.label + ' ' + secs + 's';
+      powerupBanner.appendChild(chip);
+    });
+    fireBtn.classList.toggle('show', now < paddle.laserUntil);
+  }
+
+  /* ============================= POWER-UPS ============================= */
+  let slowUntil = 0;
+
+  function maybeDropPowerup(x, y){
+    if (Math.random() > POWERUP_DROP_CHANCE) return;
+    const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+    powerups.push({ x, y, w: Math.max(22, W*0.06), h: Math.max(22, W*0.06), type, vy: POWERUP_FALL_SPEED });
+  }
+
+  function activatePowerup(type){
+    const now = performance.now();
+    switch(type.id){
+      case 'wide':
+        paddle.wideUntil = now + WIDE_DURATION;
+        break;
+      case 'slow':
+        slowUntil = now + SLOW_DURATION;
+        break;
+      case 'laser':
+        paddle.laserUntil = now + LASER_DURATION;
+        break;
+      case 'life':
+        lives += 1;
+        updateHUD();
+        break;
+      case 'multi': {
+        const source = balls.filter(b => !b.stuck);
+        const base = source.length ? source : balls;
+        const toAdd = [];
+        base.forEach(b => {
+          for (let i=0;i<2;i++){
+            const speed = Math.hypot(b.vx,b.vy) || currentBallSpeed();
+            const baseAngle = Math.atan2(b.vy, b.vx);
+            const spread = (i===0 ? 1 : -1) * (0.35 + Math.random()*0.25);
+            const angle = baseAngle + spread;
+            toAdd.push(makeBall(b.x, b.y, speed, angle));
+            toAdd[toAdd.length-1].stuck = false;
+          }
+        });
+        balls = balls.concat(toAdd);
+        break;
+      }
+    }
+  }
+
+  /* ============================= INPUT ============================= */
+  function setPaddleCenterX(clientX){
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const w = paddleWidth();
+    paddle.x = Math.min(Math.max(x - w/2, 0), W - w);
+  }
+
+  wrap.addEventListener('touchstart', (e) => {
+    if (state === 'start' || state === 'gameover' || state === 'win' || state === 'pause' || state === 'levelcomplete') return;
+    e.preventDefault();
+    pointerActive = true;
+    const t = e.changedTouches[0];
+    setPaddleCenterX(t.clientX);
+    if (state === 'serve') launchBall();
+    else if (state === 'playing') tryFireLaser();
+  }, { passive:false });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (state !== 'playing' && state !== 'serve') return;
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    setPaddleCenterX(t.clientX);
+  }, { passive:false });
+
+  wrap.addEventListener('touchend', (e) => { pointerActive = false; }, { passive:true });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (state !== 'playing' && state !== 'serve') return;
+    setPaddleCenterX(e.clientX);
+  });
+
+  canvas.addEventListener('mousedown', (e) => {
+    if (state === 'serve') launchBall();
+    else if (state === 'playing') tryFireLaser();
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+    if (e.code === 'Space'){
+      e.preventDefault();
+      if (state === 'serve') launchBall();
+      else if (state === 'playing') tryFireLaser();
+      else if (state === 'start') { hideAllOverlays(); startGame(); }
+    }
+    if (e.code === 'KeyP'){ togglePause(); }
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+  });
+
+  fireBtn.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); tryFireLaser(); }, {passive:false});
+  fireBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); tryFireLaser(); });
+
+  function tryFireLaser(){
+    const now = performance.now();
+    if (now >= paddle.laserUntil) return;
+    if (now - lastLaserFire < LASER_COOLDOWN) return;
+    lastLaserFire = now;
+    const w = paddleWidth();
+    const lw = Math.max(3, W*0.008), lh = Math.max(14, H*0.02);
+    lasers.push({ x: paddle.x + w*0.18 - lw/2, y: paddle.y - lh, w: lw, h: lh, vy: -520 });
+    lasers.push({ x: paddle.x + w*0.82 - lw/2, y: paddle.y - lh, w: lw, h: lh, vy: -520 });
+  }
+
+  /* ============================= BUTTONS ============================= */
+  document.getElementById('btn-start').addEventListener('click', () => { hideAllOverlays(); startGame(); });
+  document.getElementById('btn-resume').addEventListener('click', togglePause);
+  document.getElementById('btn-restart-from-pause').addEventListener('click', () => { hideAllOverlays(); startGame(); });
+  document.getElementById('btn-next-level').addEventListener('click', nextLevel);
+  document.getElementById('btn-retry').addEventListener('click', () => { hideAllOverlays(); startGame(); });
+  document.getElementById('btn-play-again').addEventListener('click', () => { hideAllOverlays(); startGame(); });
+  pauseBtn.addEventListener('click', togglePause);
+
+  let stateBeforePause = 'playing';
+  function togglePause(){
+    if (state === 'paused'){
+      state = stateBeforePause;
+      hideAllOverlays();
+    } else if (state === 'playing' || state === 'serve'){
+      stateBeforePause = state;
+      state = 'paused';
+      showOverlay('pause');
+    }
+  }
+
+  /* ============================= COLLISION HELPERS ============================= */
+  function circleRectCollide(cx, cy, r, rx, ry, rw, rh){
+    const nx = Math.max(rx, Math.min(cx, rx+rw));
+    const ny = Math.max(ry, Math.min(cy, ry+rh));
+    const dx = cx - nx, dy = cy - ny;
+    return (dx*dx + dy*dy) <= r*r;
+  }
+
+  function breakBlock(b){
+    b.alive = false;
+    score += 10;
+    spawnParticles(b.x + b.w/2, b.y + b.h/2, COLORS[b.maxHits] || '#fff');
+    maybeDropPowerup(b.x + b.w/2, b.y + b.h/2);
+  }
+
+  function spawnParticles(x, y, color){
+    for (let i=0;i<8;i++){
+      const a = Math.random()*Math.PI*2;
+      const sp = 60 + Math.random()*120;
+      particles.push({
+        x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        life: 1, color,
+        size: 2 + Math.random()*2.5,
+      });
+    }
+  }
+
+  /* ============================= UPDATE ============================= */
+  let lastTs = null;
+  function update(dt){
+    const now = performance.now();
+
+    // paddle movement (keyboard)
+    const keySpeed = W * 1.1;
+    if (keys.left) paddle.x -= keySpeed * dt;
+    if (keys.right) paddle.x += keySpeed * dt;
+    const pw = paddleWidth();
+    paddle.x = Math.min(Math.max(paddle.x, 0), W - pw);
+
+    // balls stuck to paddle follow it
+    balls.forEach(b => {
+      if (b.stuck){
+        b.x = paddle.x + pw/2;
+        b.y = paddle.y - b.r - 1;
+      }
+    });
+
+    if (state === 'playing'){
+      const speedMult = now < slowUntil ? SLOW_MULT : 1;
+
+      for (let i = balls.length - 1; i >= 0; i--){
+        const b = balls[i];
+        if (b.stuck) continue;
+
+        const mag = Math.hypot(b.vx, b.vy) || b.speed;
+        const targetSpeed = b.speed * speedMult;
+        const scale = targetSpeed / mag;
+        let vx = b.vx * scale, vy = b.vy * scale;
+
+        b.x += vx * dt;
+        b.y += vy * dt;
+
+        // wall collisions
+        if (b.x - b.r < 0){ b.x = b.r; vx = Math.abs(vx); }
+        if (b.x + b.r > W){ b.x = W - b.r; vx = -Math.abs(vx); }
+        if (b.y - b.r < 0){ b.y = b.r; vy = Math.abs(vy); }
+
+        // paddle collision
+        if (vy > 0 && circleRectCollide(b.x, b.y, b.r, paddle.x, paddle.y, pw, paddle.h)){
+          b.y = paddle.y - b.r;
+          const hitPos = (b.x - (paddle.x + pw/2)) / (pw/2); // -1..1
+          const maxAngle = Math.PI * 0.42;
+          const angle = -Math.PI/2 + hitPos * maxAngle;
+          const sp = Math.hypot(vx,vy);
+          vx = Math.cos(angle) * sp;
+          vy = Math.sin(angle) * sp;
+        }
+
+        // block collisions - test nearest block only per frame for stability
+        for (let j = 0; j < blocks.length; j++){
+          const bl = blocks[j];
+          if (!bl.alive) continue;
+          if (circleRectCollide(b.x, b.y, b.r, bl.x, bl.y, bl.w, bl.h)){
+            const overlapLeft = (b.x + b.r) - bl.x;
+            const overlapRight = (bl.x + bl.w) - (b.x - b.r);
+            const overlapTop = (b.y + b.r) - bl.y;
+            const overlapBottom = (bl.y + bl.h) - (b.y - b.r);
+            const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+            if (minOverlap === overlapLeft || minOverlap === overlapRight){
+              vx = -vx;
+            } else {
+              vy = -vy;
+            }
+            bl.hits -= 1;
+            if (bl.hits <= 0){
+              breakBlock(bl);
+            }
+            break;
+          }
+        }
+
+        b.vx = vx; b.vy = vy;
+
+        if (b.y - b.r > H){
+          balls.splice(i, 1);
+        }
+      }
+
+      if (balls.length === 0){
+        loseLife();
+      }
+
+      // check win condition
+      if (state === 'playing' && blocks.every(bl => !bl.alive)){
+        levelComplete();
+      }
+
+      // lasers
+      for (let i = lasers.length - 1; i >= 0; i--){
+        const l = lasers[i];
+        l.y += l.vy * dt;
+        let hit = false;
+        for (let j=0;j<blocks.length;j++){
+          const bl = blocks[j];
+          if (!bl.alive) continue;
+          if (l.x < bl.x+bl.w && l.x+l.w > bl.x && l.y < bl.y+bl.h && l.y+l.h > bl.y){
+            bl.hits -= 1;
+            if (bl.hits <= 0) breakBlock(bl);
+            hit = true;
+            break;
+          }
+        }
+        if (hit || l.y + l.h < 0) lasers.splice(i,1);
+      }
+      if (state === 'playing' && blocks.length && blocks.every(bl => !bl.alive)){
+        levelComplete();
+      }
+
+      // powerups falling
+      for (let i = powerups.length - 1; i >= 0; i--){
+        const p = powerups[i];
+        p.y += p.vy * dt;
+        if (circleRectCollide(p.x+p.w/2, p.y+p.h/2, Math.max(p.w,p.h)/2, paddle.x, paddle.y, pw, paddle.h)){
+          activatePowerup(p.type);
+          powerups.splice(i,1);
+          continue;
+        }
+        if (p.y > H) powerups.splice(i,1);
+      }
+    }
+
+    // particles always animate (even during pause overlay transitions look nicer continuing briefly)
+    for (let i = particles.length - 1; i >= 0; i--){
+      const pt = particles[i];
+      pt.x += pt.vx * dt;
+      pt.y += pt.vy * dt;
+      pt.vy += 260 * dt;
+      pt.life -= dt * 1.6;
+      if (pt.life <= 0) particles.splice(i,1);
+    }
+
+    updatePowerupBanner();
+  }
+
+  /* ============================= DRAW ============================= */
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // subtle grid backdrop
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    const step = Math.max(20, W/12);
+    for (let x=0; x<W; x+=step){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    ctx.restore();
+
+    // blocks
+    blocks.forEach(bl => {
+      if (!bl.alive) return;
+      const color = COLORS[bl.hits] || '#ffffff';
+      ctx.fillStyle = color;
+      roundRect(ctx, bl.x, bl.y, bl.w, bl.h, 4);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      roundRect(ctx, bl.x, bl.y, bl.w, bl.h*0.4, 4);
+      ctx.fill();
+      if (bl.maxHits > 1){
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.font = `${Math.max(9,bl.h*0.5)}px Inter, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(bl.hits, bl.x + bl.w/2, bl.y + bl.h/2 + 1);
+      }
+    });
+
+    // particles
+    particles.forEach(pt => {
+      ctx.globalAlpha = Math.max(0, pt.life);
+      ctx.fillStyle = pt.color;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    // powerups
+    powerups.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x + p.w/2, p.y + p.h/2);
+      ctx.fillStyle = p.type.color;
+      ctx.beginPath();
+      ctx.arc(0,0, p.w/2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#06121a';
+      ctx.font = `800 ${p.w*0.55}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.type.icon, 0, 1);
+      ctx.restore();
+    });
+
+    // paddle
+    const pw = paddleWidth();
+    const now = performance.now();
+    const paddleColor = now < paddle.laserUntil ? '#ffd23f' : (now < paddle.wideUntil ? '#35e6ff' : '#e7edf7');
+    ctx.fillStyle = paddleColor;
+    roundRect(ctx, paddle.x, paddle.y, pw, paddle.h, paddle.h/2);
+    ctx.fill();
+    ctx.shadowColor = paddleColor;
+    ctx.shadowBlur = 14;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // lasers
+    ctx.fillStyle = '#ffd23f';
+    lasers.forEach(l => {
+      ctx.fillRect(l.x, l.y, l.w, l.h);
+    });
+
+    // balls
+    balls.forEach(b => {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(53,230,255,0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    r = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  /* ============================= LOOP ============================= */
+  function frame(ts){
+    if (lastTs == null) lastTs = ts;
+    let dt = (ts - lastTs) / 1000;
+    dt = Math.min(dt, 1/30); // clamp big jumps (tab switch, etc.)
+    lastTs = ts;
+
+    if (state !== 'paused' && state !== 'start' && state !== 'gameover' && state !== 'win'){
+      update(dt);
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  /* ============================= INIT ============================= */
+  function init(){
+    resizeCanvas();
+    paddle = makePaddle();
+    balls = [ makeBall(W/2, paddle.y - 10, currentBallSpeed()) ];
+    blocks = [];
+    updateHUD();
+    showOverlay('start');
+    state = 'start';
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(resizeCanvas, 200);
+  });
+
+  init();
+
+})();
+</script>
+</body>
+</html>
