@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Hours Near Me</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--text:#1a1a1f;--muted:#6b6b76;--line:#e6e4de;--accent:#e8590c;--live:#12a150;--shadow:0 1px 3px rgba(0,0,0,.08);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e12;--card:#18181f;--text:#f2f2f5;--muted:#9a9aa8;--line:#2a2a34;--accent:#ff8a3d;--live:#3ddc84;--shadow:none}}
+:root[data-theme="dark"]{--bg:#0e0e12;--card:#18181f;--text:#f2f2f5;--muted:#9a9aa8;--line:#2a2a34;--accent:#ff8a3d;--live:#3ddc84;--shadow:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:28px;margin:8px 0 2px;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0 0 24px;font-size:14px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 10px;display:flex;align-items:center;gap:8px}
+h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 4px color-mix(in srgb,var(--live) 25%,transparent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s,border-color .12s;display:block;width:100%;text-align:left;color:inherit;font:inherit}
+.card:hover{border-color:var(--accent)}.card:active{transform:scale(.99)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.name{font-weight:650;font-size:17px}
+.time{color:var(--accent);font-weight:600;font-size:14px;white-space:nowrap}
+.meta{color:var(--muted);font-size:13px;margin-top:2px}
+.deals{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);border-radius:999px;padding:3px 10px;font-size:13px}
+.left{color:var(--live);font-size:13px;font-weight:600;margin-top:6px}
+.empty{color:var(--muted);font-size:14px;padding:6px 2px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.overlay.open{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:88%;overflow-y:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+@media (min-width:600px){.overlay{align-items:center}.sheet{border-radius:22px;max-height:85%}}
+.close{float:right;border:0;background:var(--card);color:var(--text);width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer;border:1px solid var(--line)}
+.sheet h3{margin:0;font-size:24px;letter-spacing:-.01em}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.links a{background:var(--card);border:1px solid var(--line);color:var(--text);text-decoration:none;padding:8px 12px;border-radius:10px;font-size:14px}
+.links a:hover{border-color:var(--accent)}
+.hh{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px}
+.hh.live{border-color:var(--live)}
+.tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:6px;padding:2px 7px;margin-left:6px;color:#fff;background:var(--live)}
+.tag.t{background:var(--accent)}
+.hh ul{margin:8px 0 0;padding-left:18px}
+.note{color:var(--muted);font-size:13px;margin-top:6px;font-style:italic}
+</style>
+</head>
+<body>
+<main>
+  <h1>🍻 Happy Hours</h1>
+  <p class="sub" id="clock"></p>
+  <div id="app"></div>
+</main>
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+
+<script>
+/* =====================================================================
+   ADD / REMOVE PLACES HERE
+   Copy a {...} block, paste it in the list, edit it. Delete a block to remove.
+   days:  use ALL, WEEKDAYS, WEEKEND or a list like [MON, WED, FRI]
+   start/end: 24-hour "HH:MM". End past midnight (e.g. "23:00" to "01:00") works.
+   deals: short lines shown as chips and in the details.
+   note:  optional extra info per happy hour.
+   ===================================================================== */
+const SUN=0,MON=1,TUE=2,WED=3,THU=4,FRI=5,SAT=6;
+const ALL=[0,1,2,3,4,5,6], WEEKDAYS=[1,2,3,4,5], WEEKEND=[0,6];
+
+const PLACES = [
+  {
+    name: "The Copper Tap", type: "Pub",
+    address: "123 Main St, Springfield", phone: "(555) 010-1234", website: "https://example.com/copper-tap",
+    happyHours: [
+      { days: WEEKDAYS, start: "12:00", end: "15:00", deals: ["$6 pints", "$4 well drinks"], note: "Bar seating only." },
+      { days: WEEKDAYS, start: "19:00", end: "21:00", deals: ["$6 pints", "$8 wings"] },
+      { days: [SUN], start: "14:00", end: "18:00", deals: ["$5 drafts", "Half-price nachos"], note: "Sunday only." }
+    ]
+  },
+  {
+    name: "Luna Cantina", type: "Mexican restaurant",
+    address: "48 Harbor Ave, Springfield", phone: "(555) 010-5678", website: "https://example.com/luna-cantina",
+    happyHours: [
+      { days: [MON,TUE,WED,THU,FRI], start: "16:00", end: "18:30", deals: ["$7 margaritas", "$3 tacos", "$5 chips & queso"] },
+      { days: [TUE], start: "18:30", end: "22:00", deals: ["$2 tacos", "$5 Mexican lagers"], note: "Taco Tuesday special." }
+    ]
+  },
+  {
+    name: "Hopscotch Brewing", type: "Brewery",
+    address: "900 Mill Rd, Springfield", phone: "(555) 010-9012", website: "https://example.com/hopscotch",
+    happyHours: [
+      { days: [WED,THU,FRI], start: "15:00", end: "18:00", deals: ["$1 off all pours", "$5 pretzel bites"] },
+      { days: WEEKEND, start: "12:00", end: "14:00", deals: ["$5 flights", "Free pint glass with growler fill"] }
+    ]
+  },
+  {
+    name: "Velvet Room", type: "Cocktail bar",
+    address: "77 Grand Blvd, Springfield", phone: "(555) 010-3456", website: "https://example.com/velvet-room",
+    happyHours: [
+      { days: ALL, start: "17:00", end: "19:00", deals: ["$9 signature cocktails", "$6 wine by the glass"] },
+      { days: [FRI,SAT], start: "23:00", end: "01:00", deals: ["$8 late-night martinis", "$5 shots"], note: "Runs past midnight." }
+    ]
+  },
+  {
+    name: "Saltwater Oyster House", type: "Seafood restaurant",
+    address: "5 Wharf St, Springfield", phone: "(555) 010-7890", website: "https://example.com/saltwater",
+    happyHours: [
+      { days: WEEKDAYS, start: "15:30", end: "18:00", deals: ["$2 oysters", "$6 house white", "$10 fish & chips"] }
+    ]
+  }
+];
+/* ===================== END OF EDITABLE DATA ====================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const at = (d, hm) => { const [h,m] = hm.split(":").map(Number); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m); };
+const fmt = d => d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+const fmtHM = hm => fmt(at(new Date(), hm));
+const same = (a,b) => a.length===b.length && b.every(x => a.includes(x));
+function daysLabel(days){
+  if (same(days,ALL)) return "Every day";
+  if (same(days,WEEKDAYS)) return "Mon–Fri";
+  if (same(days,WEEKEND)) return "Sat–Sun";
+  return [...days].sort().map(d => DN[d]).join(", ");
+}
+function occurrences(now){
+  const out = [];
+  PLACES.forEach((p,pi) => p.happyHours.forEach((hh,hi) => {
+    [-1,0,1].forEach(off => {
+      const day = new Date(now.getFullYear(), now.getMonth(), now.getDate()+off);
+      if (!hh.days.includes(day.getDay())) return;
+      const s = at(day, hh.start); let e = at(day, hh.end);
+      if (e <= s) e.setDate(e.getDate()+1);
+      out.push({p, pi, hh, hi, s, e, off});
+    });
+  }));
+  return out;
+}
+function timeLeft(ms){
+  const m = Math.max(1, Math.round(ms/60000));
+  return m >= 60 ? `${Math.floor(m/60)}h ${m%60}m` : `${m}m`;
+}
+function card(o, now, live){
+  const chips = o.hh.deals.slice(0,3).map(d => `<span class="chip">${esc(d)}</span>`).join("");
+  return `<button class="card" data-p="${o.pi}">
+    <div class="row"><span class="name">${esc(o.p.name)}</span><span class="time">${fmt(o.s)} – ${fmt(o.e)}</span></div>
+    <div class="meta">${esc(o.p.type)}</div>
+    <div class="deals">${chips}</div>
+    ${live ? `<div class="left">Ends in ${timeLeft(o.e-now)}</div>` : ""}
+  </button>`;
+}
+function section(title, list, now, live, emptyMsg){
+  return `<h2>${live?'<span class="dot"></span>':""}${title}</h2>` +
+    (list.length ? list.map(o => card(o, now, live)).join("") : `<div class="empty">${emptyMsg}</div>`);
+}
+function render(){
+  const now = new Date();
+  const all = occurrences(now);
+  const live = all.filter(o => o.s <= now && now < o.e).sort((a,b) => a.e-b.e);
+  const later = all.filter(o => o.off===0 && o.s > now).sort((a,b) => a.s-b.s);
+  const tmrw = all.filter(o => o.off===1).sort((a,b) => a.s-b.s);
+  $("#clock").textContent = now.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"}) + " · " + fmt(now);
+  $("#app").innerHTML =
+    section("Happening now", live, now, true, "No happy hours right now. Check what's coming up below.") +
+    section("Later today", later, now, false, "Nothing else today.") +
+    section("Tomorrow · " + DN[(now.getDay()+1)%7], tmrw, now, false, "No happy hours listed for tomorrow.");
+}
+function openDetails(pi){
+  const p = PLACES[pi], now = new Date();
+  const occ = occurrences(now).filter(o => o.pi===pi);
+  const rows = p.happyHours.map((hh,hi) => {
+    const mine = occ.filter(o => o.hi===hi);
+    const live = mine.some(o => o.s <= now && now < o.e);
+    const today = !live && mine.some(o => o.off===0 && o.s > now);
+    return {hh, live, today, rank: live?0:today?1:2};
+  }).sort((a,b) => a.rank-b.rank);
+  const links = [
+    p.website && `<a href="${esc(p.website)}" target="_blank" rel="noopener">🌐 Website</a>`,
+    p.address && `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+p.address)}" target="_blank" rel="noopener">📍 ${esc(p.address)}</a>`,
+    p.phone && `<a href="tel:${esc(p.phone.replace(/[^\d+]/g,""))}">📞 ${esc(p.phone)}</a>`
+  ].filter(Boolean).join("");
+  $("#sheet").innerHTML = `<button class="close" aria-label="Close" onclick="closeSheet()">×</button>
+    <h3>${esc(p.name)}</h3><div class="meta">${esc(p.type)}</div>
+    <div class="links">${links}</div>
+    <h2 style="margin-top:20px">All happy hours</h2>` +
+    rows.map(r => `<div class="hh ${r.live?"live":""}">
+      <div class="row"><strong>${daysLabel(r.hh.days)}</strong><span class="time">${fmtHM(r.hh.start)} – ${fmtHM(r.hh.end)}</span></div>
+      ${r.live?'<span class="tag">Now</span>':r.today?'<span class="tag t">Later today</span>':""}
+      <ul>${r.hh.deals.map(d => `<li>${esc(d)}</li>`).join("")}</ul>
+      ${r.hh.note ? `<div class="note">${esc(r.hh.note)}</div>` : ""}
+    </div>`).join("");
+  $("#overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeSheet(){ $("#overlay").classList.remove("open"); document.body.style.overflow = ""; }
+$("#app").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openDetails(+c.dataset.p); });
+$("#overlay").addEventListener("click", e => { if (e.target.id==="overlay") closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key==="Escape") closeSheet(); });
+render();
+setInterval(render, 30000);
+</script>
+</body>
+</html>
