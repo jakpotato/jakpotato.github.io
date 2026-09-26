@@ -66,43 +66,27 @@ const ALL=[0,1,2,3,4,5,6], WEEKDAYS=[1,2,3,4,5], WEEKEND=[0,6];
 
 const PLACES = [
   {
-    name: "The Copper Tap", type: "Pub",
-    address: "123 Main St, Springfield", phone: "(555) 010-1234", website: "https://example.com/copper-tap",
+    name: "Mr Mikes", type: "Bar & Restaurant",
+    website: "https://mrmikes.ca",
     happyHours: [
-      { days: WEEKDAYS, start: "12:00", end: "15:00", deals: ["$6 pints", "$4 well drinks"], note: "Bar seating only." },
-      { days: WEEKDAYS, start: "19:00", end: "21:00", deals: ["$6 pints", "$8 wings"] },
-      { days: [SUN], start: "14:00", end: "18:00", deals: ["$5 drafts", "Half-price nachos"], note: "Sunday only." }
+      { days: ALL, start: "14:00", end: "17:00", deals: ["$7 draft"] },
+      { days: ALL, start: "21:00", end: "22:00", deals: ["$7 draft"] },
     ]
   },
   {
-    name: "Luna Cantina", type: "Mexican restaurant",
-    address: "48 Harbor Ave, Springfield", phone: "(555) 010-5678", website: "https://example.com/luna-cantina",
+    name: "The Canadian Brewhouse", type: "Bar & Restaurant",
+    // address: "48 Harbor Ave, Springfield", phone: "(555) 010-5678", 
+    website: "https://thecanadianbrewhouse.com",
     happyHours: [
-      { days: [MON,TUE,WED,THU,FRI], start: "16:00", end: "18:30", deals: ["$7 margaritas", "$3 tacos", "$5 chips & queso"] },
-      { days: [TUE], start: "18:30", end: "22:00", deals: ["$2 tacos", "$5 Mexican lagers"], note: "Taco Tuesday special." }
+      { days: [ALL], start: "14:00", end: "18:00", deals: ["$3.99 starting price for happy hour menu"] },
+      { days: [TUE], start: "21:00", end: "23:00", deals: ["$3.99 starting price for happy hour menu"] }
     ]
   },
   {
-    name: "Hopscotch Brewing", type: "Brewery",
-    address: "900 Mill Rd, Springfield", phone: "(555) 010-9012", website: "https://example.com/hopscotch",
+    name: "Crwon & Anchor", type: "Pub",
+    website: "https://crownandanchorgp.ca/",
     happyHours: [
-      { days: [WED,THU,FRI], start: "15:00", end: "18:00", deals: ["$1 off all pours", "$5 pretzel bites"] },
-      { days: WEEKEND, start: "12:00", end: "14:00", deals: ["$5 flights", "Free pint glass with growler fill"] }
-    ]
-  },
-  {
-    name: "Velvet Room", type: "Cocktail bar",
-    address: "77 Grand Blvd, Springfield", phone: "(555) 010-3456", website: "https://example.com/velvet-room",
-    happyHours: [
-      { days: ALL, start: "17:00", end: "19:00", deals: ["$9 signature cocktails", "$6 wine by the glass"] },
-      { days: [FRI,SAT], start: "23:00", end: "01:00", deals: ["$8 late-night martinis", "$5 shots"], note: "Runs past midnight." }
-    ]
-  },
-  {
-    name: "Saltwater Oyster House", type: "Seafood restaurant",
-    address: "5 Wharf St, Springfield", phone: "(555) 010-7890", website: "https://example.com/saltwater",
-    happyHours: [
-      { days: WEEKDAYS, start: "15:30", end: "18:00", deals: ["$2 oysters", "$6 house white", "$10 fish & chips"] }
+      { days: [ALL], start: "10:00", end: "18:00", deals: ["$2 off all beers", "$2 off all highballs",  "$2 off glasses of wine"] },
     ]
   }
 ];
@@ -174,8 +158,9 @@ function openDetails(pi){
   }).sort((a,b) => a.rank-b.rank);
   const links = [
     p.website && `<a href="${esc(p.website)}" target="_blank" rel="noopener">🌐 Website</a>`,
-    p.address && `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+p.address)}" target="_blank" rel="noopener">📍 ${esc(p.address)}</a>`,
-    p.phone && `<a href="tel:${esc(p.phone.replace(/[^\d+]/g,""))}">📞 ${esc(p.phone)}</a>`
+    //comment back in if needed
+    // p.address && `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+p.address)}" target="_blank" rel="noopener">📍 ${esc(p.address)}</a>`,
+    // p.phone && `<a href="tel:${esc(p.phone.replace(/[^\d+]/g,""))}">📞 ${esc(p.phone)}</a>`
   ].filter(Boolean).join("");
   $("#sheet").innerHTML = `<button class="close" aria-label="Close" onclick="closeSheet()">×</button>
     <h3>${esc(p.name)}</h3><div class="meta">${esc(p.type)}</div>
