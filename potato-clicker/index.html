@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Spud Farm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="game">
+  <section class="farm">
+    <header class="stats">
+      <h1>Spud Farm</h1>
+      <div class="count"><span id="count">0</span> <small>potatoes</small></div>
+      <div class="rates"><span id="pps">0 per second</span><span id="ppc">1 per tap</span></div>
+    </header>
+    <div id="field" class="field" role="button" aria-label="Tap the field to dig up potatoes" tabindex="0">
+      <p class="hint" id="hint">Tap the field to dig!</p>
+    </div>
+    <footer class="foot"><button id="reset" class="link">Reset game</button></footer>
+  </section>
+  <aside class="shop">
+    <h2>Seed shed</h2>
+    <div id="upgrades" class="upgrades"></div>
+    <h2>Farm crew</h2>
+    <div id="buildings" class="buildings"></div>
+  </aside>
+</main>
+<div id="win" class="overlay" hidden>
+  <div class="modal">
+    <div class="trophy">🏆</div>
+    <h2>Potato tycoon!</h2>
+    <p>You've dug up <b>1 trillion</b> potatoes. The whole county is spud-powered.</p>
+    <button id="keep">Keep farming</button>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
