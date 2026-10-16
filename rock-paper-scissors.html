@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Rock Paper Scissors Game</title>
+	<style>
+		body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			font-family: Arial, sans-serif;
+			background-color: #f0f0f0;
+		}
+
+		h1 {
+			margin-bottom: 20px;
+			font-size: 3rem;
+			color: #333;
+		}
+
+		.choices {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-around;
+			width: 80%;
+			max-width: 600px;
+			margin-bottom: 20px;
+		}
+
+		.choice {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			background-color: #fff;
+			cursor: pointer;
+			transition: transform 0.3s ease-in-out;
+		}
+
+		.choice:hover {
+			transform: scale(1.1);
+		}
+
+		.choice img {
+			width: 100px;
+			height: 100px;
+			margin-bottom: 10px;
+		}
+
+		.result {
+			display: none;
+			font-size: 2rem;
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		.streak {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			font-size: 1.5rem;
+			color: #333;
+		}
+	</style>
+</head>
+<body>
+	<div class="streak">Win Streak: <span id="win-streak">0</span></div>
+	<h1>Rock Paper Scissors Game</h1>
+	<div class="choices">
+		<div class="choice" onclick="play('rock')">
+			<img src="https://via.placeholder.com/150?text=Rock" alt="Rock">
+			Rock
+		</div>
+		<div class="choice" onclick="play('paper')">
+			<img src="https://via.placeholder.com/150?text=Paper" alt="Paper">
+			Paper
+		</div>
+		<div class="choice" onclick="play('scissors')">
+			<img src="https://via.placeholder.com/150?text=Scissors" alt="Scissors">
+			Scissors
+		</div>
+	</div>
+	<div id="result" class="result"></div>
+
+	<script>
+		let winStreak = 0;
+
+		function play(userChoice) {
+			const choices = ['rock', 'paper', 'scissors'];
+			const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+			document.getElementById('win-streak').innerText = winStreak;
+			document.getElementById('result').style.display = 'none';
+
+			countdown(3, () => {
+				let resultText = '';
+				if (userChoice === computerChoice) {
+					resultText = "It's a tie!";
+				} else if (
+					(userChoice === 'rock' && computerChoice === 'scissors') ||
+					(userChoice === 'paper' && computerChoice === 'rock') ||
+					(userChoice === 'scissors' && computerChoice === 'paper')
+				) {
+					resultText = "You win!";
+					winStreak++;
+				} else {
+					resultText = "Computer wins!";
+					winStreak = 0;
+				}
+				document.getElementById('result').innerText = resultText;
+				document.getElementById('result').style.display = 'block';
+			});
+		}
+
+		function countdown(time, callback) {
+			const interval = setInterval(() => {
+				time--;
+				if (time <= 0) {
+					clearInterval(interval);
+					callback();
+				}
+			}, 1000);
+		}
+	</script>
+</body>
+</html>
